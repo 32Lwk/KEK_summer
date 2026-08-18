@@ -1,0 +1,2906 @@
+PHITS Bundle for NotebookLM
+ROOT: D:/NEAgit/recommendation
+FORMAT: INDEX first, then full inputs.
+MAX_INPUT_FILE_SIZE_BYTES: 1048576
+MAX_KEYWORDS_PER_FILE: 12
+KEYWORDS: section names excluding [title], [parameters], [cell], [surface], [material], [source], [end]
+PURPOSE priority: [ Title ] -> top comments -> folder:filename
+EXCLUDE: *.out-like files, *.eps files are ignored
+
+[GLOBAL_DESCRIPTION]
+NOTE: This section includes BOTH English and Japanese README texts (if available).
+
+[GLOBAL_DESCRIPTION_EN]
+FILE: Readme-eng.docx
+BEGIN_DESCRIPTION
+Recommendations of Parameter Setting in PHITS Input Files
+Followings are the examples of PHITS input files with recommended parameter setting for each simulation. Each file is contained in its folder, together with its output files.
+List
+BNCT:　Recommended setting for boron neutron capture therapy
+CosmicRay:　Recommended setting for cosmic-ray transport analysis
+DCHAIN: Recommended setting for using [t-chain]
+DetectorResponse: Recommended setting for detector response calculation
+Fusion: Recommended setting for fusion facility shielding
+H10multiplier: Sample setting for calculating doses using Multiplier & [t-deposit]
+Light: Example of light emission and transport ([Light] section)
+muon: Recommended setting for muon transport analysis
+NeutronSource: Sample setting for accelerator-based neutron source calculation
+NuclearReaction: Sample setting for nuclear reaction cross section calculation
+ParticleTherapy: Recommended setting for dose estimation of particle therapy
+PhotonTherapy: Recommended setting for dose estimation of X-ray therapy
+SemiConductor: Recommended setting for soft-error rate calculation
+Shielding: Recommended setting for shielding calculation
+TrackStructure: Recommended setting for track structure mode
+XrayDiagnostic: Recommended setting for dose estimation of X-ray diagnostic
+Update information
+2026/7/3: Revised all input files to use predefined materials as much as possible. Also moved counter.inp to sample/misc.
+2026/3/23 “light” is added.
+2025/10/30 NuclearReaction.inp has been simplified and modified to use [forced collision]. The previous version has been moved to sample/misc/DDX_calculation.
+2025/3/11 In “BNCT”, [t-deposit] with mother parameter is adopted for calculating the BNCT four dose components, instead of [t-track] with multiplier.
+2022/12/16 In “cosmic-ray” and “muon”, a new option negs = 2 was introduced to transport high-energy electrons, positrons, and photons.
+2022/3/10 In shielding and NeutronSource, JENDL-4.0/HE is adopted to simulate proton- and neutron-induced reactions up to 200 MeV. Consequently, jendlHE folder is deleted.
+2021/3/22 We added a new sample setting for accelerator-based neutron source calculation (NeutronSource).
+2019/10/30 Definition of file(1)=c:/phits was removed from all input files because file(1) is automatically read from the environmental variable PHITSPATH, which is automatically set by the PHITS installer.
+2019/6/9 We added a new recommendation setting for medical physics simulation of boron neutron capture therapy (BNCT).
+2019/3/14 We added a new recommendation setting to use a high-energy nuclear data library JENDL-4.0/HE.
+2018/3/7 From ver. 3.05, a function to calculate the deposition energy using Kerma approximation, which used to be implemented only in [t-heat], became available in [t-deposit]. Then, we recommend to use [t-deposit] instead of [t-heat] in all situations of deposition energy calculations, and deleted/replaced [t-heat] tallies in h10multiplier.inp and XrayDiagnostic.inp.
+2018/2/16 Trackstructure.inp was revised to calculate the probability density of ionizations and electronic excitations in certain regions by adding a new tally [t-interact].
+2018/1/30 From ver. 3.03, the dose calculation method using predefined [multiplier] sections became available. “H10multiplier” was revised so as to use the new method. It was also revised to consider [weight window] with mesh = xyz, which became also available from ver. 3.03.
+2017/8/4 We added a new recommendation setting for cosmic-ray simulation. [magnetic field] was introduced in “Counter” setting. [importance] was introduced in “Shielding” setting.
+2016/6/10 From version 2.93, “file(1)” is introduced to specify PHITS installation folder name. When you properly set this parameter, you do not have to specify the name of other input files i.e. “file(7, 20, 21, 24, and 25)” unless you have changed the folder structure of PHITS. In addition, “emin” and “dmax” generally need not to be specified after this version, owing to the introduction of “nucdata” as well as the change of the default value of “negs”. Thus, [parameters] sections for all input files are revised.
+2016/6/9　We added a new recommendation setting for track-structure simulation.
+2016/12/16 We added a new recommendation setting for medical physics particularly for X-ray diagnostic.
+2016/08/18 Owing to the implementation of “natural” parameter, the definition of elements in [material] section were revised.
+2015/09/02 EGS5 is not used in neutron and photon transport simulations, i.e. shielding.inp, h10multiplier.inp, and fusion.inp
+2015/3/12 We added a new recommendation setting for muon transport.
+2015/3/10 In version 2.76, we introduce ascat1 and ascat2 parameters to adjust the magnitude of angular straggling calculated by Lynch’s equation (nspred = 2). Consequently, we recommend to use nspred = 2 in ParticleTherapy.inp. In addition, letmat for each tally is changed to -5, where negative letmat indicates that dE/dx of electron is automatically estimated from the databased developed based on the SRIM calculation for 1 g/cm3 water.
+2015/1/29 In version 2.74, we recommend to use EGS5 (negs = 1) instead of the PHITS original algorithm for transporting electrons, positrons and photons for all recommendation settings. Consequently, you need to specify fil(20) parameter. On the other hand, you do not have to specify “file(14)” parameter after version 2.74, because the gamma de-excitation data contained in “trxcrd.dat” was incorporated in the source files of PHITS.
+2014/9/26　Event generator mode version 2 is recommended (e-mode = 2) to be used for event-generator calculation.
+2014/8/29　In version 2.70, we incorporated the photon, electron and positron transport algorithm of EGS5, and you can use EGS5 by setting negs = 1 as shown in PHITS-EGS5.inp. The function to consider the detector resolution was implemented in [t-deposit] tally, as shown in DetectorResponse.inp. We added a new recommendation setting for nuclear fusion reactor calculation.
+2013/8/21 In version 2.60, we improved the algorithm for de-excitation of nucleus after the evaporation process by implementing EBITEM (ENSDF-Based Isomeric Transition and isomEr production Model). In reply to this improvement, “igamma” parameter in several recommendation settings was changed.
+2012/12/17 In version 2.52, we improved the photon and electron transport algorithm. Thus, emin(12) and emin(13) were set to 100 keV. You can also decrease the value down to 1 keV, but if you set such low cut-off energies, the computational time becomes very long. A sample input for [t-dchain], which is used for generating input files of DCHAIN-SP, was added.
+2012/9/24 Default values of some parameters were changed in PHITS 2.50. For example, the default model for describing nucleon-nucleus interaction was switched to INCL, and cut-off energies for deuteron, triton, He-3, alpha and nucleus were set to 1.0. Thus, some recommendation settings were revised. Please use PHITS 2.50 (or later) coupled with the latest data libraries for running these input files. Note that electron-atomic data library, which is included in PHITS package only after version 2.50, is utilized in several recommendations setting ‘emin(12)=1.0’.
+2012/8/10 We changed the recommended cut-off energy of electron and positron i.e. emin(12) and emin(13) from 1 keV to 1 MeV, since we found bug in their transport algorithm. The sample inputs for ‘SimpleGEO’ are moved to ‘Tool’ section.
+Description of each input file
+1. DetectorResponse.inp
+A sample input file for calculating the detector responses for the isotropic irradiation. The detailed descriptions of some important parameters are given below:
+e-mode in [parameters]: You have to activate the event-generator mode when you would like to obtain the event-by-event information such as the response function of a detector.
+dir in [source]: You have to set “dir = iso” instead of “dir = -all” for simulating the isotropic source using the event-generator mode. The source particle flux inside the sphere with the radius of c3 should be pi*(c3)2.
+dresol, dfano: Parameters for representing detector resolution introduced after ver. 2.70. When you set dresol=σr and dfano=F, the deposition-energy E of each event is fluctuated by following the Gaussian with standard deviation sqrt(σr 2 + FE).
+dedxfnc = 1: Consider Birk’s law using [multiplier], which expresses the response of detector as a function of LET in keV/um. c900 is assigned to specify the multiplier ID in the case of dedxfnc = 1.
+2. Shielding.inp
+A sample input file for radiation shielding calculation. The high-energy nuclear data library JENDL-4.0/HE [1] is adopted in the transport of neutrons and protons up to 200 MeV. You do not have to activate the event-generator mode, since event-by-event information is generally not requested in the shielding calculation. Radiation doses are directly calculated from the flux of neutrons and photons multiplied with the pre-installed fluence-to-effective-dose conversion coefficients for AP irradiation geometry, using “multiplier” function in the [t-track] tally. You can reduce the computational time of shielding calculation by appropriately setting [importance] or [weight window] section. See lecture/advanced/weightA & weightB in more detail. Note that JENDL-4.0/HE only for several nuclei are included in the PHITS package, and those for other nuclei can be downloaded from the JAEA website [2].
+References
+Matsuda et al. Prog. Nucl. Sci. Technol. 6, 225-229 (2019).
+https://rpg.jaea.go.jp/main/en/ACE-J40HE/index.html
+3. ParticleTherapy.inp
+A sample input file for simulating charged-particle therapy. Using this input file, you can calculate the spatial distributions of dose and dose-equivalent, and probability densities of LET and lineal energy y. The detailed descriptions of some important parameters are given below:
+e-mode in [parameters]: You have to activate the event-generator mode when you use the [t-let] or [t-sed] tallies.
+nedisp in [parameters]: In order to calculate the depth-dose distribution precisely, you have to consider the energy straggling of charged particle.
+nspred in [parameters]: In order to calculate the lateral divergence of doses from the beam axis, you have to consider the angular straggling of charged particle. For nspred = 2, you can adjust the magnitude of scattering angle by changing ascat1 and ascat2 parameters.
+dedxfnc in [t-deposit]: The [t-deposit] tallies with dedxfnc = 0 and 1 give the absorbed dose and dose equivalent, respectively, where the dose equivalent can be obtained from the absorbed dose multiplied with the Q(L) relationship defined in ICRP60.
+letmat: Negative value for letmat indicates that dE/dx of electron is automatically estimated from the databased developed based on the SRIM calculation for 1 g/cm3 water. If the material specified by letmat is not used in the [cell] section, its absolute density will be taken from the value defined in the [material] section. For example, if you define water as H 2 O 1, it will correspond to extremely heavy water. Instead, please define it as, for example, H -0.1118983441 O -0.8881016559.
+4. PhotonTherapy.inp
+A sample input file for calculating the spatial distribution of doses in xyz-mesh for photon therapy. 20 MeV electrons are irradiated into W target to generate X-rays, and dose and track-length distributions are calculated inside W target and a phantom composed of ICRU soft tissue. The detailed descriptions of some important parameters are given below:
+ipnint in [parameters]: High-energy photons can induce the giant dipole resonance, and produce neutrons. In this sample, the giant dipole resonance is considered, though the contributions of neutron to the energy deposition are generally not so large.
+5. SemiConductor.inp
+A sample input file for calculating the probability density of deposit energy in microscopic sites such as semi-conductor devices. The detailed descriptions of some important parameters are given below:
+esmin: In order to calculate the deposit energy in microscopic site, you have to decrease the “esmin” parameter, which specifies the minimum energy for range calculation in PHITS.
+e-mode: You have to activate the event-generator mode when you would like to obtain the event-by-event information such as the probability density of deposit energy.
+[ Delta Ray ]: You have to consider the production of knock-out electrons so-called “-rays” when you would like to estimate the deposit energy in microscopic sites. In this sample, the -rays with energies above 0.01 MeV generated in the target region (reg = 1) are explicitly transported in the PHITS simulation.
+6. NuclearReaction.inp
+This is a sample input file for calculating double-differential nuclear reaction cross sections (DDX). A particle of interest is irradiated onto a thin-foil target, and the resulting secondary particles are tallied with [t-product] and converted to units of mb/MeV/sr for output. To improve computational efficiency, [forced collision] is enabled. Parameters related to nuclear reactions are explicitly specified so that various reaction models can be tested.
+7. H10multiplier.inp
+There are 3 methods for calculating ‘dose’ in PHITS, and this input file was made for describing the difference of them. The followings are the description of the 3 methods.
+[t-track]: In this tally, dose is calculated from the particle fluence at a certain location multiplied with the dose conversion coefficients defined in [multiplier] section. The 3 dose conversion coefficients are used, which are H*(10) defined in this input file, and H*(10) and the effective dose for AP irradiation predefined in data/multiplier folder.
+[t-deposit]: In this tally, dose is calculated from the ionization of charged particles as well as the Kerma approximation of neutral particles. Stopping powers and Kerma factors depend on the material density, and thus, there is a gap between doses in concrete and air regions.
+8. Counter.inp
+A sample input file for using [counter] section. It calculates the event-by-event deposition energy distributions inside NaI scintillator located behind Al radiator. In the calculation, the contribution from primary particles that did not cause nuclear interaction in the Al radiator “primary.out” is separated by those from secondary particles that were generated in the radiator “secondary.out”, using [counter] section. This function is very useful for analyzing the systematic uncertainties in your experiments.
+9. dchain.inp
+A sample input file for connecting calculation between PHITS and DCHAIN-SP, using [t-dchain]. Please see readme-eng.pdf in the folder in detail.
+10. fusion.inp
+A sample input file for nuclear-fusion related calculation. Only neutrons and photons are transported. In general, nuclear-fusion facilities are very large, and the [importance] section is specified in this input file.
+11. muon.inp
+A sample input file for the muon transport calculation. In this sample, terrestrial muon fluxes at ground level are reproduced, using the cosmic-ray source mode. High-energy muons can generate a lot of high-energy photons and electrons, and thus, it is recommended to use high-energy EGS mode (negs = 2) and activate photonuclear reaction (ipnint = 1).
+12. XrayDiagnostic
+A sample input file for the use of medical physics particularly for X-ray diagnostic. Low-energy photons (approximately below 1 MeV) cannot generate secondary electrons with long ranges, and thus transport of electron and positron is not necessary to be considered in low-energy photon simulation except when extremely high spatial resolution is required such as microdosimetric simulation. The transport of neutrons is also not necessary to be considered because only high-energy photon can induce photon-nuclear reaction Thus, “nucdata” is set to 0. For calculating the absorbed dose due to low-energy photon irradiation, Kerma approximation is more suitable than directly transporting electrons. Thus, the EGS5 mode should not be activated for the calculation because the algorithm of EGS5 is not suit for Kerma approximation.
+13. TrackStructure
+A sample input file for the use of track-structure simulation. Using the track structure mode, PHITS can analyze ionization, excitation, and oscillation induced by electrons and positrons event-by-event. Currently, the cross sections only for liquid water are prepared in PHITS, and those for other materials are simply scaled based on their electron density. Track-structure simulation takes so long time that we cannot recommend to activate this mode in a conventional-scale particle transport simulation (~cm orders). The followings are the important parameters for this mode.
+etsmax, etsmin in [parameters]: Maximum and minimum energies of particles simulated by track structure mode. You can set 'etsmin = 0', but we do not recommend the setting because computational time becomes extremely long. You have to set etsmax > 1.0 keV. We recommend to set this parameter below 1 MeV, otherwise the computational time becomes extremely long.
+emin(12-13) in [parameters]: For the track structure mode, emin(12) and emin(13) should be set to 1.0e-3, and EGS5 should be activated (negs=1).
+[trackstrucutre]: In this section, you have to specify the cells where you would like to perform track-structure simulation. “mID” represents the index of the cross section database used in the track-structure simulation, and currently you can select only 0 (no track structure simulation) or 1 (track structure simulation using liquid water cross section database). We are planning to prepare the cross section databases for other materials in future.
+angel = cmum in [t-deposit]: You can change the unit of length scale from cm to μm using ANGEL parameter “cmum”. You can also change the scale unit to nm by “cmnm”, to mm by “cmmm”, to meter by “cmmt”, to km by “cmkm”.
+14. CosmicRay
+A sample input file for cosmic-ray transport simulation. In this sample, proton and iron ion fluxes of galactic cosmic-rays are reproduced, using the cosmic-ray source mode. The followings are the important parameters for this mode.
+mdbatima and maxbnk: Extremely high-energy protons and heavy ions exist in space, and such high-energy particles can produce a large number of secondary particles by successively inducing nuclear reactions. Thus, default values of “mdbatima” and “maxbnk” might be too small, which are the maximum database size of ATIMA and the maximum banking memory size for secondary particle information, respectively. Thus, they are increased in this input file.
+e-mode: The dose equivalent based on the Q(L) relationship is frequently evaluated for cosmic-ray dosimetry, and thus, the event generator mode is activated (e-mode=2).
+irqmd: The accuracy for simulating nucleus-nucleus interaction is very important for cosmic-ray transport simulation, and thus, JQMD2.0 is used instead of its original version (irqmd=1).
+iMeVperU: In general, cosmic-ray fluxes are calculated in the unit of /(MeV/u)/cm2/s, and thus, iMeVperU is set to 1.
+negs = 2: High energy cosmic-rays occasionally generate electrons, positrons and photons with energy above 1 GeV. Thus, their dmax should be extended up to 10 TeV by setting negs = 2.
+16. BNCT
+A sample input file for medical physical simulation of boron neutron capture therapy (BNCT). In this input, the absorbed doses from 4 dose components (boron, hydrogen, nitrogen and photon) are separately calculated using the Kerma approximation. More detailed instruction can be found in /phits/lecture/therapy/bnct. The followings are the important parameters used in this input file.
+e-mode and irescheck in [parameters]: Event generator mode should not be used because it is not necessary to transport secondary charged particles generated by neutrons. “irescheck” should be 1 when icntl = 17.
+c1 – c5: Mass fractions of H, C, N, O, and 10B. This sample input assumes ICRU soft tissue with 10 ppm of 10B.
+c10 – c15: Atomic density (1024 atom/g) calculated from c1 – c5. These parameters are used in multiplier subsection in [t-track]
+mset1 in [t-track]: Boron, hydrogen, and nitrogen doses can be calculated by not [t-deposit] but [t-track] with the multiplier subsection. The format of mset is
+(normalization_factor  material_ID_for_kerma_factor  -5  -6) or
+(normalization_factor  material_ID_for_kerma_factor  1  -4)
+The last two numbers “-5 -6” and “1 -4” indicate that the weighting factors should be photon and neutron kerma factors, respectively. The kerma factor is normalized to give absorbed dose in MeV when the atomic density is 1 x 1024 atom/cm3 and the flux is 1/cm2. Thus, if you would like to estimate the dose in Gy, you have to set the normalization_factor to the product of 1.602e-10 (c9) and the atomic density of the material in 1024 atom/g. Please see manual “5.24.1 Multiplier subsection” in more detail.
+[anatally]: This section is activated only when icntl = 17. RBE-weighted doses are calculated from the four dose components multiplied with their RBE or CBE factors. Please see /phits/utility/usranatal/smk_bnct in more detail.
+17. NeutronSource
+A sample input file for accelerator-based neutron source using activation cross section data. In this simulation, a 100MoO3 sample is irradiated by produced neutrons from the 9Be(d,n) reaction, and yield of 99Mo by 100Mo(n,2n)99Mo is estimated using activation cross section data. The high-energy nuclear data library JENDL-4.0/HE is adopted in the transport of not only for neutrons and protons but also deuteron [3] up to 200 MeV. The yield of 99Mo in the sample can be estimated by the multiplication of neutron energy spectra and an excitation function of activation cross sections. In the sample input, the excitation function of 100Mo(n,2n)99Mo is given as a multiplier set. PHITS calculates the neutron spectra in the sample by [t-track] tally, and then multiplies the spectra by the excitation function using multiplier. The 99Mo yield estimated by this method is output in “yield-99Mo_multiplier.out”.
+References
+[3] S. Nakayama, O. Iwamoto, Y. Watanabe, and K. Ogata, "JENDL/DEU-2020: deuteron nuclear data library for design studies of accelerator-based neutron sources", J. Nucl. Sci. Technol. 58, 805-821 (2020), DOI:10.1080/00223131.2020.1870010.
+18. Light
+A sample input file for light generation and transport. Light is produced when a particle travels faster than the speed of light in the material (Cherenkov light), when a charged particle deposits its energy in the material (scintillation light), and when light is absorbed and re-emitted. Therefore, it is recommended to specify negs and e-mode; otherwise, light emission via charged particles may be ignored.
+END_DESCRIPTION
+
+[GLOBAL_DESCRIPTION_JP]
+FILE: Readme-jpn.docx
+BEGIN_DESCRIPTION
+PHITS奨励設定ファイル
+「マニュアルを読んでも自分が必要とする計算でどのようなパラメータを設定して良いかわからない」という質問が多数ありましたので，いくつか代表的な問題に関して，その奨励設定ファイルを作成しました。各インプットファイルは，その名前を付けたフォルダの中に，そのアウトプットとともに格納されています。
+一覧
+BNCT:　ホウ素中性子捕捉療法の線量評価用の奨励設定
+CosmicRay:　宇宙線挙動解析用の奨励設定
+DCHAIN: PHITS-DCHAIN接続計算用の奨励設定
+DetectorResponse: 検出器応答関数計算用の奨励設定
+Fusion: 核融合施設の設計計算の奨励設定
+H10multiplier: Multiplierや[t-deposit]などを使った線量計算手法の例題
+light: 光の発生と輸送（[Light] セクション）の例題
+muon: ミューオン挙動解析用の奨励設定
+NeutronSource: 加速器中性子源の例題
+NuclearReaction: 核反応断面積計算の例題
+ParticleTherapy: 粒子線治療線量評価用の奨励設定
+PhotonTherapy: X線治療線量評価用の奨励設定
+SemiConductor: 半導体ソフトエラー計算用の奨励設定
+Shielding: 遮蔽計算用の奨励設定
+TrackStructure: 飛跡構造解析モードを使う場合の奨励設定
+XrayDiagnostic: 診断用X線挙動解析用の奨励設定
+更新履歴
+2026/7/3 既定物質をできるだけ使うように全ての入力ファイルを修正。また、counter.inpをsample/miscに移動
+2026/3/23 lightを追加。
+2025/10/30 nuclearreactionの入力ファイルを単純化して、[forced collision]を使うように変更しました。従来の入力ファイルはsample/misc/DDX_calculationに移動しました。
+2025/3/11 BNCTの線量４成分を[t-track]のmultiplierではなく[t-deposit]のmotherパラメータを使って計算するように変更しました。
+2022/12/16 Cosmic-ray, muonでnegs=2（高エネルギーオプション）を使うようにしました。これに伴い、dmax(12-14)の定義は削除しました。
+2022/3/10 shielding, NeutronSourceでJENDL-4.0/HEを使うようにしました。また、これに伴いjendlHEフォルダは削除しました。
+2021/3/22　加速器中性子源の例題（NeutronSource）を追加しました。
+2019/10/30 環境変数PHITSPATHからfile(1)を読み込むようにしたため，全てのインプットからfile(1)=c:/phitsの指定を削除しました。
+2019/6/9　BNCT医学物理計算用の奨励設定（BNCT）を追加しました。
+2019/3/14 Version 3.10より，一部の核種に対して高エネルギー核データライブラリJENDL-4.0/HEが使えるようになりましたので，その奨励設定(jendlHE)を追加しました。
+2018/3/7 Version 3.05より，従来は[t-heat]でしか行えなかったカーマ近似による付与エネルギー計算機能を[t-deposit]にも追加しました。この改良により，付与エネルギー計算は全て[t-deposit]で行えるようになりましたので，[t-heat]を利用していたインプット(h10multiplier, XrayDiagnostic)から[t-heat]を削除しました。
+2018/2/16 Trackstructureに[t-interact]を加えて，ある領域内に起きる電離や励起イベントの頻度分布を計算するようにしました。
+2018/1/30　内蔵の線量換算係数を使って線量計算する手法が変更されましたので，新しい手法に対応するようh10multiplierを変更しました。また，ver.3.03より導入したmesh = xyzに対する[weight window]を使うように設定しました。
+2017/8/4　宇宙線挙動解析に対する奨励設定CosmicRayを追加しました。奨励設定Counterで磁場を考慮するようにしました。奨励設定Shieldingに[importance]セクションを追加しました。
+2017/6/10 Version 2.93よりfile(1)でPHITSインストールフォルダを指定することにより，それ以外の入力ファイルfile(7,20,21,24,25)を指定する必要がなくなりました。これに合わせて全ての奨励設定を変更しました。また，nucdataパラメータの導入やnegsのデフォルト値の変更により，特殊な場合を除いてeminやdmaxを指定する必要がなくなりました。
+2017/6/9　飛跡構造解析モードに対する奨励設定TrackStrucutreを追加しました。
+2016/12/16　診断系の医学物理応用のサンプルとしてXrayDiagnosticを追加しました。カーマ近似が成立する低エネルギー光子のみの挙動解析を効率よく行うための設定になっています。
+2016/8/18 天然元素を自動展開する機能を組み込んだため，[material]セクションの指定方法を変更しました。
+2015/9/2 Fusion, H10multiplier, Shieldingなど巨大な体系の中性子・光子輸送をメインとする計算では，計算時間短縮のためEGS5を使わないようにしました（EGS5を使うと，電子まで輸送するので計算時間が掛かってしまうため）
+2015/3/12 PHITS2.76よりミューオンの核反応及び捕獲反応を模擬できるようになったため，ミューオン輸送計算用の奨励設定ファイルmuonを追加した。
+2015/3/10 particletherapyに荷電粒子の角度分散を調整するパラメータascat1とascat2を導入した。これに伴い，nspredの奨励値を1（オリジナルモデル）から2（Lynchの式）に変更した。また，水に対するLETをより正確に計算するため，各タリーのletmatパラメータを-5とした（負値の場合，電子のdE/dxはSRIMで計算した1g/cm3の水に対する値を使うようになる）。
+2015/1/29 電子・光子の輸送計算にEGS5を使うことを奨励するようにした（negs=1パラメータの導入）。これに伴い，file(20)の指定が必要となりました。また，γ脱励起に関するデータベース”trxcrd.dat”をソースファイルに組み込みましたので，file(14)の指定が不要となりました。
+2014/9/26 イベントジェネレータモードを使う場合の奨励設定値を2とした(e-mode=1からe-mode=2へ変更）。
+2014/8/29 核融合用の奨励設定ファイルfusionを追加。DetectorResponseで検出器の分解能を考慮するdresolとdfanoパラメータを導入。negsパラメータを導入し，PHITS-EGS5を最新版で実行できるようにした。
+2013/8/21 Version2.60で新しい脱励起モデルEBITEMを導入したことにより，いくつかの奨励設定ファイルのigammaパラメータを変更しました。
+2012/12/17 Version2.52では，電子輸送計算アルゴリズムを改訂したので，電子のカットオフエネルギーを低くしても正しい計算結果が得られるようになりました。ただし，電子のカットオフエネルギーを低くしすぎると，計算時間が膨大になるため，極めて高い空間分解能が要求されるsemiconductor.inpを除いて100keVとしています。また，DCHAIN-SPとの接続計算を解説したdchain.inpを追加しました。
+2012/9/21　Version2.50では，計算を高精度化・高速化するため，いくつかのデフォルトパラメータを変更しました。大きな変更ポイントは，核子に対する初期核反応モデルをBertiniモデルからINCLに変更した点と，重イオン（重陽子やα粒子含む）に対するカットオフエネルギーを109MeVから1MeVに引き下げた点です。これに合わせて，いくつかの奨励設定のパラメータも変更しました。したがって，これらのファイルを実行する際は，必ずPHITS2.50（もしくは，より新しいversion）をご使用ください。なお，電子輸送を行う計算には，以前のversionでは付録されていなかった電子-原子相互作用断面積ライブラリが必要になりますのでご注意ください。
+2012/8/10　電子輸送のバグがあったため，電子輸送を行う奨励設定のカットオフエネルギーを1 keVから1 MeVに変更しました。SimpleGEOの奨励設定を「ツール」の方に移動しました。
+各奨励設定の解説
+1. DetectorResponse.inp
+シンチレータなど，放射線検出器の応答関数を計算するための奨励設定ファイルです。以下，重要なパラメータの説明です。
+e-mode in [parameters]：検出器の応答関数計算では，イベント毎の情報が必要となる場合が多いので，イベントジェネレータモード(e-mode=2)に設定しています。
+dir in [source]：イベントジェネレータモードで等方照射線源を再現するためには，dirを”-all”ではなく”iso”に設定する必要があります。その際，半径c3の球内における平均入射粒子フラックスは，π*(c3)2となります。
+dresol, dfano：実際の検出器はエネルギー分解能を持ち，dresol及び dfanoは，その分解能を表すパラメータです。dresol=σr, dfano=Fの場合，付与エネルギーEのイベントは標準偏差が√（σr 2 + FE）のガウス分布に従って分散されます。
+dedxfnc = 1: Birksの式で計算した応答関数R(L)を考慮することができます。応答関数は、LET (keV/um)の関数として[multiplier]セクションで与え、c900にそのmultiplier ID（-200～-299まで利用可能）を指定する必要があります。
+2. Shielding.inp
+遮へい計算用の奨励設定ファイルです。イベント毎の情報は必要ありませんので，イベントジェネレータモードで計算する必要はありません。また、高エネルギー加速器の遮蔽設計には、高エネルギー核データライブラリJENDL-4.0/HE[1]の利用を奨励しています。PHITSパッケージには限られた核種に対するライブラリしか含まれておりませんので、warningが多数出力されます。足りない核種に対しては、下記ホームページ[2]よりダウンロード可能ですので、必要に応じてダウンロードしてその情報をxsdir.jndに追加してください。中性子及び光子のフラックスに内蔵の線量換算係数を乗じて実効線量を導出するため，電子の輸送は必要ありません。したがって，negsはデフォルト値から変更していません（光子のみ輸送）。また[importance]や[weight window]セクションを導入することにより，遮へい体後方における線量も比較的短時間で計算できるようになります。詳しくはlecture\advanced\weightA及びweightBをご参照下さい。
+参考文献
+Matsuda et al. Prog. Nucl. Sci. Technol. 6, 225-229 (2019).
+https://rpg.jaea.go.jp/main/en/ACE-J40HE/index.html
+3. ParticleTherapy.inp
+粒子線治療時の吸収線量や線量当量の空間分布(r-z mesh)，及びLETやyの確率密度分布を計算するための奨励設定ファイルです。[t-sed]タリーは，比較的計算時間が掛かりますので，y分布の情報が不要な方は，offにして下さい。以下，重要なパラメータの説明です。
+e-mode in [parameters]：[t-LET]や[t-SED]タリーを行うためには，イベントジェネレータモード(e-mode=1 or 2)に設定する必要があります。
+nedisp in [parameters]：粒子線治療におけるブラッグピークの深さを正確に計算するためには，阻止能（dE/dx）の確率的な分散(Energy straggling)を考慮する必要があります。
+nspred in [parameters]：粒子線治療における線量のビーム中心から横方向への空間的な拡がりを正確に計算するためには，その角度分散(Angular straggling)を考慮する必要があります。nspred=2の場合は，角度分散の大きさをascat1とascat2で調整することができます。
+dedxfnc in [t-deposit]：dedxfnc=0の場合は，計算したdeposit energyをそのまま出力し，dedxfnc=1の場合は，計算したdeposit energyをICRP60で定義されたQ(L)関係で重み付けして出力します。したがって，1つ目の[t-deposit]タリーでは吸収線量を，2つ目の[t-deposit]タリーでは線量当量を計算します。
+letmat: この値が負の場合は，電子に対するdE/dxは，SRIMで計算した1g/cm3の水に対する値を自動的に使うようになります。また，letmatで指定した物質を[cell]セクションで使わない場合、その絶対値は[material]セクションで定義された値となるのでご注意ください。例えば、H 2 O 1と定義すると極めて重い水となってしまいますので、H -0.1118983441 O -0.8881016559のように定義してください。
+4. PhotonTherapy.inp
+光子線治療時の吸収線量の空間分布(xyz-mesh)を計算するための奨励設定ファイルです。20MeV の電子Linacを想定し，WターゲットでX線を発生させ，下流側にある組織等価物質内での吸収線量を計算しています。以下，重要なパラメータの説明です。
+ipnint in [parameters]: 約7MeV以上の光子は，原子核と巨大共鳴を引き起こして中性子を発生します。中性子による吸収線量への寄与はそれほど大きくありませんが，奨励設定では，中性子の発生を考慮するようipnint=1としています。
+電子の輸送が必須ですのでnegs = 1としています。
+5. SemiConductor.inp
+半導体のソフトエラー発生率評価など，微少空間における付与エネルギーを計算する奨励設定ファイルです。以下，重要なパラメータの説明です。
+esmin in [parameters]：微少空間における荷電粒子の挙動を正確に計算するためには，荷電粒子の飛程を計算する最小エネルギー（esmin）を小さく設定する必要があります。
+e-mode in [parameters]：微少空間における付与エネルギー計算にはカーマ近似は使えませんので，イベントジェネレータモード(e-mode=1 or 2)に設定する必要があります。
+[ Delta Ray ]セクション：微少空間における付与エネルギーを正確に計算するためには，ノックアウト電子（δ線）発生による荷電粒子飛跡周辺のエネルギー付与の空間的な拡がりを考慮する必要があります。この例では，ターゲット領域（reg=1）で発生する0.01MeV以上のδ線の挙動を解析します。
+6. NuclearReaction.inp
+二重微分核反応断面積（DDX）を計算するサンプルインプットファイルです。断面積を計算したい粒子を薄膜ターゲットに照射して，そこで発生する2次粒子を[t-product]タリーして単位をmb/MeV/srに変換して出力します。計算を効率化するために[forced collision]を設定しています。様々な核反応モデルをテストできるよう，核反応に関連するパラメータを明示的に指定しています。
+7. H10multiplier.inp
+PHITSには，３つの線量計算方法があり，その違いを明確にするために作った奨励設定ファイルです。[t-wwg]で作った[Weight Window]を使うサンプルにもなっています。以下，各方法の説明です。
+[t-track]セクション：計算したフルエンスに[Multiplier]セクションで定義した線量換算係数を乗じて周辺線量当量H*(10)を導出します。また，data/multiplierフォルダ内に含まれる換算係数を使ってH*(10)(k=-200)と実効線量(k=-201)も同時に計算します。この手法で計算した線量は，フルエンスのみに依存しますので，コンクリート・空気間で差はほとんどありません。
+[t-deposit]セクション：荷電粒子の電離損失と，中性子・光子のKermaファクターを用いて領域内の付与エネルギーを計算します。Kermaファクターは，物質の密度に大きく依存するので，コンクリート・空気間で線量に大きなギャップが見られます。
+9. dchain.inp
+[t-dchain]を使ったPHITSとDCHAIN-SPのつなぎ計算のための設定ファイルです。詳細は，フォルダ内に含まれるreadme-jpn.pdfをご参照下さい。
+10. fusion.inp
+核融合に関連する計算のための奨励設定ファイル。計算時間短縮のため，電子・陽電子は輸送しない設定になっています。また，核融合施設での計算は，体系が大きい場合が多いので分散低減法（[importance]セクション）を利用しています。
+11 muon.inp
+ミューオンの輸送を計算するための奨励設定ファイルです。宇宙線線源モードを使って、地表面におけるミューオンのエネルギー・角度分布を再現しています。高エネルギーミューオンを輸送すると高エネルギー光子や電子が発生しますので、高エネルギーEGSモードの利用(negs = 2)と光核反応の考慮(ipnint = 1)を奨励しています。また、大量の2次粒子を発生する場合がありますので、2次粒子情報を保存するメモリサイズ（maxbnk）を大きくしています。
+12. XrayDiagnostic.inp
+低エネルギー光子を使った診断系の医学物理応用サンプルです。レントゲン写真のように，低エネルギー光子を組織等価物質に照射し，その中に含まれている金属（アルミ，鉄）を検知しています。低エネルギー光子（おおよそ1MeV以下）は，2次電子の飛程が短いため，電子の輸送を行わなくても精度の高い計算が可能です（ただし，細胞レベルのシミュレーションなど極めて高い空間分解能が必要になる場合を除く）。また，光核反応も起きないため，中性子の輸送も必要ありません（nucdata=0）。低エネルギー光子による吸収線量を計算するには，計算時間の観点から，カーマ近似を使って光子によるエネルギー付与を計算するPHITS従来アルゴリズム（negs = -1，デフォルト）を使っています。PHITS従来アルゴリズムは，電子・陽電子に対する計算精度に問題がありますが，光子に対しては十分に高い精度を有します。
+13. TrackStructure.inp
+飛跡構造解析用のサンプルです。飛跡構造解析モードを使えば，熱化するまでに電子・陽電子が引き起こす電離・励起・振動などの個々のイベントを正確に模擬することができます。ただし，断面積は水に対する値のみ整備されており，それ以外の物質に対しては，単純に電子密度で断面積をスケーリングします。また，従来アルゴリズムと比較して計算時間が膨大に掛かりますので，通常の大きさの体系（cmオーダー）における放射線挙動解析には適しません。以下、重要なパラメータの説明です。
+etsmax, etsmin in [parameters]：飛跡構造解析を実施する電子（もしくは陽電子）のエネルギーの上限・下限値です。etsminは，原理的には0でも設定可能ですが，計算時間が膨大になりますので，特に熱化した電子の挙動などを解析したい場合を除いて1eV程度に設定することをお勧めします。etsmaxは，1keVよりも大きく設定する必要があります。原理的には極めて大きい値も設定可能ですが計算時間が膨大になりますので，現実的には1MeV以下に設定することをお勧めします。
+emin(12-13) in [parameters]：飛跡構造解析の場合は，必ずEGS5モードを用いて1keVまで電子輸送を行う必要があります。
+[trackstructure]：飛跡構造解析を行うセルを指定します。mIDは，利用する断面積データのID番号で，今のところは0（=飛跡構造解析を行わない）か1（＝液体の水）しか指定できません。今後，様々な物質に対する断面積データを順次整備していく予定です。
+angel = cmum in [t-deposit]：ANGELでプロットする軸スケールをcmからμmに変換するパラメータです。飛跡構造解析モードでは，小さい領域に対する空間分布を出力する場合が多いので，あらかじめ軸スケールを調整しておくと便利です。なお，cmumはcm to umを意味し，これ以外にcmnm (cm to nm), cmmm (cm to mm), cmmt (cm to m), cmkm(cm to km)が使えます。
+14. CosmicRay
+宇宙線挙動解析用のサンプルです。このサンプルでは、宇宙空間における銀河宇宙線（ただし、陽子及び鉄イオンのみ）を模擬しています。以下、重要なパラメータです。
+mdbatima, maxbnk: 宇宙線には，極めてエネルギーの高い陽子や重イオンが含まれるため，核反応により大量の2次粒子が発生する場合があります。そのような場合，ATIMAが作るデータベースの数(mdbatima)や2次粒子の情報を記憶するメモリ容量(maxbnk)がデフォルト値では足りなくなる可能性がありますので，それらのパラメータを大きくしています。e-mode: 宇宙放射線防護ではQ(L)関係に基づく線量当量を計算する必要があるため，中性子核反応による2次粒子の特定が不可欠となります。したがって，e-mode=2としてイベントジェネレータモードを使用しています。
+irqmd: 宇宙線挙動解析では重イオン核反応モデルの計算精度が重要になりますので，irqmd=1として最新版JQMD（version 2.0）を使用しています。
+iMeVperU: 宇宙線フラックスはMeV/u単位で評価する場合が多いのでiMeVperU=1としてタリーの単位をMeVからMeV/uに変換しています。
+negs=2: 高エネルギー宇宙線が引き起こす核反応により1GeV以上の電子・陽電子・光子が生成される可能性がありますので、EGSの高エネルギーモードを使用しています。
+16. BNCT
+BNCT医学物理計算用の奨励設定です。BNCTでは，ホウ素線量，窒素線量，水素線量，光子線量を区別して求めることが要求されるため，[t-track]のmultiplier subsectionを使ってそれぞれの寄与に分けて線量を導出するよう設定されています。また、一度、icntl = 17として[anatally]セクションを有効にすることにより、RBE加重線量を計算できます。以下、重要なパラメータの説明です。
+e-mode & irescheck in [parameters]：カーマ近似を用いて線量計算を行うため、e-modeを定義する必要はありません。irescheck = 1は、icntl = 17とした際に必須となります。
+c1 – c5：線量を計算したい領域の水素、炭素、窒素、酸素、10Bの重量比を定義します。このサンプルでは、ICRU soft tissueに10ppmの10Bを加えています。
+c10 – c15：上記、重量比から計算した原子数密度1024(atom/g)です。Multiplier subsectionで利用します。
+[material]：m2001-2003は体系中では使用しませんが，[t-track]でこれらの物質に対するカーマファクターを使って線量計算するために定義が必要です。
+mset1 in [t-track]：[t-track]で計算したフルエンスにカーマファクターを乗じて積分することにより、光子線量、水素線量，窒素線量、ホウ素線量をそれぞれ計算します。mset内のパラメータは
+(規格化定数　カーマファクターを参照する物質番号 -5 -6)
+(規格化定数　カーマファクターを参照する物質番号 1 -4)
+となります。最後の-5 -6及び1 -4は，光子及び中性子のカーマファクターを使う際のおまじないと思ってください（詳細はマニュアル5.21.1を参照）。カーマファクターは，対象物質密度が1 x 1024 atom/cm3，フラックスが1/cm2だった場合にMeV単位で出力するよう規格化されていますので，それをGyに変換するためには，規格化定数を1.602e-10 (c9) x 対象物質の元素密度(1024 atom/g) に設定する必要があります。なお，msetの中で数式に括弧は利用できませんのでご注意ください。
+[anatally]：計算した各線量コンポーネントからRBE加重線量を計算するためのセクションです。詳しくは/phits/utility/usranatal/smk_bnctをご参照ください。
+anatally start, anatally end：このコメントがあるタリーをベースに[anatally]の出力フォーマットが決定されます。
+17. NeutronSource
+加速器中性子源のサンプルインプットです。陽子、中性子の核反応にはJENDL-4.0/HE、重陽子の核反応にはJENDL/DEU-2020[3]を利用するように設定しています。また、99Moの生成量は（中性子スペクトル）×（放射化断面積）により計算できます。[t-track]によりサンプル中の中性子スペクトルを求め、その結果にmultiplierに登録した放射化断面積の励起関数を掛けることで放射化量を計算しています。サンプルインプットの励起関数は、JENDL-4.0（20 MeV以下）とJENDL-4.0/HE（20 から200 MeV）の値です。この方法で計算した結果は” yield-99Mo_multiplier.out”に出力されます。
+参考文献
+S. Nakayama, O. Iwamoto, Y. Watanabe, and K. Ogata, "JENDL/DEU-2020: deuteron nuclear data library for design studies of accelerator-based neutron sources", J. Nucl. Sci. Technol. 58, 805-821 (2020), DOI:10.1080/00223131.2020.1870010.
+18. Light
+光生成および光輸送のためのサンプル入力ファイルです。光は、粒子が物質中でその媒質中の光速を超えて進むとき（チェレンコフ光）、荷電粒子が物質中にエネルギーを付与するとき（シンチレーション光）、および吸収された光が再放出されるときに生成されます。したがって、negs および e-mode の設定を推奨します。これらを指定しない場合、荷電粒子による光の発生が無視されることがあります。
+END_DESCRIPTION
+
+[INDEX]
+1)
+   PURPOSE: Sample input for BNCT calculation
+   FILE: BNCT/BNCT.inp
+   KEYWORDS: T-Deposit
+   SIZE_BYTES: 5462
+
+2)
+   PURPOSE: Sample input file for cosmic-ray transport simulation
+   FILE: CosmicRay/CosmicRay.inp
+   KEYWORDS: T-Deposit, T-Track
+   SIZE_BYTES: 6005
+
+3)
+   PURPOSE: Sample input using [ Counter ] section for distinguishing primary and secondary particles in the estimate of detector response
+   FILE: Counter/Counter.inp
+   KEYWORDS: Counter, Transform, Magnetic Field, T-Deposit, T-Track
+   SIZE_BYTES: 6189
+
+4)
+   PURPOSE: sample input for dchain: 150MeV proton into water
+   FILE: DCHAIN/dchain.inp
+   KEYWORDS: Volume, Mat Name Color, T-DCHAIN, T-Track
+   SIZE_BYTES: 3396
+
+5)
+   PURPOSE: Sample input for detector response calculation using isotropic source
+   FILE: DetectorResponse/DetectorResponse.inp
+   KEYWORDS: T-Deposit
+   SIZE_BYTES: 4656
+
+6)
+   PURPOSE: Sample input for radiation shielding
+   FILE: Fusion/Fusion.inp
+   KEYWORDS: Importance, T-Track
+   SIZE_BYTES: 3478
+
+7)
+   PURPOSE: Sample input for calculating H*(10) using [Multiplier] section
+   FILE: H10multiplier/H10multiplier.inp
+   KEYWORDS: T-Track, T-Deposit
+   SIZE_BYTES: 10203
+
+8)
+   PURPOSE: Count Cherenkov photons generated in optical glass that reflect inside the glass and reach the photocathode. Tally outputs: - product.out Emission spectrum of optical photons - cross.out Spectrum crossing the photocathode through the PMT window - cross_with_Multiplier.out Result weighted by quantum efficiency via Multiplier
+   FILE: Light/Light.inp
+   KEYWORDS: Light, T-Product, T-Cross, Multiplier, T-Track
+   SIZE_BYTES: 4959
+
+9)
+   PURPOSE: Sample input for muon transport
+   FILE: muon/muon.inp
+   KEYWORDS: T-Track, T-Product
+   SIZE_BYTES: 4794
+
+10)
+   PURPOSE: Sample input for accelerator-based neutron source
+   FILE: NeutronSource/NeutronSource.inp
+   KEYWORDS: Forced Collisions, T-Cross, T-Track, Multiplier
+   SIZE_BYTES: 5859
+
+11)
+   PURPOSE: Sample input for calculating double differential cross section
+   FILE: NuclearReaction/NuclearReaction.inp
+   KEYWORDS: Forced Collisions, T-Product, T-Track
+   SIZE_BYTES: 4349
+
+12)
+   PURPOSE: Sample input for dose calculation for charged particle therapy
+   FILE: ParticleTherapy/ParticleTherapy.inp
+   KEYWORDS: T-Deposit, T-LET, T-SED
+   SIZE_BYTES: 7165
+
+13)
+   PURPOSE: Sample input for dose calculation for photon therapy
+   FILE: PhotonTherapy/PhotonTherapy.inp
+   KEYWORDS: T-Deposit, T-Track
+   SIZE_BYTES: 4372
+
+14)
+   PURPOSE: Sample input for calculating deposition energy distribution in semi-conductor device
+   FILE: SemiConductor/SemiConductor.inp
+   KEYWORDS: Volume, Delta Ray, T-Deposit
+   SIZE_BYTES: 2646
+
+15)
+   PURPOSE: Sample input for radiation shielding
+   FILE: Shielding/Shielding.inp
+   KEYWORDS: Mat Name Color, Transform, Importance, T-Track
+   SIZE_BYTES: 11016
+
+16)
+   PURPOSE: input file for lecture about [ Parameters ] section
+   FILE: TrackStructure/TrackStructure.inp
+   KEYWORDS: Track Structure, T-Interact, T-Deposit
+   SIZE_BYTES: 4442
+
+17)
+   PURPOSE: Sample input for dose calculation for X-ray diagnostic
+   FILE: XrayDiagnostic/XrayDiagnostic.inp
+   KEYWORDS: T-Deposit, T-Track
+   SIZE_BYTES: 4718
+
+[INPUTS]
+
+PURPOSE: Sample input for BNCT calculation
+FILE: BNCT/BNCT.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for BNCT calculation
+
+[ Parameters ]
+ icntl    =           0    $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =        1000     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+
+[ Source ]
+   totfact =  1.0e15        $ normalized the dose approximately 10 Gy
+   s-type =   1             $ mono-energetic axial source
+     proj =  neutron        $ kind of incident nucleus
+       e0 =   1.0e-5        $ energy of beam [MeV/n]
+       r0 =   10.000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -20.000        $ minimum position of z-axis [cm]
+       z1 =  -20.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+
+[ Material ]
+
+m1    $ Normal tissue (region 1)
+            H     -0.101
+            C     -0.111
+            N     -0.026
+            O     -0.762
+          10B     -1.0e-5
+mt1   lwtr.20t
+
+m2    $ Tumor (region 2)
+            H     -0.101
+            C     -0.111
+            N     -0.026
+            O     -0.762
+          10B     -2.0e-5
+mt2   lwtr.20t
+
+[ Cell ]
+ 1          1  -1.0    1 -4 -10 #2 $ Normal tissue
+ 2          2  -1.0    2 -3 -10    $ Tumor
+98          0        #all -999  $ Void
+99         -1             999  $ Outer region
+
+[ Surface ]
+ 1            pz     0.0
+ 2            pz     3.0
+ 3            pz     4.0
+ 4            pz    10.0
+ 10           cz    10.0
+ 999          so   100.0
+
+[ T-Deposit ]
+   mesh = r-z
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =  10.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0.00000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =   10            $ number of z-mesh points
+     axis =   z            $ axis of output
+     file = hydro.out       $ file name of output for the above axis
+   mother = 1
+            H
+     part = neutron
+     unit =    0            $ unit is [Gy/source]
+   output = dose
+   epsout = 1
+    angel = ymin(0.1) ymax(30.0)
+
+[ T-Deposit ]
+   mesh = r-z
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =  10.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0.00000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =   10            $ number of z-mesh points
+     axis =   z            $ axis of output
+     file = nitro.out       $ file name of output for the above axis
+   mother = 1
+            N
+     part = neutron
+     unit =    0            $ unit is [Gy/source]
+   output = dose
+   epsout = 1
+    angel = ymin(0.1) ymax(30.0)
+
+[ T-Deposit ]
+   mesh = r-z
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =  10.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0.00000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =   10            $ number of z-mesh points
+     axis =   z            $ axis of output
+     file = boron.out       $ file name of output for the above axis
+   mother = 1
+            B
+     part = neutron
+     unit =    0            $ unit is [Gy/source]
+   output = dose
+   epsout = 1
+    angel = ymin(0.1) ymax(30.0)
+
+[ T-Deposit ]
+   mesh = r-z
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =  10.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0.00000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =   10            $ number of z-mesh points
+     axis =   z            $ axis of output
+     file = photon.out       $ file name of output for the above axis
+     part = photon
+     unit =    0            $ unit is [Gy/source]
+   output = dose
+   epsout = 1
+    angel = ymin(0.1) ymax(30.0)
+
+[ Anatally ]  $ for RBE-CBE weighted dose
+$ parameters used in anatally (icntl=17) (same as default value)
+ set: c99[0.0]    $ Weighted sum (=0) FFT SMK (=1), Taylor-expansion SMK (=2), z*-based MK (=3)
+ set: c90[1.0]    $ dose scaling factor, normalized at 10 Gy at the entrance position
+ set: c1[1.0*c90]   $ RBE for photon dose
+ set: c2[2.5*c90]   $ RBE for hydrogen dose
+ set: c3[2.5*c90]   $ RBE for nitrogen dose
+ set: c4[3.8*c90]   $ CBE for boron dose
+anatally start    1
+manatally = 0
+sfile=RBEdose.out
+nfile =       4
+photon.out
+hydro.out
+nitro.out
+boron.out
+anatally end    1
+
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input file for cosmic-ray transport simulation
+FILE: CosmicRay/CosmicRay.inp
+BEGIN_INPUT
+[ Title ]
+Sample input file for cosmic-ray transport simulation
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =          50     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ e-mode   =           2     $ (D=0) 0: Normal, 1: Event generator mode Ver.1, 2: Ver.2
+ irqmd    =           1     $ (D=0) 0: JQMD legacy version, 1: JQMD-2.0
+ negs     =           2     $ (D=-1) =-1:original, =0:No, =1:EGS
+ mdbatima =        3000     $ (D=500) max database size of ATIMA
+ maxbnk   =      100000     $ (D=10000) maximum bank memory length
+ iMeVperU =           1     $ (D=0) 0:[MeV] or 1:[MeV/u] is unit of tally output
+ esmax    =  100000000.     $ (D=1.0e6) max energy/u for charged particle range
+ emin(12) =  1.00000000     $ (D=1.e+9) cut-off energy of electron (MeV)
+ emin(13) =  1.00000000     $ (D=1.e+9) cut-off energy of positron (MeV)
+
+[ Source ]
+set:c1[200.0]
+  totfact =  -pi*c1**2       $ (D=1.0) global factor
+ <source> = 1.0
+   s-type =   9             $ mono-energetic axial source
+     proj =  proton        $ kind of incident nucleus          
+       r1 =   c1             $ radius of sphere [cm]
+       r2 =   c1             $ radius of source circle [cm]
+      dir =  iso            $ inner direction with uniform dis. by analog
+   e-type =  25             $ Cosmic-ray source
+    icenv =   0             $ 0>: Terrestiral GCR, D=0: Free-space GCR, <0:Free-space SEP
+ solarmod =   0.0000        $ Solar activity W-index
+    rigid =   0.0000        $ Cut-off rigidity in GV
+
+ <source> = 1.0
+   s-type =   9             $ mono-energetic axial source
+     proj =  56Fe        $ kind of incident nucleus          
+       r1 =   c1             $ radius of sphere [cm]
+       r2 =   c1             $ radius of source circle [cm]
+      dir =  iso            $ inner direction with uniform dis. by analog
+   e-type =  25             $ Cosmic-ray source
+    icenv =   0             $ 0>: Terrestiral GCR, D=0: Free-space GCR, <0:Free-space SEP
+ solarmod =   0.0000        $ Solar activity W-index
+    rigid =   0.0000        $ Cut-off rigidity in GV
+[ Material ]
+MAT[ 1 ]  @WATER@     $ Water
+MAT[ 2 ]  @AIR@       $ Air
+MAT[ 3 ]  @ALUMINUM@  $ Al wall
+
+[ Cell ]
+ 1   %WATER%     0.0     -1
+ 2   %AIR%       0.0     12 -13 -21 #1
+ 3   %ALUMINUM%  0.0     11 -14 -22 #(12 -13 -21)
+ 98  0         -99         #(11 -14 -22)
+ 99 -1          99
+
+[ Surface ]
+ 1  so   15.   $ Water radisu
+11  pz  -60.
+12  pz  -50.
+13  pz   50.
+14  pz   60.
+21  cz   50.
+22  cz   60.
+99  so  1000.  
+
+[ T-Deposit ]
+    title = Energy deposition in reg mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg = 1
+     unit =    0            
+ material =  all            $ (D=all) number of specific material
+   output =  dose           $ total deposit energy
+     axis =   reg           $ axis of output
+     file = dose.out        $ file name of output for the above axis
+     part =  all
+
+[ T-Deposit ]
+    title = Energy deposition in reg mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg = 1
+     unit =    0            
+ material =  all            $ (D=all) number of specific material
+   output =  dose           $ total deposit energy
+     axis =   reg           $ axis of output
+     file = doseequivalent.out        $ file name of output for the above axis
+     part =  all
+   letmat =   -%WATER%            $ (D=0) mat ID for LET, 0:real mat, <0: electron for H2O
+  dedxfnc =    1            $ (D=0) user defined multiplier, 0(no), 1, 2
+
+[ T-Track ]
+    title = Astronaut dose in pSv/source
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -60.            $ minimum value of x-mesh points
+     xmax =   60.            $ maximum value of x-mesh points
+       nx =   120            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -60.           $ minimum value of y-mesh points
+     ymax =   60.            $ maximum value of y-mesh points
+       ny =   120            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =  -50            $ minimum value of z-mesh points
+     zmax =   50            $ maximum value of z-mesh points
+       nz =    1            $ number of z-mesh points
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xy            $ axis of output
+     file = track.out       $ file name of output for the above axis
+     part = all proton neutron fe
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+             0.0  1e10
+     unit =    1            $ unit is [1/cm^2/source]
+   epsout =    1            $ (D=0) generate eps file by ANGEL   
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+    z-txt = [pSv/source]
+ multiplier = all
+   mat   mset1
+   all  (1.0  -211 )      $ -211 is for effective dose equivalent for male
+
+[ T-Track ]
+    title = Track Detection in reg mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg =  (1 2)
+   e-type =    3            $ e-mesh is log given by emin, emax and ne
+       ne =   120            $ number of e-mesh points
+     emin =   1.000000      $ minimum value of e-mesh points
+     emax =   1.0e6      $ maximum value of e-mesh points
+     unit =    2            $ unit is [1/cm^2/MeV/source]
+     axis =   eng            $ axis of output
+     file = track_eng.out  $ file name of output for the above axis
+     part =  proton neutron fe
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input using [ Counter ] section for distinguishing primary and secondary particles in the estimate of detector response
+FILE: Counter/Counter.inp
+BEGIN_INPUT
+[ Title ]
+Sample input using [ Counter ] section for distinguishing primary and secondary particles in the estimate of detector response
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =        1000     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ e-mode   =           2     $ (D=0) 0: Normal, 1: Event generator mode
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS
+ imagnf   =           1     $ (D=0) magnetic field
+
+[ Source ]
+  totfact =   1.0000        $ (D=1.0) global factor
+ <source> = 1.0
+   s-type =   1             $ mono-energetic axial source
+     proj =  proton         $ kind of incident particle         
+       e0 =   100.00        $ energy of beam [MeV/n]
+       r0 =   0.0000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -10.000        $ minimum position of z-axis [cm]
+       z1 =  -10.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+MAT[ 1 ]  @ALUMINUM@
+MAT[ 2 ]  @SODIUM_IODIDE_NAI@
+MAT[ 3 ]  @AIR@
+
+[ Cell ]
+ 1         %AIR%                0.0       1 -2 -11
+ 2         %ALUMINUM%           0.0       2 -3 -11
+ 3         %SODIUM_IODIDE_NAI%  0.0       3 -4 -11
+ 98        %AIR%                0.0      #(1 -4 -11) -999 
+ 99       -1          999
+
+[ Surface ]
+ 1            pz      -10.
+ 2            pz        0.
+ 3            pz        1.0
+ 4            pz        2.0
+11            cz        4.
+ 999          so       99.
+
+[ Counter ]
+  counter = 1
+  part = proton
+  reg   in   out  iels  ref
+    2    0     0     1    0
+
+[ Transform ]
+set: c10[180]   $ angle of around Z (degree)
+set: c20[0]   $ angle of around Y (degree)
+set: c30[0]   $ angle of around X (degree)
+
+tr1   10 0 45
+      cos(c10/180*pi)*cos(c20/180*pi)
+      sin(c10/180*pi)*cos(c30/180*pi)+cos(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      sin(c10/180*pi)*sin(c30/180*pi)-cos(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+     -sin(c10/180*pi)*cos(c20/180*pi)
+      cos(c10/180*pi)*cos(c30/180*pi)-sin(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      cos(c10/180*pi)*sin(c30/180*pi)+sin(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+      sin(c20/180*pi)
+     -cos(c20/180*pi)*sin(c30/180*pi)
+      cos(c20/180*pi)*cos(c30/180*pi)
+      1
+
+[ Magnetic Field ]
+   reg    typ    gap            mgf       trcl
+     1     2     10.00000       20.0000   1
+
+[ T-Deposit ]
+    title = Energy Deposition from Primary Particle
+     mesh =  reg            $ mesh type is region-wise
+      reg = 3
+     unit =    3            $ unit is [1/source] : only for output=deposit
+   letmat =    0            $ (D=0) material id for LET, 0: real material
+  dedxfnc =    0            $ (D=0) user defined multiplier, 0(no), 1, 2
+ material =  all            $ (D=all) number of specific material
+   output = deposit         $ deposit enerygy distribution
+   e-type =    2            $ e-mesh is linear given by emin, emax and ne
+     emin =   0.00000       $ minimum value of e-mesh points
+     emax =  50.00000       $ maximum value of e-mesh points
+       ne =  50             $ number of e-mesh points
+     axis =   eng           $ axis of output
+     file = primary.out     $ file name of output for the above axis
+     part =  all      
+   y-txt  = Response [/source]
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+  ctmax(1)=    0            $ (D= 9999) max. of counter 1
+
+[ T-Deposit ]
+    title = Energy Deposition from Secondary Particles
+     mesh =  reg            $ mesh type is region-wise
+      reg = 3
+     unit =    3            $ unit is [1/source] : only for output=deposit
+   letmat =    0            $ (D=0) material id for LET, 0: real material
+  dedxfnc =    0            $ (D=0) user defined multiplier, 0(no), 1, 2
+ material =  all            $ (D=all) number of specific material
+   output = deposit         $ deposit enerygy distribution
+   e-type =    2            $ e-mesh is linear given by emin, emax and ne
+     emin =   0.00000       $ minimum value of e-mesh points
+     emax =  50.00000       $ maximum value of e-mesh points
+       ne =  50             $ number of e-mesh points
+     axis =   eng           $ axis of output
+     file = secondary.out   $ file name of output for the above axis
+     part =  all      
+   y-txt  = Response [/source]
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+  ctmin(1)=    1            $ (D=-9999) min. of counter 1
+
+[ T-Track ]
+    title = Track in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -5.000000      $ minimum value of x-mesh points
+     xmax =   5.000000      $ maximum value of x-mesh points
+       nx =   50            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -5.000000      $ minimum value of y-mesh points
+     ymax =   5.000000      $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   -10.00000      $ minimum value of z-mesh points
+     zmax =    10.00000      $ maximum value of z-mesh points
+       nz =    100            $ number of z-mesh points
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xz            $ axis of output
+     file = track.out       $ file name of output for the above axis
+     part = proton neutron
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+             0.0  1000.0
+     unit =    1            $ unit is [1/cm^2/source]
+   epsout =    1            $ (D=0) generate eps file by ANGEL   
+    gshow =    3            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+
+[ End ]
+END_INPUT
+
+PURPOSE: sample input for dchain: 150MeV proton into water
+FILE: DCHAIN/dchain.inp
+BEGIN_INPUT
+$DCHAIN=1
+[ Title ]
+sample input for dchain: 150MeV proton into water
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =        1000     $ (D=10) number of particles per one batch
+ maxbch   =          10     $ (D=10) number of batches
+ igamma   =           3     $ (D=0) 0:No, 1:Old, 2:EBITEM, 3:EBITEM+Isomer
+$  must option for DCHAIN 
+ jmout    =           1     $ (D=0) Density echo, 0:input, 1:number density
+ e-mode   =           0     $ (D=0) Event generator mode is not recommended for DCHAIN calculation
+ dmax(1)  =  200.000000     $ (D=emin(1)) data max. energy of proton (MeV)
+ dmax(2)  =  200.000000     $ (D=emin(2)) data max. energy of neutron (MeV)
+
+[ Source ]
+   s-type =   1             $ mono-energetic axial source
+     proj =  proton         $ kind of incident particle         
+       e0 =   150.00        $ energy of beam [MeV/n]
+       r0 =   0.5000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -30.000        $ minimum position of z-axis [cm]
+       z1 =  -30.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+MAT[ 1 ]  @WATER@
+
+[ Surface ]
+1  px -10.0
+2  px  10.0
+3  py -30.0
+4  py -10.0
+5  py  10.0
+6  py  30.0
+7  pz -20.0
+8  pz   0.0
+9  pz  20.0
+99 so  80.0
+
+[ Cell ]
+1        %WATER%  0.0     1 -2 3 -4 7 -8
+2        %WATER%  0.0     1 -2 3 -4 8 -9
+3        %WATER%  0.0     1 -2 4 -5 7 -8
+4        %WATER%  0.0     1 -2 4 -5 8 -9
+5        %WATER%  0.0     1 -2 5 -6 7 -8
+6        %WATER%  0.0     1 -2 5 -6 8 -9
+99       0          -99 #(1 -2 3 -6 7 -9)
+999      -1          99
+
+[ Volume ] 
+$  must section for DCHAIN 
+           reg   vol
+           1   20.0*20.0*20.0
+           2   20.0*20.0*20.0
+           3   20.0*20.0*20.0
+           4   20.0*20.0*20.0
+           5   20.0*20.0*20.0
+           6   20.0*20.0*20.0
+
+[ Mat Name Color ]
+   mat     name     size          color   
+     0     void     1.00      lightgray   
+     1    Water     1.00     pastelcyan   
+
+[ T-DCHAIN ]
+$  must section for DCHAIN 
+    title = 150MeV proton into water
+     mesh =  reg            $ mesh type is region-wise
+      reg =  3 4
+     file = 150pH2O.out        $ file name of dchain-sp input file
+  timeevo =    1               $ time evolution
+    6.0 m  1.0
+  outtime =    7               $ output time
+    1.0 m
+    3.0 m
+    6.0 m
+   10.0 m
+   20.0 m
+   30.0 m
+   40.0 m
+$ beam current (nA)
+set:c1[100.0]
+$ beam power (source/sec) 
+set:c2[ c1 * 1.0e-9 / (1.602177e-19) ]
+   amp = c2                 $ (D=1.0) Source Intensity(source/sec)
+ mxnuclei = 3000
+ iaonucl = 3
+ aonucl = N-16 O-15 H-3
+
+[ T-Track ]
+    title = proton and neutron distributions
+  mesh = xyz
+x-type = 2
+  xmin = -20
+  xmax =  20
+    nx = 1
+z-type = 2
+  zmin = -40
+  zmax =  40
+    nz = 200
+y-type = 2
+  ymin = -40
+  ymax =  40
+    ny = 200
+e-type = 2
+  emin = 0
+  emax =  2000
+    ne = 1
+  axis = yz
+  file = yz-track.out
+  part = proton neutron
+  unit = 1
+2D-type =  7            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+gshow =    3            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+ epsout=1
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for detector response calculation using isotropic source
+FILE: DetectorResponse/DetectorResponse.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for detector response calculation using isotropic source
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =       10000     $ (D=10) number of particles per one batch
+ maxbch   =          10     $ (D=10) number of batches
+ e-mode   =           2     $ (D=0) 0: Normal, 1: Event generator mode
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS
+
+[ Source ]
+set: c3[10.0]  $ Radius of source sphere (cm)
+   s-type =   9             $ mono-energetic axial source
+     proj =  neutron        $ kind of incident nucleus          
+       e0 =   35.00         $ energy of beam [MeV/n]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       r1 =  c3             $ radius of sphere [cm]
+       r2 =  c3             $ radius of source circle [cm]
+      dir =  iso            $ inner direction with uniform dis. by analog
+  totfact =  pi*c3**2       $ (D=1.0) global factor
+[ Material ]
+MAT[ 1 ]  @PLASTSCINT@
+MAT[ 2 ]  @ALUMINUM@
+
+[ Cell ]
+ 1          %PLASTSCINT%  0.0     2 -3 -11
+ 2          %ALUMINUM%    0.0     1 -4 -12  #1
+ 98          0        #(1 -4 -12) -999 
+ 99         -1          999
+
+[ Surface ]
+set: c1[2.0*2.54]  $ Detector radius (cm)
+set: c2[0.1]       $ Cover thickness (cm)
+ 1            pz     -c1-c2
+ 2            pz     -c1
+ 3            pz      c1
+ 4            pz      c1+c2
+11            cz      c1
+12            cz      c1+c2
+ 999          so     1.0000000E+02
+
+[ T-Deposit ]
+    title = Energy Deposition for each cell
+     mesh =  reg            $ mesh type is region-wise
+      reg = 1
+     unit =    3            $ unit is [1/source] : only for output=deposit
+   letmat =    0            $ (D=0) material id for LET, 0: real material
+  dedxfnc =    1            $ (D=0) user defined multiplier, 0(no), 1, 2
+ material =  all            $ (D=all) number of specific material
+   output = deposit         $ deposit enerygy distribution
+   e-type =    2            $ e-mesh is linear given by emin, emax and ne
+     emin =   0.000000      $ minimum value of e-mesh points
+     emax =   40.00000      $ maximum value of e-mesh points
+       ne =  200            $ number of e-mesh points
+     axis =   eng           $ axis of output
+     file = deposit.out     $ file name of output for the above axis
+     part =  all      
+   y-txt  = Response [cm^2]
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+   dresol =  0.2            $ (D=0) width = sqrt(dresol**2 + dfano*E)
+    dfano =  0.05           $ (D=0) width = sqrt(dresol**2 + dfano*E)
+ set:c900[-250]   $ multiplier ID for weighting to D(L)
+
+[ Multiplier ]  $ Quenching factor calculated by Birks formula (kB=0.0115 g/cm2/MeV [Nucl. Instr. Meth. A622(2010)574-582])
+  number = -250
+  part = all
+  interpolation = log
+  ne =   60
+  1.22140E-02  9.98395E-01
+  1.49182E-02  9.98041E-01
+  1.82212E-02  9.97608E-01
+  2.22554E-02  9.97080E-01
+  2.71828E-02  9.96436E-01
+  3.32012E-02  9.95650E-01
+  4.05520E-02  9.94693E-01
+  4.95303E-02  9.93525E-01
+  6.04965E-02  9.92103E-01
+  7.38906E-02  9.90371E-01
+  9.02501E-02  9.88264E-01
+  1.10232E-01  9.85703E-01
+  1.34637E-01  9.82593E-01
+  1.64446E-01  9.78821E-01
+  2.00855E-01  9.74252E-01
+  2.45325E-01  9.68730E-01
+  2.99641E-01  9.62069E-01
+  3.65982E-01  9.54057E-01
+  4.47012E-01  9.44450E-01
+  5.45982E-01  9.32975E-01
+  6.66863E-01  9.19333E-01
+  8.14509E-01  9.03202E-01
+  9.94843E-01  8.84251E-01
+  1.21510E+00  8.62157E-01
+  1.48413E+00  8.36624E-01
+  1.81272E+00  8.07418E-01
+  2.21406E+00  7.74399E-01
+  2.70426E+00  7.37559E-01
+  3.30300E+00  6.97056E-01
+  4.03429E+00  6.53242E-01
+  4.92749E+00  6.06666E-01
+  6.01845E+00  5.58066E-01
+  7.35095E+00  5.08329E-01
+  8.97847E+00  4.58426E-01
+  1.09663E+01  4.09343E-01
+  1.33943E+01  3.62003E-01
+  1.63598E+01  3.17197E-01
+  1.99820E+01  2.75542E-01
+  2.44060E+01  2.37455E-01
+  2.98096E+01  2.03157E-01
+  3.64095E+01  1.72690E-01
+  4.44707E+01  1.45955E-01
+  5.43166E+01  1.22746E-01
+  6.63424E+01  1.02783E-01
+  8.10308E+01  8.57489E-02
+  9.89713E+01  7.13138E-02
+  1.20884E+02  5.91514E-02
+  1.47648E+02  4.89540E-02
+  1.80337E+02  4.04390E-02
+  2.20265E+02  3.33531E-02
+  2.69032E+02  2.74733E-02
+  3.28596E+02  2.26058E-02
+  4.01348E+02  1.85843E-02
+  4.90208E+02  1.52669E-02
+  5.98741E+02  1.25342E-02
+  7.31304E+02  1.02855E-02
+  8.93217E+02  8.43678E-03
+  1.09098E+03  6.91803E-03
+  1.33252E+03  5.67112E-03
+  1.62755E+03  4.64790E-03
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for radiation shielding
+FILE: Fusion/Fusion.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for radiation shielding
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =        1000     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+
+set: c1[50]  $ Inner radius of Tungsten
+set: c2[10]  $ Thickness of each shell
+
+[ Source ] 
+totfact=1
+<source> = 0.99
+   s-type =   9             $ mono-energetic spherical distribution source
+     proj =  neutron        $ kind of incident particle         
+       e0 =   2.45
+       x0 =   0.            $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.            $ (D=0.0) center position of y-axis [cm]
+       z0 =   0.            $ (D=0.0) center position of z-axis [cm]
+       r1 =   c1-0.01       $ inner radius [cm]
+       r2 =   c1            $ outer radius [cm]
+      dir =  all            $ direction of beam is outer normal to sphere
+<source> = 0.01
+   s-type =   9             $ mono-energetic spherical distribution source
+     proj =  neutron        $ kind of incident particle         
+       e0 =  14.1
+       x0 =   0.            $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.            $ (D=0.0) center position of y-axis [cm]
+       z0 =   0.            $ (D=0.0) center position of z-axis [cm]
+       r1 =   c1-0.01       $ inner radius [cm]
+       r2 =   c1            $ outer radius [cm]
+      dir =  all            $ direction of beam is outer normal to sphere
+[ Material ] 
+m1      @TUNGSTEN@  $ W
+
+[ Surface ]
+1  so  c1
+2  so  c1+c2*1.0
+3  so  c1+c2*2.0
+4  so  c1+c2*3.0
+5  so  c1+c2*4.0
+6  so  c1+c2*5.0
+
+99 so  1000.
+
+[ Cell ]
+1   0        -1
+2   %TUNGSTEN%  0.0    1 -2
+3   %TUNGSTEN%  0.0    2 -3
+4   %TUNGSTEN%  0.0    3 -4
+5   %TUNGSTEN%  0.0    4 -5
+6   %TUNGSTEN%  0.0    5 -6
+98  0         6 -99
+99 -1        99
+
+[ Importance ] 
+part = neutron photon
+reg imp
+1   2.5**0
+2   2.5**0
+3   2.5**1
+4   2.5**2
+5   2.5**3
+6   2.5**4
+98  2.5**5
+
+[ T-Track ]
+    title = [ T-Track ] in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -100.000       $ minimum value of x-mesh points
+     xmax =   100.000       $ maximum value of x-mesh points
+       nx =  200            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -10.0000       $ minimum value of y-mesh points
+     ymax =   10.0000       $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =  -100.000       $ minimum value of z-mesh points
+     zmax =   100.000       $ maximum value of z-mesh points
+       nz =  200            $ number of z-mesh points
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+            1.00000E-10  1.00000E+03
+     unit =    1            $ unit is [1/cm^2/source]
+ material =  all            $ (D=all) number of specific material
+     axis =   xz            $ axis of output
+     file = track.out    $ file name of output for the above axis
+     part = ( neutron    photon   ) 
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for calculating H*(10) using [Multiplier] section
+FILE: H10multiplier/H10multiplier.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for calculating H*(10) using [Multiplier] section
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =        1000     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ infl:{WWG.out}             $ output file from [t-WWG]
+
+[ Source ] 
+  totfact =   1.0000        $ (D=1.0) global factor
+   s-type =   1             $ mono-energetic axial source
+     proj =  neutron        $ kind of incident particle         
+       e0 =   20.00        $ energy of beam [MeV/n]
+       r0 =   10.0000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =   0.0100        $ minimum position of z-axis [cm]
+       z1 =   0.0100        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ] 
+
+m1        @CONCRETE_AESJ(ORDINARY)@  $ Concrete
+m2        @AIR@                      $ Air
+
+[ Surface ]  
+  1 rpp -50 50  -50 50  0  100
+999 rpp -60 60  -60 60  0  120
+
+[ Cell ] 
+  1  %CONCRETE_AESJ(ORDINARY)%  0.0       -1          $ Concrete
+ 98  %AIR%                       0.0        1  -999     $ Air
+ 99 -1            999          $ Outer region
+
+[ Multiplier ]  $ Fluence to H*(10) conversion coefficient for neutron (taken from EXPACS)
+$ Values are adjusted to give pSv/s when the flux is normalized to (/cm2/s)
+  number = -250
+  part = neutron
+  interpolation = log
+  ne =   140
+  1.13000E-08  9.14000E+00
+  1.42000E-08  9.44000E+00
+  1.79000E-08  9.83000E+00
+  2.25000E-08  1.03000E+01
+  2.84000E-08  1.07000E+01
+  3.57000E-08  1.09000E+01
+  4.50000E-08  1.12000E+01
+  5.66000E-08  1.16000E+01
+  7.13000E-08  1.20000E+01
+  8.97000E-08  1.26000E+01
+  1.13000E-07  1.30000E+01
+  1.42000E-07  1.32000E+01
+  1.79000E-07  1.34000E+01
+  2.25000E-07  1.35000E+01
+  2.84000E-07  1.35000E+01
+  3.57000E-07  1.36000E+01
+  4.50000E-07  1.36000E+01
+  5.66000E-07  1.36000E+01
+  7.13000E-07  1.35000E+01
+  8.97000E-07  1.34000E+01
+  1.13000E-06  1.32000E+01
+  1.42000E-06  1.31000E+01
+  1.79000E-06  1.30000E+01
+  2.25000E-06  1.28000E+01
+  2.84000E-06  1.26000E+01
+  3.57000E-06  1.24000E+01
+  4.50000E-06  1.22000E+01
+  5.66000E-06  1.19000E+01
+  7.13000E-06  1.17000E+01
+  8.97000E-06  1.14000E+01
+  1.13000E-05  1.12000E+01
+  1.42000E-05  1.10000E+01
+  1.79000E-05  1.07000E+01
+  2.25000E-05  1.05000E+01
+  2.84000E-05  1.04000E+01
+  3.57000E-05  1.02000E+01
+  4.50000E-05  1.00000E+01
+  5.66000E-05  9.83000E+00
+  7.13000E-05  9.69000E+00
+  8.97000E-05  9.50000E+00
+  1.13000E-04  9.34000E+00
+  1.42000E-04  9.19000E+00
+  1.79000E-04  9.00000E+00
+  2.25000E-04  8.85000E+00
+  2.84000E-04  8.73000E+00
+  3.57000E-04  8.59000E+00
+  4.50000E-04  8.40000E+00
+  5.66000E-04  8.25000E+00
+  7.13000E-04  8.13000E+00
+  8.97000E-04  7.98000E+00
+  1.13000E-03  7.87000E+00
+  1.42000E-03  7.82000E+00
+  1.79000E-03  7.74000E+00
+  2.25000E-03  7.73000E+00
+  2.84000E-03  7.78000E+00
+  3.57000E-03  7.86000E+00
+  4.50000E-03  7.95000E+00
+  5.66000E-03  8.33000E+00
+  7.13000E-03  9.06000E+00
+  8.97000E-03  9.99000E+00
+  1.13000E-02  1.13000E+01
+  1.42000E-02  1.31000E+01
+  1.79000E-02  1.53000E+01
+  2.25000E-02  1.84000E+01
+  2.84000E-02  2.25000E+01
+  3.57000E-02  2.87000E+01
+  4.50000E-02  3.67000E+01
+  5.66000E-02  4.73000E+01
+  7.13000E-02  6.12000E+01
+  8.97000E-02  7.84000E+01
+  1.13000E-01  9.94000E+01
+  1.42000E-01  1.25000E+02
+  1.79000E-01  1.54000E+02
+  2.25000E-01  1.86000E+02
+  2.84000E-01  2.23000E+02
+  3.57000E-01  2.58000E+02
+  4.50000E-01  3.00000E+02
+  5.66000E-01  3.40000E+02
+  7.13000E-01  3.77000E+02
+  8.97000E-01  4.00000E+02
+  1.13000E+00  4.22000E+02
+  1.42000E+00  4.24000E+02
+  1.79000E+00  4.21000E+02
+  2.25000E+00  4.18000E+02
+  2.84000E+00  4.13000E+02
+  3.57000E+00  4.10000E+02
+  4.50000E+00  4.07000E+02
+  5.66000E+00  4.02000E+02
+  7.13000E+00  4.06000E+02
+  8.97000E+00  4.20000E+02
+  1.13000E+01  4.66000E+02
+  1.42000E+01  5.24000E+02
+  1.79000E+01  5.69000E+02
+  2.25000E+01  5.78000E+02
+  2.84000E+01  5.29000E+02
+  3.57000E+01  4.82000E+02
+  4.50000E+01  4.29000E+02
+  5.66000E+01  3.82000E+02
+  7.13000E+01  3.40000E+02
+  8.97000E+01  3.04000E+02
+  1.13000E+02  2.72000E+02
+  1.42000E+02  2.50000E+02
+  1.79000E+02  2.52000E+02
+  2.25000E+02  2.71000E+02
+  2.84000E+02  2.98000E+02
+  3.57000E+02  3.21000E+02
+  4.50000E+02  3.45000E+02
+  5.66000E+02  3.68000E+02
+  7.13000E+02  3.93000E+02
+  8.97000E+02  4.43000E+02
+  1.13000E+03  4.67000E+02
+  1.42000E+03  4.61000E+02
+  1.79000E+03  4.52000E+02
+  2.25000E+03  4.72000E+02
+  2.84000E+03  5.29000E+02
+  3.57000E+03  5.68000E+02
+  4.50000E+03  6.06000E+02
+  5.66000E+03  6.26000E+02
+  7.13000E+03  6.24000E+02
+  8.97000E+03  6.22000E+02
+  1.13000E+04  6.27000E+02
+  1.42000E+04  6.39000E+02
+  1.79000E+04  6.55000E+02
+  2.25000E+04  6.62000E+02
+  2.84000E+04  6.56000E+02
+  3.57000E+04  6.49000E+02
+  4.50000E+04  6.41000E+02
+  5.66000E+04  6.37000E+02
+  7.13000E+04  6.41000E+02
+  8.97000E+04  6.44000E+02
+  1.13000E+05  6.47000E+02
+  1.42000E+05  6.47000E+02
+  1.79000E+05  6.47000E+02
+  2.25000E+05  6.47000E+02
+  2.84000E+05  6.47000E+02
+  3.57000E+05  6.47000E+02
+  4.50000E+05  6.47000E+02
+  5.66000E+05  6.47000E+02
+  7.13000E+05  6.47000E+02
+  8.97000E+05  6.47000E+02
+
+[ Multiplier ]  $ Fluence to H*(10) conversion coefficient for photon (taken from ICRP74)
+$ Values are adjusted to give pSv/s when the flux is normalized to (/cm2/s)
+  number = -250
+  part = photon
+  interpolation = log
+  ne =   25
+  1.00000E-02 0.061
+  1.50000E-02  0.83
+  2.00000E-02  1.05
+  3.00000E-02  0.81
+  4.00000E-02  0.64
+  5.00000E-02  0.55
+  6.00000E-02  0.51
+  8.00000E-02  0.53
+  1.00000E-01  0.61
+  1.50000E-01  0.89
+  2.00000E-01  1.20
+  3.00000E-01  1.80
+  4.00000E-01  2.38
+  5.00000E-01  2.93
+  6.00000E-01  3.44
+  8.00000E-01  4.38
+  1.00000E+00  5.20
+  1.50000E+00  6.90
+  2.00000E+00  8.60
+  3.00000E+00  11.1
+  4.00000E+00  13.4
+  5.00000E+00  15.5
+  6.00000E+00  17.6
+  8.00000E+00  21.6
+  1.00000E+01  25.6
+
+[ T-Track ] 
+    title = H*(10) or Effective dose (pSv/s)
+     part = ( neutron    photon   ) 
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -60.0          $ minimum value of x-mesh points
+     xmax =   60.0          $ maximum value of x-mesh points
+       nx =   60            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -60.0          $ minimum value of y-mesh points
+     ymax =   60.0          $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0.0          $ minimum value of z-mesh points
+     zmax =  120.0          $ maximum value of z-mesh points
+       nz =   60            $ number of z-mesh points
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+            1.00000E-11  1.00000E+03
+     unit =    1            $ unit is [1/cm^2/source]
+ material =  all            $ (D=all) number of specific material
+     axis =   xz            $ axis of output
+     file = track.out       $ file name of output for the above axis
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+    z-txt = H*(10) or E [pSv/s]
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+
+  multiplier = all          $ number of material group
+      mat      mset1      mset2        mset3
+      all ( 1.0 -250 ) ( 1.0 -200 ) ( 1.0 -201 ) 
+  $ 1st page: H*(10) calculated using [multiplier] defined in this input
+  $ 2nd page: H*(10) calculated using pre-defined [multiplier] in data/multiplier/-200.inp
+  $ 3rd page: Effective dose for AP calculated using pre-defined [multiplier] in data/multiplier/-201.inp
+
+[ T-Deposit ]
+    title = Deposit in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -60.0          $ minimum value of x-mesh points
+     xmax =   60.0          $ maximum value of x-mesh points
+       nx =   60            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -60.0          $ minimum value of y-mesh points
+     ymax =   60.0          $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0.0          $ minimum value of z-mesh points
+     zmax =  120.0          $ maximum value of z-mesh points
+       nz =   60            $ number of z-mesh points
+     unit =    2            $ unit is [MeV/source]
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+     axis =   xz            $ axis of output
+     file = deposit.out        $ file name of output for the above axis
+ material =  all            $ (D=all) number of specific material
+   output =  dose           $ total deposit energy
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+[ T-WWG ] off
+      mesh = xyz
+   x-type =  2
+       nx =  4
+     xmin =  -60
+     xmax =   60
+   y-type =  2
+       ny =  4
+     ymin = -60
+     ymax =  60
+   z-type =  2
+       nz =  20
+     zmin =  0
+     zmax =  120
+   part = all
+   e-type = 1               $ e-mesh is given by the below data
+       ne = 1               $ number of e-mesh points
+     0      1e5
+   axis   =  wwg            $ axis of output
+    file  =  WWG.out        $ file name of output for the above axis
+
+[ End ]
+END_INPUT
+
+PURPOSE: Count Cherenkov photons generated in optical glass that reflect inside the glass and reach the photocathode. Tally outputs: - product.out Emission spectrum of optical photons - cross.out Spectrum crossing the photocathode through the PMT window - cross_with_Multiplier.out Result weighted by quantum efficiency via Multiplier
+FILE: Light/Light.inp
+BEGIN_INPUT
+[ Title ]
+Count Cherenkov photons generated in optical glass that reflect
+inside the glass and reach the photocathode.
+
+Tally outputs:
+- product.out
+    Emission spectrum of optical photons
+- cross.out
+    Spectrum crossing the photocathode through the PMT window
+- cross_with_Multiplier.out
+    Result weighted by quantum efficiency via Multiplier
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =          10     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS, =2:EGS(HE)
+ e-mode   =           2     $ (D=0) 0: Normal, 1: Event generator mode Ver.1, 2: Ver.2
+
+[ Source ]
+ s-type = 1
+   proj = proton
+     e0 = 1000 $ MeV
+     z0 = -50 $ cm
+     z1 = -50 $ cm
+
+
+[ Surface ]
+  11  rpp  -6 6   -6 6   0 31.5                 $ Optical-Glass
+  12  rcc  0 0 31.5-0.01        0 0 0.3   3.25  $ PMT-Window
+  13  rcc  0 0 31.5-0.01+0.3    0 0 1     3.25  $ Photocathode
+  99  so   100
+[ Material ]
+  mat[1] @GLASS_LEAD@  $ Optical-Glass
+
+
+[ Cell ]
+ 101    %GLASS_LEAD%  0.0  -11       $ Optical-Glass
+ 102    0        -12 #101  $ PMT-Window
+ 103    0        -13 #102  $ Photocathode
+ 98     0        -99 #all
+ 99    -1         99
+
+
+[ Light ]
+$ yield-factor = 0.1
+
+$ ------------------------------------
+$ Optical-Glass
+$ Reference: https://www.schott.com/shop/advanced-optics/en/Optical-Glass/SF6/c/glass-SF6
+set-region
+  reg = 101
+  
+  table-n
+    unit1 = nm
+     800.0  1.78501
+     706.5  1.79117
+     656.3  1.79609
+     643.8  1.79750
+     632.8  1.79884
+     589.3  1.80491
+     587.6  1.80518
+     546.1  1.81265
+     486.1  1.82775
+     480.0  1.82970
+     435.8  1.84707
+     404.7  1.86436
+     365.0  1.89703
+  end-table
+
+  table-tau25
+    unit1 = nm
+     800  0.996
+     700  0.996
+     660  0.995
+     620  0.995
+     580  0.996
+     546  0.996
+     500  0.991
+     460  0.978
+     436  0.955
+     420  0.920
+     405  0.840
+     400  0.800
+     390  0.660
+     380  0.440
+     370  0.130
+     365  0.030
+  end-table
+
+$ ------------------------------------
+$ PMT-Window
+set-region
+  reg = 102
+    n = 1.8
+
+$ ------------------------------------
+$ Photocathode
+set-region
+  reg = 103
+    n = 1
+
+$ ------------------------------------
+set-boundary
+  reg-from = 101
+  reg-to   = 98
+  fraction-absorption = 0.05
+  fraction-diffuse = 1.0
+
+$ ------------------------------------
+set-boundary
+  reg-from = 101
+  reg-to   = 102
+  fraction-absorption = 0.0
+  boundary-type = fresnel
+
+$ ------------------------------------
+set-boundary
+  reg-from = 102
+  reg-to   = 103
+  fraction-absorption = 0.0
+  fraction-pass = 1.0
+
+
+[ T-Product ]
+  part = light
+  file = product.out
+
+  mesh = reg
+  reg  = 101
+
+  e-type = 2
+  e-unit = nm
+  emin = 300
+  emax = 900
+  ne = 100
+
+  unit = 1         $ unit is [1/source]
+  axis = eng       $ axis of output(eng = energy)
+  epsout = 1
+  angel = ylin
+
+
+[ T-Cross ]
+  file = cross.out
+  part = light
+
+  mesh = reg
+  reg = 1
+    non     r-from  r-to    area
+    1       102     103     1.000000    
+
+  e-type = 2
+  e-unit = nm
+  emin = 300
+  emax = 900
+  ne = 100
+
+  unit = 1        $ 1:[1/cm^2/source]
+  axis = eng
+  output = current  $ flux / current
+  epsout = 1
+  angel = ylin
+
+
+[ Multiplier ]
+$ QE: Quantum Efficiency
+$ HAMAMATSU_PMT_R580
+$ https://www.hamamatsu.com/content/dam/hamamatsu-photonics/sites/documents/99_SALES_LIBRARY/etd/R580_TPMH1100E.pdf
+  number = -250
+  part = light
+  e-unit = nm
+  ne = 24
+    292  0.00942
+    294  0.0418
+    296  0.0608
+    301  0.0936
+    311  0.134
+    326  0.183
+    341  0.212
+    363  0.238
+    387  0.246
+    411  0.239
+    442  0.214
+    478  0.173
+    507  0.135
+    530  0.102
+    556  0.0653
+    580  0.0390
+    598  0.0237
+    613  0.0147
+    632  0.00777
+    648  0.00410
+    670  0.00140
+    684  0.000644
+    695  0.000335
+    707  0.000153
+
+[ T-Cross ]
+  y-txt = Current x QE
+  file = cross_with_Multiplier.out
+  part = light
+
+  mesh = reg
+  reg = 1
+    non     r-from  r-to    area
+    1       102     103     1.000000    
+
+  e-type = 2
+  e-unit = nm
+  emin = 300
+  emax = 900
+  ne = 100
+
+  unit = 1        $ 1:[1/cm^2/source]
+  axis = eng
+  output = current  $ flux / current
+  epsout = 1
+  angel = ylin
+
+  $ QE: Quantum Efficiency
+  multiplier = all
+    mat    mset1
+    all ( 1.0 -250 )
+
+
+
+[ T-Track ]
+  file = track_xz.out
+  part = proton light
+  mesh = xyz
+
+  x-type =  2
+  xmin = -10
+  xmax =  10
+  nx =  199
+
+  y-type =  2
+  ymin = -10
+  ymax =  10
+  ny =  1
+
+  z-type =  2
+  zmin = -5
+  zmax =  35
+  nz =  200
+
+  e-type = 2
+  emin = 0
+  emax = 1e+10
+  ne = 1
+
+  unit = 1         $ 1: [1/cm^2/source]
+  axis = xz
+  gshow = 1
+  epsout = 1
+END_INPUT
+
+PURPOSE: Sample input for muon transport
+FILE: muon/muon.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for muon transport
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =         200     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ emin(6)  = 1.000000000E-01 $ (D=1.0) cut-off energy of muon+ (MeV)
+ emin(7)  = 1.000000000E-01 $ (D=1.0) cut-off energy of muon- (MeV)
+ negs     =           2     $ (D=0) =1 EGS photon and electron
+ ipnint   =           1     $ (D=0) 0: no, 1: consider photo-nuclear reaction
+ maxbnk = 100000
+
+[ Source ]
+set:c1[60e2]
+  totfact =  -pi*c1**2       $ (D=1.0) global factor
+ <source> = 1.0
+   s-type =   9             $ mono-energetic axial source
+     proj =  muon+           $ kind of incident nucleus          
+       r1 =   c1             $ radius of sphere [cm]
+       r2 =   c1             $ radius of source circle [cm]
+      dir =  iso            $ inner direction with uniform dis. by analog
+      ag1 =  -1.0000        $ minimum cutoff cosine
+      ag2 =   0.0000        $ maximum cutoff cosine
+   e-type =  26             $ Cosmic-ray source
+      eg1 =   10.000        $ minimum cutoff energy [MeV]
+      eg2 =  1.00000E+05    $ maximum cutoff energy [MeV]
+    icenv =   1             $ 0>: Terrestiral GCR, D=0: Free-space GCR, <0:Free-space SEP
+    rigid =   0.0000        $ Cut-off rigidity in GV
+     alti =   0.0000        $ Altitude in km
+   icyear = 2020
+  icmonth = 1
+    icday = 5
+
+ <source> = 1.0
+   s-type =   9             $ mono-energetic axial source
+     proj =  muon-           $ kind of incident nucleus          
+       r1 =   c1             $ radius of sphere [cm]
+       r2 =   c1             $ radius of source circle [cm]
+      dir =  iso            $ inner direction with uniform dis. by analog
+      ag1 =  -1.0000        $ minimum cutoff cosine
+      ag2 =   0.0000        $ maximum cutoff cosine
+   e-type =  26             $ Cosmic-ray source
+      eg1 =   10.000        $ minimum cutoff energy [MeV]
+      eg2 =  1.00000E+05    $ maximum cutoff energy [MeV]
+    icenv =   1             $ 0>: Terrestiral GCR, D=0: Free-space GCR, <0:Free-space SEP
+    rigid =   0.0000        $ Cut-off rigidity in GV
+     alti =   0.0000        $ Altitude in km
+   icyear = 2020
+  icmonth = 1
+    icday = 5
+[ Material ]
+MAT[ 1 ]  @SIO2(1)@  $ Soil (SiO2)
+MAT[ 2 ]  @AIR@      $ Air
+
+[ Cell ]
+ 1   %AIR%      0.0       -99 1 2  $ air
+ 2   %SIO2(1)%  0.0       -2 3     $ object
+ 3   %AIR%      0.0       -3       $ air inside object
+ 98  -1           -99 -1   $ underground (outer void)
+ 99  -1            99    
+
+[ Surface ]
+ 1  pz     0
+ 2  trc    0  0  0  0  0  50e2  50e2  5e2  $ soil
+ 3  sz     15e2   5e2                      $ air inside object
+99  so  100e2
+
+[ T-Track ]
+    title = 2Dview
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -c1            $ minimum value of x-mesh points
+     xmax =   c1            $ maximum value of x-mesh points
+       nx =   100            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -c1           $ minimum value of y-mesh points
+     ymax =   c1            $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0            $ minimum value of z-mesh points
+     zmax =   c1            $ maximum value of z-mesh points
+       nz =   200            $ number of z-mesh points
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xz            $ axis of output
+     file = track.out       $ file name of output for the above axis
+     part = (muon+ muon-) proton neutron
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+             0.0  1e10
+     unit =    1            $ unit is [1/cm^2/source]
+   epsout =    1            $ (D=0) generate eps file by ANGEL   
+    gshow =    3            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+
+[ T-Product ]
+    title = [ T-Product ] in reg mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg =  (1 2 3)
+   e-type =    3            $ e-mesh is log given by emin, emax and ne
+     emin =  1.0000000E-03  $ minimum value of e-mesh points
+     emax =   1000.0000      $ maximum value of e-mesh points
+       ne =   120           $ number of e-mesh points
+     part = neutron photon
+     axis =   eng             $ axis of output
+     unit = 1
+     file = product.out
+   epsout = 1
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for accelerator-based neutron source
+FILE: NeutronSource/NeutronSource.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for accelerator-based neutron source
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =       10000     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ dmax(1)  =  200.000000     $ (D=emin(1)) data max. energy of proton (MeV)
+ dmax(2)  =  200.000000     $ (D=emin(2)) data max. energy of neutron (MeV)
+ dmax(15) =  100.000000     $ (D=emin(15)) data max. energy of deuteron (MeV/n)
+ nfcseg   =          50     $ (D=50) Number of segmentation in forced collision
+
+[ Source ]
+  totfact =   1.0000        $ (D=1.0) global factor
+   s-type =   1             $ cylindrical source
+     proj =  deuteron       $ kind of incident particle         
+       e0 =   20.000        $ energy of beam [MeV/n]
+       r0 =  0.25000        $ radius [cm]
+       r1 =   0.0000        $ minimum radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -40.000        $ minimum position of z-axis [cm]
+       z1 =  -40.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+MAT[ 1 ] @BERYLLIUM@  $ Be target
+MAT[ 2 ] $ 100MoO3 sample
+        100Mo         1.0000000E+00
+            O         3.0000000E+00
+
+[ Surface ]
+set: c11[2.0]     $ size of target [cm]
+set: c12[0.9]     $ thickness of target [cm]
+set: c13[-c12]    $ z-coordinate of target [cm]
+set: c14[1.80]    $ density of target [g/cm3]
+set: c15[0.55]    $ radius of sample [cm]
+set: c16[0.179]   $ thickness of sample [cm]
+set: c17[0.9]     $ z-coordinate of sample [cm]
+set: c18[3.40]    $ density of sample [g/cm3]
+set: c19[c18/(36.98)*6.02e23] $ particle density of 100MoO3 [#/cm^3]
+
+  11  cz      c11
+  12  pz      c13
+  13  pz      c13+c12
+  21  cz      c15
+  22  pz      c17
+  23  pz      c17+c16
+ 999  so      100.
+
+[ Cell ]
+   1     %BERYLLIUM%  0.0  -11 12 -13  $ 9Be target
+   2     2 -c18  -21 22 -23  $ 100MoO3 sample
+ 100     0       -999 #1 #2
+ 999    -1        999
+
+[ Forced Collisions ]
+   part = deuteron
+   reg     fcl
+     1    -1.0
+
+[ T-Cross ]
+    title = [t-cross] in region mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg =    1            $ number of crossing regions
+      non     r-from    r-to     area
+      1       100       2       pi*c15**2
+   e-type =    2            $ e-mesh is linear given by emin, emax and ne
+     emin =   0.000000      $ minimum value of e-mesh points
+     emax =   50.00000      $ maximum value of e-mesh points
+       ne =     50          $ number of e-mesh points
+     unit =    2            $ unit is [1/cm^2/MeV/source]
+     axis =  eng            $ axis of output
+     file = cross.out       $ file name of output for the above axis
+   output = flux            $ surface crossing flux
+     part =  neutron    proton     deuteron 
+   epsout =    2            $ (D=0) generate eps file by ANGEL
+
+[ T-Track ]
+    title = Track Detection in reg mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg = 2
+   e-type =    2            $ e-mesh is linear given by emin, emax and ne
+     emin =   0.000000      $ minimum value of e-mesh points
+     emax =   50.00000      $ maximum value of e-mesh points
+       ne =      1          $ number of e-mesh points
+     unit =    4            $ unit is [1/cm^2/source]
+ material =  all            $ (D=all) number of specific material
+     axis =     reg            $ axis of output
+     file = yield-99Mo_multiplier.out  $ file name of output for the above axis
+     part =  neutron  
+  multiplier = all          $ number of material group
+     part =  neutron  
+     emax =    100.00    
+      mat         mset1  
+      all ( 1.0000 -299 )
+   factor = 1e-27*c19       $ (D=1.0) normalization factor
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat 5:bmp style
+    resol =    1            $ (D=1) resolution of gshow or rshow
+    width = 0.5000000       $ (D=0.5) width of lines for gshow or rshow
+   epsout =    0            $ (D=0) generate eps file by ANGEL
+
+[ Multiplier ]
+$ Activation cross sections of JENDL-4.0 (below 20 MeV) and
+$ JENDL-4.0/HE (above 20 MeV) for 100Mo(n,2n)99Mo reaction
+$ taken from https://wwwndc.jaea.go.jp/ftpnd/jendl/jendl40he_prod.html
+     part =  all      
+  number = -299
+   interpolation = lin
+  ne =   45
+$ Production of Mo-99
+$ E_in [MeV]  sigma [mb]
+8.373478e+00  0.000000e+00
+8.500000e+00  0.000000e+00
+9.000000e+00  2.088000e+02
+9.500000e+00  5.289000e+02
+1.000000e+01  7.667000e+02
+1.100000e+01  1.092000e+03
+1.200000e+01  1.246000e+03
+1.300000e+01  1.325000e+03
+1.400000e+01  1.375000e+03
+1.460000e+01  1.398000e+03
+1.500000e+01  1.410000e+03
+1.600000e+01  1.403000e+03
+1.700000e+01  1.326000e+03
+1.800000e+01  1.194000e+03
+1.900000e+01  1.051000e+03
+2.000000e+01  9.251000e+02
+2.200000e+01  4.281776e+02
+2.400000e+01  3.335852e+02
+2.600000e+01  2.811359e+02
+2.800000e+01  2.486745e+02
+3.000000e+01  2.252847e+02
+3.500000e+01  1.932358e+02
+4.000000e+01  1.585249e+02
+4.500000e+01  1.329731e+02
+5.000000e+01  1.148645e+02
+5.500000e+01  9.836731e+01
+6.000000e+01  9.029611e+01
+6.500000e+01  8.343733e+01
+7.000000e+01  7.757121e+01
+7.500000e+01  7.058684e+01
+8.000000e+01  6.302926e+01
+8.500000e+01  5.962944e+01
+9.000000e+01  5.758724e+01
+9.500000e+01  5.171450e+01
+1.000000e+02  5.608422e+01
+1.100000e+02  4.982447e+01
+1.200000e+02  4.454752e+01
+1.300000e+02  4.048504e+01
+1.400000e+02  4.662722e+01
+1.500000e+02  3.948338e+01
+1.600000e+02  3.000346e+01
+1.700000e+02  3.759795e+01
+1.800000e+02  2.990053e+01
+1.900000e+02  2.690699e+01
+2.000000e+02  3.430448e+01
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for calculating double differential cross section
+FILE: NuclearReaction/NuclearReaction.inp
+BEGIN_INPUT
+[ Title ]  
+Sample input for calculating double differential cross section
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ itall    =           1     $ (D=0) 0:no tally at batch, 1:same, 2:different
+ maxcas   =       10000     $ (D=10) number of particles per one batch
+ maxbch   =           1     $ (D=10) number of batches
+ inclg    =           1     $ (D=1) 0:no, 1:INCL for p,n,pi,d,t,3He,alpha, 2:p,n,pi only
+ icrhi    =           1     $ (D=1) 0: Shen, 1: NASA, 2: KUROTAMA
+ icxsni   =           0     $ (D=0) 0: Pearlstein-Niita, 1: KUROTAMA, 2: Sato
+ ismm     =           1     $ (D=0) 0: no, 1: Activate statistical multi-fragmentation
+ ipnint   =           1     $ (D=0) photonuclear GDR, 1:analog, -1:implicit
+ imuint   =           1     $ (D=0) 0: no, 1: muon interaction
+ e-mode   =           2     $ (D=0) 0: Normal, 1: Event generator mode
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS
+
+[ Source ] 
+  totfact =   1.0000        $ (D=1.0) global factor
+   s-type =   1             $ mono-energetic axial source
+     proj =  proton         $ kind of incident particle         
+       e0 =   100.00        $ energy of beam [MeV/n]
+       r0 =   0.0000        $ radius [cm]
+       z0 =  -1.000        $ minimum position of z-axis [cm]
+       z1 =  -1.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+m1     @COPPER@  $ Target
+
+set: c1[0.01]    $ target thickness (cm)
+set: c2[8.96]    $ target density (g/cm3)
+set: c3[63.55]   $ target mass number (mean value)
+set: c4[c2/c3*6.02e23*c1] $ number of atoms (/cm2)
+
+[ Cell ]
+    1     %COPPER%  0.0                1 -2 -10   $ Target
+   98     0  #1 -99
+   99    -1  99
+
+[ Surface ]
+1  pz  0
+2  pz  c1
+10 cz  1.0
+99 so  100.0
+
+[ Forced Collisions ]
+   part = proton  
+   reg     fcl
+     1    -1.0
+
+[ T-Product ]
+     mesh =  reg            $ mesh type is region-wise
+      reg = 1
+   e-type =    3            $ e-mesh is log given by emin, emax and ne
+     emin =  1.0000000E-03  $ minimum value of e-mesh points
+     emax =   100.0000      $ maximum value of e-mesh points
+       ne =   50            $ number of e-mesh points
+  a-type = -2
+      na = 9  
+    amin = 0
+    amax = 180
+ material =  all            $ (D=all) number of specific material
+   mother =  all            $ (D=all) number of specific mother
+     unit =   23            $ unit is [1/MeV/SR/source]
+     axis =  eng            $ axis of output
+     file = ddx_product.out     $ file name of output for the above axis
+   output = nuclear         $ (D=nuclear) products from all reactions
+     part = proton  alpha neutron  Cu
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+    factor = 1/c4*1.0E27
+    y-txt = d^2\sigma/dE/d\Omega (mb/sr/MeV)
+
+[ T-Track ] 
+    title = [ T-Track ] in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -1.00000      $ minimum value of x-mesh points
+     xmax =   1.00000      $ maximum value of x-mesh points
+       nx =  100            $ number of x-mesh points
+   y-type =    1            $ y-mesh is given by the below data
+       ny =    1            $ number of y-mesh points
+           -1  1
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =  -1.00000      $ minimum value of z-mesh points
+     zmax =   1.00000      $ maximum value of z-mesh points
+       nz =  100            $ number of z-mesh points
+   e-type =    2            $ e-mesh is linear given by emin, emax and ne
+     emin =   0.000000      $ minimum value of e-mesh points
+     emax =   10000.00      $ maximum value of e-mesh points
+       ne =    1            $ number of e-mesh points
+     unit =    1            $ unit is [1/cm^2/source]
+ material =  all            $ (D=all) number of specific material
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xz            $ axis of output
+     file = xz_flux.out     $ file name of output for the above axis
+     part =  proton  alpha neutron  Cu
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+[ End ]
+
+ 
+END_INPUT
+
+PURPOSE: Sample input for dose calculation for charged particle therapy
+FILE: ParticleTherapy/ParticleTherapy.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for dose calculation for charged particle therapy
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =         100     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ e-mode   =           2     $ (D=0) 0: Normal, 1: Event generator mode
+ nedisp   =           1     $ (D=0) 0: no, 1: with e straggling, 10: ATIMA
+ nspred   =           2     $ (D=0) 0:no, 1:original, 2:Lynch(Moliere), 10:ATIMA
+ ascat1   =  13.6000000     $ (D=13.6) S2 parameter in Lynch formula for nspred = 2
+ ascat2   = 3.800000000E-02 $ (D=0.038) e parameter in Lynch formula for nspred = 2
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS
+ epstfl   =           1     $ [EGS](D=0) 0:no, 1:consider density effect based on ICRU90
+[ Source ]
+   s-type =   1             $ mono-energetic axial source
+     proj =  12C            $ kind of incident nucleus          
+       e0 =   200.00        $ energy of beam [MeV/n]
+       r0 =   0.0000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -20.000        $ minimum position of z-axis [cm]
+       z1 =  -20.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+MAT[ 1 ] @WATER@
+
+[ Cell ]
+ 1          %WATER%  0.0   1 -2 -11  $ Water
+98          0       #1 -999    $ Void
+99         -1           999    $ Outer region
+
+[ Surface ]
+ 1            pz     0.0
+ 2            pz    10.0
+ 11           cz     5.0
+ 999          so   100.0
+
+[ T-Deposit ]
+    title = depth-dose distribution
+     mesh =  r-z            $ mesh type is r-z scoring mesh
+       x0 =   0.000000      $ center x-position of r-z mesh
+       y0 =   0.000000      $ center y-position of r-z mesh
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =   1.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   0.000000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =  100            $ number of z-mesh points
+     unit =    2            $ unit is [MeV/source)]
+   letmat =    0            $ (D=0) material id for LET, 0: real material
+  dedxfnc =    0            $ (D=0) user defined multiplier, 0(no), 1, 2
+ material =  all            $ (D=all) number of specific material
+   output =  dose           $ total deposit energy
+     axis =     z           $ axis of output
+     file = dose.out        $ file name of output for the above axis
+     part =  all
+   epsout =    1
+
+[ T-Deposit ]
+    title = depth-dose distribution for Q(L)-based dose equivalent
+     mesh =  r-z            $ mesh type is r-z scoring mesh
+       x0 =   0.000000      $ center x-position of r-z mesh
+       y0 =   0.000000      $ center y-position of r-z mesh
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =   1.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   0.000000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =  100            $ number of z-mesh points
+     unit =    2            $ unit is [MeV/source)]
+   letmat =   -%WATER%      $ (D=0) mat ID for LET, 0:real mat, <0: electron for H2O
+  dedxfnc =    1            $ (D=0) user defined multiplier, 0(no), 1, 2
+ material =  all            $ (D=all) number of specific material
+   output =  dose           $ total deposit energy
+     axis =     z           $ axis of output
+     file = dose-equivalent.out  $ file name of output for the above axis
+     part =  all      
+   epsout =    1
+
+[ T-LET ] 
+    title = LET distribution in water
+     mesh =  r-z            $ mesh type is r-z scoring mesh
+       x0 =   0.000000      $ center x-position of r-z mesh
+       y0 =   0.000000      $ center y-position of r-z mesh
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =   1.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   0.000000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =   10            $ number of z-mesh points
+   l-type =    3            $ l-mesh is log given by lmin, lmax and nl
+     lmin =  1.0000000E-02  $ minimum value of l-mesh points
+     lmax =   10000.00      $ maximum value of l-mesh points
+       nl =  180            $ number of l-mesh points
+     unit =    2            $ unit is [MeV/(keV/um)/source]
+   letmat =   -%WATER%      $ (D=0) mat ID for LET, 0:real mat, <0: electron for H2O
+ material =  all            $ (D=all) number of specific material
+     axis =  let            $ axis of output
+     file = let-distribution.out  $ file name of output for the above axis
+     part =  all      
+   epsout =    1
+ samepage = z
+
+[ T-SED ]
+    title = Lineal-energy distribution in water
+     mesh =  r-z            $ mesh type is r-z scoring mesh
+       x0 =   0.000000      $ center x-position of r-z mesh
+       y0 =   0.000000      $ center y-position of r-z mesh
+   r-type =    2            $ r-mesh is linear given by rmin, rmax and nr
+     rmin =   0.000000      $ minimum value of r-mesh points
+     rmax =   1.000000      $ maximum value of r-mesh points
+       nr =    1            $ number of r-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   0.000000      $ minimum value of z-mesh points
+     zmax =   10.00000      $ maximum value of z-mesh points
+       nz =   10            $ number of z-mesh points
+  se-type =    3            $ e-mesh is log given by emin, emax and ne
+    emin  =  1.0000000E-02  $ minimum value of e-mesh points
+    emax  =   10000.00      $ maximum value of e-mesh points
+       ne =  180            $ number of e-mesh points
+  se-unit =    2            $ se-unit is [keV/um]
+     unit =    2            $ unit is [MeV/z/source)]
+    cdiam =  1.000000       $ (D=1.0) diameter of SE cell [um]
+   letmat =   -%WATER%      $ (D=0) mat ID for LET, 0:real mat, <0: electron for H2O
+ material =  all            $ (D=all) number of specific material
+     axis =  sed            $ axis of output
+     file = y-distribution.out  $ file name of output for the above axis
+     part =  all      
+   epsout =    1
+ samepage = z
+    model =    0            $ (D=0) Model type 0:old, 1:new
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for dose calculation for photon therapy
+FILE: PhotonTherapy/PhotonTherapy.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for dose calculation for photon therapy
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =        1000     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ ipnint   =           1     $ (D=0) 0: no, 1: consider photo-nuclear reaction
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS
+
+[ Source ]
+   s-type =   1             $ mono-energetic axial source
+     proj =  electron       $ kind of incident nucleus          
+       e0 =   20.000        $ energy of beam [MeV/n]
+       r0 =   0.1000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -20.000        $ minimum position of z-axis [cm]
+       z1 =  -20.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+MAT[ 1 ]   @TISSUEICRU@  $ ICRU soft tissue
+MAT[ 2 ]   @TUNGSTEN@    $ X-ray generator 
+
+[ Cell ]
+ 1          %TUNGSTEN%    0.0  1 -2 -11   $ X-ray generator
+ 2          %TISSUEICRU%  0.0  3 -4 -12   $ Phantom
+98          0      #1 #2 -999  $ Void
+99         -1             999  $ Outer region
+
+[ Surface ]
+ 1            pz     0.0
+ 2            pz     1.0
+ 3            pz     5.0
+ 4            pz    15.0
+ 11           cz     1.0
+ 12           cz     5.0
+ 999          so   100.0
+
+[ T-Deposit ]
+    title = Deposit in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -5.000000      $ minimum value of x-mesh points
+     xmax =   5.000000      $ maximum value of x-mesh points
+       nx =   50            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -5.000000      $ minimum value of y-mesh points
+     ymax =   5.000000      $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   -2.00000      $ minimum value of z-mesh points
+     zmax =   22.00000      $ maximum value of z-mesh points
+       nz =   120           $ number of z-mesh points
+     unit =    0            $ unit is [Gy/source]
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xz            $ axis of output
+     file = deposit.out     $ file name of output for the above axis
+ material =  all            $ (D=all) number of specific material
+   output = dose            $ only heat is written
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+
+[ T-Track ]
+    title = Track in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -5.000000      $ minimum value of x-mesh points
+     xmax =   5.000000      $ maximum value of x-mesh points
+       nx =   50            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -5.000000      $ minimum value of y-mesh points
+     ymax =   5.000000      $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   -2.00000      $ minimum value of z-mesh points
+     zmax =   16.00000      $ maximum value of z-mesh points
+       nz =   90            $ number of z-mesh points
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xz            $ axis of output
+     file = track.out       $ file name of output for the above axis
+     part = electron photon neutron
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+             0.0  1000.0
+     unit =    1            $ unit is [1/cm^2/source]
+   epsout =    1            $ (D=0) generate eps file by ANGEL   
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for calculating deposition energy distribution in semi-conductor device
+FILE: SemiConductor/SemiConductor.inp
+BEGIN_INPUT
+[ Title ]  
+Sample input for calculating deposition energy distribution in semi-conductor device
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =     1000000     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ esmin    = 1.000000000E-6  $ (D=0.001) min energy for charged particle range 
+ e-mode   =           2     $ (D=0) 0: Normal, 1: Event generator mode
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS
+
+[ Source ] 
+  totfact =   1.0000        $ (D=1.0) global factor
+   s-type =   1             $ mono-energetic axial source
+     proj =  neutron        $ kind of incident particle         
+       e0 =   19.000        $ energy of beam [MeV/n]
+       r0 =   0.0000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -1.0000        $ minimum position of z-axis [cm]
+       z1 =  -1.0000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+m1  @SILICON@
+
+[ Cell ]
+    1     %SILICON%  0.0                 1 -2  -11   $ Target
+   98     0                      -999 #1
+   99    -1                 999 
+
+set: c20[10.0]   $ radius of sphere
+set: c30[0.0003]  $ depth of sample
+set: c40[0.0003]  $ radius of sample
+
+[ Surface ]
+    1   pz   -c30/2
+    2   pz    c30/2
+   11   cz    c40
+  999   so     c20
+
+[ Volume ]
+reg vol
+1   pi*c40*c40*c30
+
+[ Delta Ray ]
+    reg        del
+     1        0.01
+
+[ T-Deposit ]
+    title = [ T-Deposit ] in region mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg = 1
+     unit =    3            $ unit is [1/source] : only for output=deposit
+   letmat =    0            $ (D=0) material id for LET, 0: real material
+  dedxfnc =    0            $ (D=0) user defined multiplier, 0(no), 1, 2
+ material =  all            $ (D=all) number of specific material
+   output = deposit         $ deposit enerygy distribution
+   e-type =    3            $ e-mesh is log given by emin, emax and ne
+     emin =  1.0000000E-05  $ minimum value of e-mesh points
+     emax =   100.0000      $ maximum value of e-mesh points
+       ne =   50            $ number of e-mesh points
+     axis =   eng           $ axis of output
+     file = deposit.out     $ file name of output for the above axis
+     part =  all        Si         proton     deuteron   alpha    
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+
+
+[ End ]
+
+ 
+END_INPUT
+
+PURPOSE: Sample input for radiation shielding
+FILE: Shielding/Shielding.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for radiation shielding
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =         100     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ dmax(1)  =  200.000000     $ (D=emin(1)) data max. energy of proton (MeV)
+ dmax(2)  =  200.000000     $ (D=emin(2)) data max. energy of neutron (MeV)
+
+[ Source ] 
+  totfact =   1.0000        $ (D=1.0) global factor
+   s-type =   1             $ mono-energetic axial source
+     proj =  neutron         $ kind of incident particle         
+       e0 =  1000.00        $ energy of beam [MeV/n]
+       r0 =   0.0000        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =   0.0000        $ minimum position of z-axis [cm]
+       z1 =   0.0000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+      dom =  1.00000E-02    $ spread of beam direction [degree]
+     trcl =  103            $ transform ID
+[ Material ] 
+m30      @IRON@                      $ Fe shield
+m40      @CONCRETE_AESJ(ORDINARY)@   $ Concrete
+
+[ Mat Name Color ]
+   mat                    name     size             color   $ HSB color value
+     0                    void     1.00         lightgray   $ { -0.800  1.000  1.000 }
+    30                      Fe     1.00     pastelmagenta   $ {  0.067  0.600  1.000 }
+    40                Concrete     1.00           darkred   $ {  1.000  1.000  0.600 }
+
+
+[ Transform ]
+set: c1[-402.0]   $ transposition to X (cm)
+set: c2[0]        $ transposition to Y (cm)
+set: c3[21.07]    $ transposition to Z (cm)
+set: c10[0]   $ angle of around Z (degree)
+set: c20[-77]  $ angle of around Y (degree)
+set: c30[0]   $ angle of around X (degree)
+tr100   c1 c2 c3
+      cos(c10/180*pi)*cos(c20/180*pi)
+      sin(c10/180*pi)*cos(c30/180*pi)+cos(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      sin(c10/180*pi)*sin(c30/180*pi)-cos(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+     -sin(c10/180*pi)*cos(c20/180*pi)
+      cos(c10/180*pi)*cos(c30/180*pi)-sin(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      cos(c10/180*pi)*sin(c30/180*pi)+sin(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+      sin(c20/180*pi)
+     -cos(c20/180*pi)*sin(c30/180*pi)
+      cos(c20/180*pi)*cos(c30/180*pi)
+      1
+
+set: c1[-670.3]   $ transposition to X (cm)
+set: c2[0]        $ transposition to Y (cm)
+set: c3[135.0]    $ transposition to Z (cm)
+set: c10[0]   $ angle of around Z (degree)
+set: c20[-57]  $ angle of around Y (degree)
+set: c30[0]   $ angle of around X (degree)
+tr101   c1 c2 c3
+      cos(c10/180*pi)*cos(c20/180*pi)
+      sin(c10/180*pi)*cos(c30/180*pi)+cos(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      sin(c10/180*pi)*sin(c30/180*pi)-cos(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+     -sin(c10/180*pi)*cos(c20/180*pi)
+      cos(c10/180*pi)*cos(c30/180*pi)-sin(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      cos(c10/180*pi)*sin(c30/180*pi)+sin(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+      sin(c20/180*pi)
+     -cos(c20/180*pi)*sin(c30/180*pi)
+      cos(c20/180*pi)*cos(c30/180*pi)
+      1
+
+set: c1[-814.0]   $ transposition to X (cm)
+set: c2[0]        $ transposition to Y (cm)
+set: c3[269.0]    $ transposition to Z (cm)
+set: c10[0]   $ angle of around Z (degree)
+set: c20[-33]  $ angle of around Y (degree)
+set: c30[0]   $ angle of around X (degree)
+tr102   c1 c2 c3
+      cos(c10/180*pi)*cos(c20/180*pi)
+      sin(c10/180*pi)*cos(c30/180*pi)+cos(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      sin(c10/180*pi)*sin(c30/180*pi)-cos(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+     -sin(c10/180*pi)*cos(c20/180*pi)
+      cos(c10/180*pi)*cos(c30/180*pi)-sin(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      cos(c10/180*pi)*sin(c30/180*pi)+sin(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+      sin(c20/180*pi)
+     -cos(c20/180*pi)*sin(c30/180*pi)
+      cos(c20/180*pi)*cos(c30/180*pi)
+      1
+
+set: c1[0]   $ transposition to X (cm)
+set: c2[125]        $ transposition to Y (cm)
+set: c3[0]    $ transposition to Z (cm)
+set: c10[0]   $ angle of around Z (degree)
+set: c20[-90]  $ angle of around Y (degree)
+set: c30[0]   $ angle of around X (degree)
+tr103   c1 c2 c3
+      cos(c10/180*pi)*cos(c20/180*pi)
+      sin(c10/180*pi)*cos(c30/180*pi)+cos(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      sin(c10/180*pi)*sin(c30/180*pi)-cos(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+     -sin(c10/180*pi)*cos(c20/180*pi)
+      cos(c10/180*pi)*cos(c30/180*pi)-sin(c10/180*pi)*sin(c20/180*pi)*sin(c30/180*pi)
+      cos(c10/180*pi)*sin(c30/180*pi)+sin(c10/180*pi)*sin(c20/180*pi)*cos(c30/180*pi)
+      sin(c20/180*pi)
+     -cos(c20/180*pi)*sin(c30/180*pi)
+      cos(c20/180*pi)*cos(c30/180*pi)
+      1
+
+[ Surface ]  
+set: c50[40]   $ thickness of each wall
+
+  100 pz -300-200
+  101 pz -300-200+c50
+  102 pz -300-200+c50*2
+  103 pz -300-200+c50*3
+  104 pz -300-200+c50*4
+  105 pz -300-200+c50*5
+
+  200 px -1842-200
+  201 px -1842-200+c50*1
+  202 px -1842-200+c50*2
+  203 px -1842-200+c50*3
+  204 px -1842-200+c50*4
+  205 px -1842-200+c50*5
+
+ 1000 pz -300-200
+ 1001 pz  900
+ 1002 px -1842-200
+ 1003 px  200
+ 1004 py  0-200
+ 1005 py  600
+ 1006 py  0
+ 1007 pz -300
+ 1008 px -1842
+
+ 1009 pz -300-200-200
+ 1010 pz  900+200
+ 1011 px -1842-200-200
+ 1012 px  200+200
+ 1013 py  0-200-200
+ 1014 py  600+200
+
+$target-place?
+ 1100 pz 149.2/(-2)
+ 1101 pz 149.2/2
+ 1102 px 85/(-2)
+ 1103 px 85/2
+ 1104 py 58/(-2)+125
+ 1105 py 58/2+125
+
+$target?
+ 1200 pz 149.2/(-2)-0.01
+ 1201 pz 149.2/2+0.01
+ 1202 px 85/(-2)-0.01
+ 1203 px 85/2+0.01
+ 1204 py 58/(-2)+125-0.01
+ 1205 py 58/2+125+0.01
+
+ 1206 px 31/(-2)
+ 1207 px 31/2
+ 1208 py 5.5/(-2)+125
+ 1209 py 5.5/2+125
+ 1210 px 31/(-2)-10
+ 1211 px 31/2+10
+ 1212 py 24/(-2)+125
+ 1213 py 24/2+125
+
+[ Cell ] 
+ 1000  0        1007 -1001 1008 -1003 1006 -1005 #1004 #1005 #1006
+
+$kabe
+$ 1001 40 -2.2   1000 -1007 1002 -1003 1006 -1005
+$ 1002 40 -2.2   1007 -1001 1002 -1008 1006 -1005
+
+ 101 %CONCRETE_AESJ(ORDINARY)%  0.0 100 -101 1002 -1003 1006 -1005
+ 102 %CONCRETE_AESJ(ORDINARY)%  0.0 101 -102 1002 -1003 1006 -1005
+ 103 %CONCRETE_AESJ(ORDINARY)%  0.0 102 -103 1002 -1003 1006 -1005
+ 104 %CONCRETE_AESJ(ORDINARY)%  0.0 103 -104 1002 -1003 1006 -1005
+ 105 %CONCRETE_AESJ(ORDINARY)%  0.0 104 -105 1002 -1003 1006 -1005
+
+ 201 %CONCRETE_AESJ(ORDINARY)%  0.0 1007 -1001 200 -201 1006 -1005
+ 202 %CONCRETE_AESJ(ORDINARY)%  0.0 1007 -1001 201 -202 1006 -1005
+ 203 %CONCRETE_AESJ(ORDINARY)%  0.0 1007 -1001 202 -203 1006 -1005
+ 204 %CONCRETE_AESJ(ORDINARY)%  0.0 1007 -1001 203 -204 1006 -1005
+ 205 %CONCRETE_AESJ(ORDINARY)%  0.0 1007 -1001 204 -205 1006 -1005
+
+$yuka
+ 1003 %CONCRETE_AESJ(ORDINARY)%  0.0   1000 -1001 1002 -1003 1004 -1006
+
+$target-place?
+ 1004  0        1100 -1101 1102 -1103 1104 -1105 fill=101 trcl=100
+ 1005  0        1100 -1101 1102 -1103 1104 -1105 fill=101 trcl=101
+ 1006  0        1100 -1101 1102 -1103 1104 -1105 fill=101 trcl=102
+
+$void
+ 1098  0        1009 -1010 1011 -1012 1013 -1014 (-1000 : 1001 : -1002 : 1003 : -1004 : 1005)
+ 1099 -1       -1009 : 1010 : -1011 : 1012 : -1013 : 1014
+
+$target?
+ 1100  0         1200 -1201 1206 -1207 1208 -1209 u=101
+ 1101 %IRON%  0.0   1200 -1201 1206 -1207 1212 -1213 (-1208 : 1209) u=101
+ 1102  0         1200 -1201 1210 -1211 1212 -1213 (-1206 : 1207) u=101
+ 1103 %IRON%  0.0   1200 -1201 1202 -1203 1204 -1205 (-1210 : 1211 : -1212 : 1213) u=101
+ 1199  0        -1200 : 1201 : -1202 : 1203 : -1204 : 1205 u=101
+
+[ Importance ]
+part = neutron photon
+reg imp
+101   2.0**0
+102   2.0**1
+103   2.0**2
+104   2.0**3
+105   2.0**4
+201   2.0**0
+202   2.0**1
+203   2.0**2
+204   2.0**3
+205   2.0**4
+
+[ T-Track ]
+    title = [ T-Track ] in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -2100.000      $ minimum value of x-mesh points
+     xmax =   250.0000      $ maximum value of x-mesh points
+       nx =  100            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =   0.000000      $ minimum value of y-mesh points
+     ymax =   250.0000      $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =  -550.0000      $ minimum value of z-mesh points
+     zmax =   1000.000      $ maximum value of z-mesh points
+       nz =  100            $ number of z-mesh points
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+            1.00000E-10  1.00000E+03
+     unit =    1            $ unit is [1/cm^2/source]
+ material =  all            $ (D=all) number of specific material
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xz            $ axis of output
+     file = track-xyz.out    $ file name of output for the above axis
+     part = neutron photon
+ multiplier =all
+     emax = 1000
+  mat mset1 
+   all ( 3600*1e-6 -202 ) $  (pSv/sec) -> (uSv/h)  Effective dose based on ICRP103
+    gshow =    3            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+    resol =    2            $ (D=1) resolution of gshow or rshow
+    width = 0.1000000       $ (D=0.5) width of lines for gshow or rshow
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+[ T-Track ]
+    title = [ T-Track ] in r-z mesh
+     mesh =  r-z            $ mesh type is r-z scoring mesh
+   r-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     rmin =   0.000000      $ minimum value of y-mesh points
+     rmax =   200.0000      $ maximum value of y-mesh points
+       nr =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =    0.0000       $ minimum value of z-mesh points
+     zmax =  2000.000        $ maximum value of z-mesh points
+       nz =    100            $ number of z-mesh points
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+            1.00000E-10  1.00000E+03
+     unit =    1            $ unit is [1/cm^2/source]
+ material =  all            $ (D=all) number of specific material
+     axis =    z           $ axis of output
+     file = track-rz.out   $ file name of output for the above axis
+     part = neutron photon
+ multiplier =all
+     emax = 1000
+  mat mset1 
+   all ( 3600*1e-6 -202 ) $  (pSv/sec) -> (uSv/h)  Effective dose based on ICRP103
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+     trcl =  103            $ transform ID
+[ End ]
+END_INPUT
+
+PURPOSE: input file for lecture about [ Parameters ] section
+FILE: TrackStructure/TrackStructure.inp
+BEGIN_INPUT
+[ Title ]
+input file for lecture about [ Parameters ] section
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =           4     $ (D=10) number of particles per one batch
+ maxbch   =           2     $ (D=10) number of batches
+ emin(12) = 1.000000000E-03 $ (D=1.d9) cut-off energy of electron (MeV)
+ emin(13) = 1.000000000E-03 $ (D=1.d9) cut-off energy of positron (MeV)
+ negs     =           1     $ (D=-1) =-1:original, =0:No, =1:EGS
+ etsmax   = 1.000000000E+06 $ (D=1.0D-2) Switch energy of electron for track structure mode
+ etsmin   = 1.000000000E-06 $ (D=1.0D-6) Cutoff energy of electron for track structure mode
+ tsmax    = 1.000000000E+06 $ (D=1.0D-3) Energy upper limit of ion/proton track structure mode
+ tsxcl    = 0               $ (D=1) Track structure exclusive mode. 0:on, 1:off
+
+[ Source ]
+   s-type =   1             $ mono-energetic axial source
+     proj =   proton        $ incident particle species          
+       e0 =   300.0001       $ energy of beam [MeV/n]
+       r0 =   1.0e-5        $ radius [cm]
+       x0 =   0.0000        $ (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        $ (D=0.0) center position of y-axis [cm]
+       z0 =  -2.99e-5        $ minimum position of z-axis [cm]
+       z1 =  -2.99e-5        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+MAT[ 1 ]   @WATER@       $ Water
+MAT[ 2 ]   @TISSUEICRU@  $ ICRU soft tissue
+
+[ Surface ]
+  10  rpp    -3.0E-5  3.0E-5  -3.0E-5  3.0E-5  -3.0E-5  3.0E-5
+  11  so      1.0E-5
+  12  px      0.0
+
+[ Cell ]
+  1     %WATER%      0.0   -11     -12
+  2     %WATER%      0.0   -10  11 -12
+  3     %TISSUEICRU%  0.0   -11      12
+  4     %TISSUEICRU%  0.0   -10  11  12
+ 99    -1           10
+
+[ Track Structure ]
+reg  mID
+  1    1
+  2    1
+  3    0
+  4    0
+
+[ T-Interact ]
+    title = Number of interaction in reg mesh
+     mesh =  reg            $ mesh type is region-wise
+      reg = 1 2
+   e-type =    2            $ e-mesh is linear given by emin, emax and ne
+     emin =   0.000000      $ minimum value of e-mesh points
+     emax =   200.0000      $ maximum value of e-mesh points
+       ne =    1            $ number of e-mesh points
+     MorP =  prob           $ (D=mean) output mode
+   maxact =      100        $ number of act-mesh points
+     axis =  act            $ axis of output
+     unit =    1            $ unit is [1/cm^3/source]
+     file = interact.out      $ file name of output for the above axis
+   output = ts_ioniz_e-exc  $ (D=nuclear) ionization and excitation in all track structure modes
+     part = all
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+[ T-Deposit ]
+    title = Energy deposition in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =   2             $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -3.E-5         $ minimum value of x-mesh points
+     xmax =   3.E-5         $ maximum value of x-mesh points
+       nx =  500            $ number of x-mesh points
+   y-type =    1            $ y-mesh is given by the below data
+       ny =    1            $ number of y-mesh points
+          -1.E-1  1.E-1
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =  -3.E-5         $ minimum value of z-mesh points
+     zmax =   3.E-5         $ maximum value of z-mesh points
+       nz =  500            $ number of z-mesh points
+     unit =    0
+ material =  all            $ (D=all) number of specific material
+   output =  dose           $ total deposit energy
+     axis =    xz           $ axis of output
+     file = deposit.out     $ file name of output for the above axis
+     part =  all      
+    gshow =    3            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+    angel = cmum
+
+[ T-Deposit ]
+    title = Energy deposition in reg mesh
+     mesh =  reg
+      reg =  (1 2 3 4)
+     unit =    2
+ material =  all            $ (D=all) number of specific material
+   output =  dose           $ total deposit energy
+     axis =   reg           $ axis of output
+     file = deposit-reg.out     $ file name of output for the above axis
+     part =  all      
+
+[ End ]
+END_INPUT
+
+PURPOSE: Sample input for dose calculation for X-ray diagnostic
+FILE: XrayDiagnostic/XrayDiagnostic.inp
+BEGIN_INPUT
+[ Title ]
+Sample input for dose calculation for X-ray diagnostic
+
+[ Parameters ]
+ icntl    =           0     $ (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =      200000     $ (D=10) number of particles per one batch
+ maxbch   =           1     $ (D=10) number of batches
+ nucdata  =           0     $ (D=1) 0: do not use, 1: use normal nuclear data
+
+[ Source ]
+   s-type =   2             $ mono-energetic rectangular-solid source
+     proj =  photon         $ kind of incident particle         
+       e0 =   0.2000        $ energy of beam [MeV/n]
+       x0 =  -5.0000        $ minimum position of x-axis [cm]
+       x1 =   5.0000        $ maximum position of x-axis [cm]
+       y0 =  -5.0000        $ minimum position of y-axis [cm]
+       y1 =   5.0000        $ maximum position of y-axis [cm]
+       z0 =  -20.000        $ minimum position of z-axis [cm]
+       z1 =  -20.000        $ maximum position of z-axis [cm]
+      dir =   1.0000        $ z-direction of beam [cosine]
+[ Material ]
+MAT[ 1 ]   @TISSUEICRU@          $ ICRU soft tissue
+MAT[ 2 ]   @ALUMINUM@            $ Aluminum
+MAT[ 3 ]   @IRON@                $ Iron
+MAT[ 4 ]   @SODIUM_IODIDE_NAI@   $ Scintillator
+
+[ Surface ]
+ 1            pz     0.0
+ 2            pz    10.0
+ 3            cz     5.0
+11            rpp  -4.0 4.0 -1.0 1.0 1.0 5.0    $ Alumimum
+12            rpp  -1.0 1.0 -4.0 4.0 5.0 9.0    $ Iron
+13            rpp  -5.0 5.0 -5.0 5.0 10.0 10.5  $ NaI
+ 999          so   100.0
+
+[ Cell ]
+ 1          %TISSUEICRU%          0.0  1 -2 -3  #2 #3  $ ICRU soft tissue
+ 2          %ALUMINUM%            0.0  -11             $ Aluminum
+ 3          %IRON%                0.0  -12             $ Iron
+ 4          %SODIUM_IODIDE_NAI%   0.0  -13             $ NaI
+98          0      #1 #2 #3 #4 -999 $ Void
+99         -1             999  $ Outer region
+
+[ T-Deposit ]
+    title = Deposit in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -5.0          $ minimum value of x-mesh points
+     xmax =   5.0          $ maximum value of x-mesh points
+       nx =   50            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -5.0          $ minimum value of y-mesh points
+     ymax =   5.0          $ maximum value of y-mesh points
+       ny =   50            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   10.0          $ minimum value of z-mesh points
+     zmax =   10.5          $ maximum value of z-mesh points
+       nz =    1            $ number of z-mesh points
+     unit =    2            $ unit is [MeV/source]
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+     axis =   xy            $ axis of output
+     file = deposit.out     $ file name of output for the above axis
+ material =  all            $ (D=all) number of specific material
+   output = dose            $ only heat is written
+   epsout =    1            $ (D=0) generate eps file by ANGEL
+
+[ T-Track ]
+    title = Track in xyz mesh
+     mesh =  xyz            $ mesh type is xyz scoring mesh
+   x-type =    2            $ x-mesh is linear given by xmin, xmax and nx
+     xmin =  -5.000000      $ minimum value of x-mesh points
+     xmax =   5.000000      $ maximum value of x-mesh points
+       nx =   50            $ number of x-mesh points
+   y-type =    2            $ y-mesh is linear given by ymin, ymax and ny
+     ymin =  -5.000000      $ minimum value of y-mesh points
+     ymax =   5.000000      $ maximum value of y-mesh points
+       ny =    1            $ number of y-mesh points
+   z-type =    2            $ z-mesh is linear given by zmin, zmax and nz
+     zmin =   -2.00000      $ minimum value of z-mesh points
+     zmax =   12.00000      $ maximum value of z-mesh points
+       nz =   70            $ number of z-mesh points
+  2D-type =    3            $ 1:Cont, 2:Clust, 3:Color, 4:xyz, 5:mat, 6:Clust+Cont, 7:Col+Cont
+     axis =   xz            $ axis of output
+     file = track.out       $ file name of output for the above axis
+     part = photon
+   e-type =    1            $ e-mesh is given by the below data
+       ne =    1            $ number of e-mesh points
+             0.0  1000.0
+     unit =    1            $ unit is [1/cm^2/source]
+   epsout =    1            $ (D=0) generate eps file by ANGEL   
+    gshow =    1            $ 0: no 1:bnd, 2:bnd+mat, 3:bnd+reg 4:bnd+lat
+
+[ End ]
+END_INPUT
+

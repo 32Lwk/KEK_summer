@@ -1,0 +1,72 @@
+[ Title ]
+宇宙線中性子フラックス計算 (KEK つくば, 海抜0m)
+Cosmic-ray neutron flux simulation for KEK Tsukuba (sea level)
+
+[ Parameters ]
+ icntl   =   0
+ maxcas  =    1000       $ particles per batch
+ maxbch  =      10       $ number of batches
+ e-mode  =     2         $ event generator mode ver.2
+ irqmd   =     1         $ JQMD-2.0
+ negs    =     2         $ EGS mode
+ mdbatima = 3000
+ maxbnk  = 100000
+ iMeVperU =    1
+ esmax   = 100000000.
+ emin(12) = 1.0          $ electron cut-off [MeV]
+ emin(13) = 1.0          $ positron cut-off [MeV]
+
+set:c1[200.0]            $ Radius of simulation sphere [cm]
+set:c2[100.0]            $ Thickness of air layer [cm]
+
+[ Source ]
+  totfact = pi*c1**2
+ infl:{source.inp}
+     proj = proton
+ infl:{source.inp}
+     proj = 4He
+
+[ Material ]
+$ Air (dry, sea level) density 1.205e-3 g/cm3
+m1
+  N  0.7553
+  O  0.2318
+  Ar 0.0129
+
+[ Surface ]
+  1   so   0.001          $ center point (dummy inner sphere)
+  2   so   c1             $ outer sphere (source surface)
+
+[ Cell ]
+  10  1  -1.205e-3  -2 1  $ Air sphere
+  99  -1             2    $ outer void
+
+[ T-Track ]
+    title = Neutron flux in air (region mesh)
+     mesh =  reg
+      reg =  10
+   e-type =    2
+     emin =   1.0e-9      $ 1 neV
+     emax =   1.0e5       $ 100 GeV
+       ne =    60
+     unit =    1          $ [/cm2/source]
+     axis =  eng
+     file = neutron_flux_energy.out
+     part = neutron
+   epsout =    1
+
+[ T-Track ]
+    title = All particle flux in air (region mesh)
+     mesh =  reg
+      reg =  10
+   e-type =    2
+     emin =   1.0e-9
+     emax =   1.0e5
+       ne =    60
+     unit =    1
+     axis =  eng
+     file = allparticle_flux_energy.out
+     part = all
+   epsout =    1
+
+[ End ]

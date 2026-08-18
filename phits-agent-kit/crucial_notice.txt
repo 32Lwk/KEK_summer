@@ -1,0 +1,5 @@
+# User-specific PHITS lessons (user-owned)
+#
+# AI agents: append new lessons learned on this machine below this header.
+# This file is never overwritten by kit updates. Do not write lessons into
+# knowledge_base/ — that folder is replaced when the kit is updated.

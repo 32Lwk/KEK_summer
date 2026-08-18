@@ -22,9 +22,9 @@ def main() -> None:
     p.add_argument("--h", type=float, default=-100.0, help="標高 [m]（atmモード）")
     p.add_argument("--depth", type=float, default=2.0, help="覆土深さ [m]（underground）")
     p.add_argument("--density", type=float, default=1.8, help="覆土密度 [g/cm3]")
-    p.add_argument("--phi0", type=float, default=1.02e-3, help="地上基準フラックス")
-    p.add_argument("--lam-km", type=float, default=1.282)
-    p.add_argument("--Lam", type=float, default=141.4)
+    p.add_argument("--phi0", type=float, default=1.83e-3, help="地上基準フラックス（管理棟1階 熱中性子）")
+    p.add_argument("--lam-km", type=float, default=1.47)
+    p.add_argument("--Lam", type=float, default=147.5)
     args = p.parse_args()
 
     if args.mode == "atm":

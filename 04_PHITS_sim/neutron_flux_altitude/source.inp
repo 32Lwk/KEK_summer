@@ -1,0 +1,12 @@
+ <source> = 1.0
+   s-type =   9       $ spherical source
+       r1 =   c1      $ radius of sphere [cm]
+       r2 =   c1
+      dir =  iso      $ isotropic inward
+   e-type =  25       $ Cosmic-ray source (GCR)
+    icenv =   0       $ Terrestrial GCR
+ solarmod =   0.0     $ Solar minimum (W-index=0)
+    rigid =   0.0     $ no rigidity cut-off
+     alti =   0.0     $ Altitude [km] (sea level = 0.0, Tsukuba = ~0.03)
+     glat =  36.1     $ Latitude [deg] (Tsukuba/KEK ~36.1N)
+    glong = 140.1     $ Longitude [deg] (Tsukuba ~140.1E)
