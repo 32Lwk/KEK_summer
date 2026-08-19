@@ -1,20 +1,31 @@
 #!/usr/bin/env python3
-"""今年度 MCA スペクトルのグラフを 測定_20260818/figures/ に書き出す。"""
+"""今年度 MCA スペクトルのグラフを 測定_20260818/figures/ に書き出す。
+
+縦軸は live time で割らない生カウント（計測数）。
+"""
 
 from __future__ import annotations
 
 import csv
+import re
+import shutil
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+from mca_common import peak_clip as roi_peak_clip
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "測定_20260818"
 TABLES = DATA / "tables"
 FIG = DATA / "figures"
 
-BLUE, RED, GRAY = "#1F77B4", "#D62728", "#666666"
+BLUE, RED, GREEN, GRAY = "#1F77B4", "#D62728", "#2CA02C", "#666666"
+PALETTE = [BLUE, RED, GREEN, "#9467BD", "#8C564B", "#E377C2", "#17BECF"]
+YLABEL = "計測数（カウント / ch）"
+YLABEL_SUM = "計測数（カウント）"
+CLIP_PAD = 10
 
 plt.rcParams.update(
     {
@@ -34,198 +45,424 @@ plt.rcParams.update(
 )
 
 
+def color_for(sid: str, i: int) -> str:
+    sl = sid.lower()
+    if "linac" in sl:
+        return RED
+    if "kanri" in sl and "0819" in sl:
+        return GREEN
+    if "kanri" in sl:
+        return BLUE
+    return PALETTE[i % len(PALETTE)]
+
+
+def folder_name(場所: str) -> str:
+    return re.sub(r'[\\/:*?"<>|]', "_", 場所)
+
+
+def clip_title(clip: float) -> str:
+    return f"クリップ {clip:.0f}"
+
+
+def union_roi(series: list[dict]) -> tuple[int, int]:
+    return min(s["roi_lo"] for s in series), max(s["roi_hi"] for s in series)
+
+
 def load_spectrum() -> dict:
-    ch, c0, c1, r0, r1 = [], [], [], [], []
-    with (TABLES / "スペクトル.csv").open(encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            ch.append(int(row["channel"]))
-            c0.append(float(row["counts_kanri2f"]))
-            c1.append(float(row["counts_linac"]))
-            r0.append(float(row["cps_kanri2f"]))
-            r1.append(float(row["cps_linac"]))
-    rec = {}
     with (TABLES / "測定記録.csv").open(encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            rec[row["場所"]] = row
-    live0 = float(rec["管理棟2F"]["live_s"])
-    live1 = float(rec["linac"]["live_s"])
-    return {
-        "ch": np.array(ch),
-        "c0": np.array(c0),
-        "c1": np.array(c1),
-        "r0": np.array(r0),
-        "r1": np.array(r1),
-        "e0": np.sqrt(np.array(c0)) / live0,
-        "e1": np.sqrt(np.array(c1)) / live1,
-        "live0": live0,
-        "live1": live1,
-    }
+        recs = list(csv.DictReader(f))
+    with (TABLES / "スペクトル.csv").open(encoding="utf-8") as f:
+        spec = list(csv.DictReader(f))
+    ch = np.array([int(r["channel"]) for r in spec])
+    series = []
+    for i, rec in enumerate(recs):
+        sid = rec["id"]
+        c = np.array([float(r[f"counts_{sid}"]) for r in spec])
+        live = float(rec["live_s"])
+        hours = live / 3600.0
+        tlab = f"{hours:.1f} h" if live >= 3600 else f"{live/60:.1f} min"
+        lo, hi = int(float(rec["roi_lo"])), int(float(rec["roi_hi"]))
+        series.append(
+            {
+                "id": sid,
+                "場所": rec["場所"],
+                "c": c,
+                "e": np.sqrt(c),
+                "live": live,
+                "lab": f"{rec['場所']}（{tlab}）",
+                "color": color_for(sid, i),
+                "roi_lo": lo,
+                "roi_hi": hi,
+                "roi_peak": int(float(rec.get("roi_peak") or 0)),
+                "clip": roi_peak_clip(c, lo, hi, pad=CLIP_PAD),
+            }
+        )
+    return {"ch": ch, "series": series}
 
 
-def save(fig, name: str) -> None:
-    FIG.mkdir(parents=True, exist_ok=True)
-    fig.savefig(FIG / f"{name}.png")
-    fig.savefig(FIG / f"{name}.pdf")
+def overlay_clip(d: dict) -> float:
+    return max(s["clip"] for s in d["series"])
+
+
+def overlay_step(ax, d: dict, mask=None, clip=None, log=False, lw=1.3) -> None:
+    x = d["ch"] if mask is None else d["ch"][mask]
+    for s in d["series"]:
+        c = s["c"] if mask is None else s["c"][mask]
+        if log:
+            y = np.where(c > 0, c, np.nan)
+            ax.step(x, y, where="mid", color=s["color"], lw=lw, label=s["lab"])
+        else:
+            step_spectrum(ax, x, c, s["color"], s["lab"], clip=clip, annotate=False)
+
+
+def overlay_err(ax, d: dict, mask, ms=2.6) -> None:
+    x = d["ch"][mask]
+    for s in d["series"]:
+        ax.errorbar(
+            x, s["c"][mask], yerr=s["e"][mask],
+            fmt="o", ms=ms, color=s["color"], label=s["lab"], elinewidth=0.6,
+        )
+
+
+def save(fig, name: str, folder: Path | None = None) -> None:
+    dest = folder if folder is not None else FIG
+    dest.mkdir(parents=True, exist_ok=True)
+    fig.savefig(dest / f"{name}.png")
     plt.close(fig)
+
+
+def shade_roi(ax, lo: int, hi: int, label: str | None = None) -> None:
+    ax.axvspan(lo, hi, color="#F4C7C3", alpha=0.45, zorder=0, label=label or f"ROI {lo}–{hi}")
+
+
+def step_spectrum(ax, ch, c, color, label=None, clip=None, annotate=True) -> None:
+    y = np.minimum(c, clip) if clip is not None else c
+    ax.step(ch, y, where="mid", color=color, lw=1.4, label=label)
+    if clip is not None:
+        ax.set_ylim(0, clip)
+        if annotate:
+            n_hi = int(np.sum(c > clip))
+            if n_hi:
+                ax.text(
+                    0.99,
+                    0.97,
+                    f"{n_hi} ch が {clip:.0f} 超",
+                    transform=ax.transAxes,
+                    ha="right",
+                    va="top",
+                    fontsize=8,
+                    color=GRAY,
+                )
+
+
+def fig_full_linear(d: dict) -> None:
+    lo, hi = union_roi(d["series"])
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    overlay_step(ax, d)
+    ax.set_xlim(0, 511)
+    ax.set_ylim(0, None)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("全ch 線形")
+    ax.legend(frameon=False, fontsize=8)
+    save(fig, "06_全ch_線形")
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    overlay_step(ax, d, clip=overlay_clip(d))
+    ax.set_xlim(0, 511)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"全ch {clip_title(overlay_clip(d))}")
+    ax.legend(frameon=False, fontsize=8)
+    save(fig, "06b_全ch_線形_クリップ")
+
+    m = d["ch"] >= 1
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    overlay_step(ax, d, mask=m)
+    shade_roi(ax, lo, hi)
+    ax.set_xlim(1, 511)
+    ax.set_ylim(0, None)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("全ch 線形（ch0除く）")
+    ax.legend(frameon=False, fontsize=8)
+    save(fig, "07_全ch_線形_ch0除く")
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    overlay_step(ax, d, mask=m, clip=overlay_clip(d))
+    shade_roi(ax, lo, hi)
+    ax.set_xlim(1, 511)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"全ch {clip_title(overlay_clip(d))}（ch0除く）")
+    ax.legend(frameon=False, fontsize=8)
+    save(fig, "07b_全ch_線形_ch0除く_クリップ")
 
 
 def fig_low_ch(d: dict) -> None:
     m = (d["ch"] >= 1) & (d["ch"] <= 80)
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    ax.step(d["ch"][m], d["r0"][m], where="mid", color=BLUE, lw=1.6, label="管理棟2F")
-    ax.step(d["ch"][m], d["r1"][m], where="mid", color=RED, lw=1.6, label="linac")
+    overlay_step(ax, d, mask=m, lw=1.6)
     ax.set_xlim(1, 80)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
-    ax.set_ylabel("計数率 (cps / ch)")
-    ax.set_title("低エネルギー域（ch 1–80、ch 0 除外）")
-    ax.legend(frameon=False)
+    ax.set_ylabel(YLABEL)
+    ax.set_title("低ch")
+    ax.legend(frameon=False, fontsize=8)
     save(fig, "01_低ch_線形")
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    overlay_step(ax, d, mask=m, clip=overlay_clip(d), lw=1.6)
+    ax.set_xlim(1, 80)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"低ch {clip_title(overlay_clip(d))}")
+    ax.legend(frameon=False, fontsize=8)
+    save(fig, "01b_低ch_線形_クリップ")
 
 
 def fig_full_log(d: dict) -> None:
+    lo, hi = union_roi(d["series"])
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    y0 = np.where(d["r0"] > 0, d["r0"], np.nan)
-    y1 = np.where(d["r1"] > 0, d["r1"], np.nan)
-    ax.step(d["ch"], y0, where="mid", color=BLUE, lw=1.2, label="管理棟2F")
-    ax.step(d["ch"], y1, where="mid", color=RED, lw=1.2, label="linac")
+    overlay_step(ax, d, log=True, lw=1.2)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(3e-4, 50)
-    ax.axvspan(150, 450, color="#FFF3BF", alpha=0.55, zorder=0, label="ROI (150–450)")
+    ax.set_ylim(0.8, 3e6)
+    shade_roi(ax, lo, hi)
     ax.set_xlabel("チャンネル")
-    ax.set_ylabel("計数率 (cps / ch)")
-    ax.set_title("全チャンネル（対数、ゼロは非表示）")
-    ax.legend(frameon=False, loc="upper right")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("対数")
+    ax.legend(frameon=False, loc="upper right", fontsize=8)
     save(fig, "02_全ch_対数")
 
 
 def fig_roi(d: dict) -> None:
-    m = (d["ch"] >= 150) & (d["ch"] <= 450)
+    lo, hi = union_roi(d["series"])
+    m = (d["ch"] >= lo) & (d["ch"] <= hi)
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    ax.errorbar(
-        d["ch"][m],
-        d["r0"][m],
-        yerr=d["e0"][m],
-        fmt="o",
-        ms=2.4,
-        lw=0.6,
-        color=BLUE,
-        label="管理棟2F",
-        elinewidth=0.6,
-        capsize=0,
-    )
-    ax.errorbar(
-        d["ch"][m],
-        d["r1"][m],
-        yerr=d["e1"][m],
-        fmt="o",
-        ms=2.4,
-        lw=0.6,
-        color=RED,
-        label="linac",
-        elinewidth=0.6,
-        capsize=0,
-    )
-    ax.set_xlim(150, 450)
+    overlay_err(ax, d, m, ms=3.5)
+    ax.set_xlim(lo, hi)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
-    ax.set_ylabel("計数率 (cps / ch)")
-    ax.set_title("ROI（ch 150–450、誤差棒は √N / live）")
-    ax.legend(frameon=False)
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"ROI {lo}–{hi}")
+    ax.legend(frameon=False, fontsize=8)
     save(fig, "03_ROI")
 
 
 def fig_bands(d: dict) -> None:
-    labels = ["ch 0", "ch 1–20", "ch 21–149", "ROI\n150–450", "ch 0 除く"]
-    slices = [(0, 1), (1, 21), (21, 150), (150, 451), (1, 512)]
-    v0, v1 = [], []
-    for lo, hi in slices:
-        v0.append(d["c0"][lo:hi].sum() / d["live0"])
-        v1.append(d["c1"][lo:hi].sum() / d["live1"])
+    labels = ["ch 0", "ch 1–20", "ch 21–149", "ROI", "ch 0 除く"]
+    n = len(d["series"])
     x = np.arange(len(labels))
-    w = 0.38
-    fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    ax.bar(x - w / 2, v0, w, color=BLUE, label="管理棟2F")
-    ax.bar(x + w / 2, v1, w, color=RED, label="linac")
+    w = 0.8 / n
+    fig, ax = plt.subplots(figsize=(8.6, 4.6))
+    ymax = 0
+    for i, s in enumerate(d["series"]):
+        slices = [
+            (0, 1),
+            (1, 21),
+            (21, 150),
+            (s["roi_lo"], s["roi_hi"] + 1),
+            (1, 512),
+        ]
+        vals = [s["c"][lo:hi].sum() for lo, hi in slices]
+        ymax = max(ymax, max(vals))
+        ax.bar(x + (i - (n - 1) / 2) * w, vals, w, color=s["color"], label=s["lab"])
     ax.set_xticks(x, labels)
-    ax.set_ylabel("計数率 (cps)")
-    ax.set_title("チャンネル帯ごとの計数率")
-    ax.legend(frameon=False)
-    for i, (a, b) in enumerate(zip(v0, v1)):
-        ax.text(i - w / 2, a, f"{a:.2f}", ha="center", va="bottom", fontsize=8, color=BLUE)
-        ax.text(i + w / 2, b, f"{b:.2f}", ha="center", va="bottom", fontsize=8, color=RED)
-    ymax = max(v0 + v1)
+    ax.set_ylabel(YLABEL_SUM)
+    ax.set_title("帯域")
+    ax.legend(frameon=False, fontsize=8)
     ax.set_ylim(0, ymax * 1.18)
     save(fig, "04_帯域比較")
 
 
 def fig_ratio(d: dict) -> None:
-    m = (d["ch"] >= 1) & (d["ch"] <= 80) & (d["c0"] >= 20)
-    ratio = d["r1"][m] / d["r0"][m]
+    if len(d["series"]) < 2:
+        return
+    ref = min(d["series"], key=lambda s: s["live"])
+    m = (d["ch"] >= 1) & (d["ch"] <= 80) & (ref["c"] >= 20)
     fig, ax = plt.subplots(figsize=(8.2, 4.2))
-    ax.axhline(1.0, color=GRAY, lw=1.0)
-    ax.plot(d["ch"][m], ratio, "o", ms=4, color="#2CA02C")
+    for s in d["series"]:
+        if s["id"] == ref["id"]:
+            continue
+        t_ratio = s["live"] / ref["live"]
+        ax.axhline(t_ratio, color=s["color"], lw=1.0, ls="--", label=f"時間比 {s['場所']} {t_ratio:.2f}")
+        ax.plot(d["ch"][m], s["c"][m] / ref["c"][m], "o", ms=4, color=s["color"], label=f"カウント比 {s['場所']}")
     ax.set_xlim(1, 80)
-    ax.set_ylim(0.7, 1.6)
     ax.set_xlabel("チャンネル")
-    ax.set_ylabel("計数率比（linac / 管理棟2F）")
-    ax.set_title("形状比（ch 1–80、管理棟2F が 20 カウント以上）")
+    ax.set_ylabel(f"カウント比（対 {ref['場所']}）")
+    ax.set_title("比（低ch）")
+    ax.legend(frameon=False, fontsize=8)
     save(fig, "05_比_低ch")
 
 
+def _one_site(d: dict, s: dict) -> None:
+    out = FIG / "地点別" / folder_name(s["場所"])
+    out.mkdir(parents=True, exist_ok=True)
+    ch, c, e = d["ch"], s["c"], s["e"]
+    color = s["color"]
+    clip = s["clip"]
+    lo, hi = s["roi_lo"], s["roi_hi"]
+    ctitle = clip_title(clip)
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    ax.step(ch, c, where="mid", color=color, lw=1.4)
+    ax.set_xlim(0, 511)
+    ax.set_ylim(0, None)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("全ch 線形")
+    save(fig, "全ch_線形", out)
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    step_spectrum(ax, ch, c, color, clip=clip)
+    ax.set_xlim(0, 511)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"全ch {ctitle}")
+    save(fig, "全ch_線形_クリップ", out)
+
+    m = ch >= 1
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    ax.step(ch[m], c[m], where="mid", color=color, lw=1.4)
+    shade_roi(ax, lo, hi)
+    ax.set_xlim(1, 511)
+    ax.set_ylim(0, None)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("全ch 線形（ch0除く）")
+    ax.legend(frameon=False)
+    save(fig, "全ch_線形_ch0除く", out)
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    step_spectrum(ax, ch[m], c[m], color, clip=clip)
+    shade_roi(ax, lo, hi)
+    ax.set_xlim(1, 511)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"全ch {ctitle}（ch0除く）")
+    ax.legend(frameon=False)
+    save(fig, "全ch_線形_ch0除く_クリップ", out)
+
+    m80 = (ch >= 1) & (ch <= 80)
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    ax.step(ch[m80], c[m80], where="mid", color=color, lw=1.4)
+    ax.set_xlim(1, 80)
+    ax.set_ylim(0, None)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("低ch")
+    save(fig, "低ch_線形", out)
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    step_spectrum(ax, ch[m80], c[m80], color, clip=clip)
+    ax.set_xlim(1, 80)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"低ch {ctitle}")
+    save(fig, "低ch_線形_クリップ", out)
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    y = np.where(c > 0, c, np.nan)
+    ax.step(ch, y, where="mid", color=color, lw=1.3)
+    ax.set_yscale("log")
+    ax.set_xlim(0, 511)
+    ax.set_ylim(0.8, 3e6)
+    shade_roi(ax, lo, hi)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("対数")
+    ax.legend(frameon=False, loc="upper right")
+    save(fig, "全ch_対数", out)
+
+    mroi = (ch >= lo) & (ch <= hi)
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    ax.errorbar(ch[mroi], c[mroi], yerr=e[mroi], fmt="o", ms=3.5, color=color, elinewidth=0.8)
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(0, None)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"ROI {lo}–{hi}")
+    save(fig, "ROI", out)
+
+    fig, ax = plt.subplots(figsize=(8.2, 4.6))
+    ax.errorbar(ch[mroi], np.minimum(c[mroi], clip), yerr=e[mroi], fmt="o", ms=3.5, color=color, elinewidth=0.8)
+    ax.set_xlim(lo, hi)
+    ax.set_ylim(0, clip)
+    ax.set_xlabel("チャンネル")
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"ROI {ctitle}")
+    save(fig, "ROI_クリップ", out)
+
+
 def fig_overview(d: dict) -> None:
+    lo, hi = union_roi(d["series"])
     fig, axes = plt.subplots(2, 2, figsize=(10.6, 7.4), layout="constrained")
-    fig.suptitle("今年度 MCA（2026-08-18）管理棟2F vs linac", fontsize=14)
+    fig.suptitle(f"MCA {len(d['series'])}測定", fontsize=14)
 
     ax = axes[0, 0]
     m = (d["ch"] >= 1) & (d["ch"] <= 80)
-    ax.step(d["ch"][m], d["r0"][m], where="mid", color=BLUE, lw=1.4, label="管理棟2F")
-    ax.step(d["ch"][m], d["r1"][m], where="mid", color=RED, lw=1.4, label="linac")
+    overlay_step(ax, d, mask=m, lw=1.4)
     ax.set_xlim(1, 80)
     ax.set_xlabel("チャンネル")
-    ax.set_ylabel("計数率 (cps / ch)")
-    ax.set_title("低ch（線形）")
-    ax.legend(frameon=False, fontsize=9)
+    ax.set_ylabel(YLABEL)
+    ax.set_title("低ch")
+    ax.legend(frameon=False, fontsize=7)
 
     ax = axes[0, 1]
-    y0 = np.where(d["r0"] > 0, d["r0"], np.nan)
-    y1 = np.where(d["r1"] > 0, d["r1"], np.nan)
-    ax.step(d["ch"], y0, where="mid", color=BLUE, lw=1.0, label="管理棟2F")
-    ax.step(d["ch"], y1, where="mid", color=RED, lw=1.0, label="linac")
+    overlay_step(ax, d, log=True, lw=1.0)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(3e-4, 50)
-    ax.axvspan(150, 450, color="#FFF3BF", alpha=0.5, zorder=0)
+    ax.set_ylim(0.8, 3e6)
+    shade_roi(ax, lo, hi, label=None)
     ax.set_xlabel("チャンネル")
-    ax.set_ylabel("計数率 (cps / ch)")
-    ax.set_title("全ch（対数）")
+    ax.set_ylabel(YLABEL)
+    ax.set_title("対数")
 
     ax = axes[1, 0]
-    m = (d["ch"] >= 300) & (d["ch"] <= 380)
-    ax.errorbar(d["ch"][m], d["r0"][m], yerr=d["e0"][m], fmt="o", ms=3, color=BLUE, label="管理棟2F", elinewidth=0.7)
-    ax.errorbar(d["ch"][m], d["r1"][m], yerr=d["e1"][m], fmt="o", ms=3, color=RED, label="linac", elinewidth=0.7)
-    ax.set_xlim(300, 380)
+    m = (d["ch"] >= lo) & (d["ch"] <= hi)
+    overlay_err(ax, d, m, ms=3)
+    ax.set_xlim(lo, hi)
     ax.set_xlabel("チャンネル")
-    ax.set_ylabel("計数率 (cps / ch)")
-    ax.set_title("ROI 内の山（ch 300–380）")
-    ax.legend(frameon=False, fontsize=9)
+    ax.set_ylabel(YLABEL)
+    ax.set_title(f"ROI {lo}–{hi}")
+    ax.legend(frameon=False, fontsize=7)
 
     ax = axes[1, 1]
     labels = ["ch 0", "1–20", "21–149", "ROI", "ch0除く"]
-    slices = [(0, 1), (1, 21), (21, 150), (150, 451), (1, 512)]
-    v0 = [d["c0"][lo:hi].sum() / d["live0"] for lo, hi in slices]
-    v1 = [d["c1"][lo:hi].sum() / d["live1"] for lo, hi in slices]
+    n = len(d["series"])
     x = np.arange(len(labels))
-    w = 0.38
-    ax.bar(x - w / 2, v0, w, color=BLUE, label="管理棟2F")
-    ax.bar(x + w / 2, v1, w, color=RED, label="linac")
+    w = 0.8 / n
+    for i, s in enumerate(d["series"]):
+        slices = [(0, 1), (1, 21), (21, 150), (s["roi_lo"], s["roi_hi"] + 1), (1, 512)]
+        vals = [s["c"][a:b].sum() for a, b in slices]
+        ax.bar(x + (i - (n - 1) / 2) * w, vals, w, color=s["color"], label=s["lab"])
     ax.set_xticks(x, labels)
-    ax.set_ylabel("計数率 (cps)")
-    ax.set_title("帯域積分")
-    ax.legend(frameon=False, fontsize=9)
+    ax.set_ylabel(YLABEL_SUM)
+    ax.set_title("帯域")
+    ax.legend(frameon=False, fontsize=7)
 
     save(fig, "00_概要")
+
+
+def cleanup_old_figures(valid_folders: set[str]) -> None:
+    stale = [
+        "03_ROI_150-450.png",
+        "08_ピーク窓_300-380.png",
+    ]
+    for name in stale:
+        p = FIG / name
+        if p.exists():
+            p.unlink()
+    site = FIG / "地点別"
+    if not site.exists():
+        return
+    for p in site.iterdir():
+        if p.is_dir() and p.name not in valid_folders:
+            shutil.rmtree(p)
+    for p in site.rglob("*.png"):
+        if p.name.startswith("ROI_150-450") or p.name.startswith("ピーク窓"):
+            p.unlink()
 
 
 def main() -> None:
@@ -234,11 +471,17 @@ def main() -> None:
     fig_low_ch(d)
     fig_full_log(d)
     fig_roi(d)
+    fig_full_linear(d)
     fig_bands(d)
     fig_ratio(d)
+    valid = set()
+    for s in d["series"]:
+        _one_site(d, s)
+        valid.add(folder_name(s["場所"]))
+    cleanup_old_figures(valid)
     print(f"figures: {FIG}")
-    for p in sorted(FIG.glob("*.png")):
-        print(f"  {p.name}")
+    for p in sorted(FIG.rglob("*.png")):
+        print(f"  {p.relative_to(FIG)}")
 
 
 if __name__ == "__main__":
