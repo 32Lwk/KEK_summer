@@ -29,6 +29,7 @@ from mca_common import (
     make_id,
     make_label,
     parse_mca,
+    roi_net,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -65,7 +66,17 @@ KNOWN_META = {
     "管理棟1階_0819.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "管理棟1階（08:52開始）。ROIは自動抽出。",
+        "メモ": "管理棟1階（08:52開始）。SN 1715。ROIは自動抽出。",
+    },
+    "0819放射線棟2階d1.mca": {
+        "屋内_屋外": "屋内",
+        "標高_m": 30,
+        "メモ": "放射線棟2階・検出器D1（SN 2162）。終夜。ch0なし。ROIは自動抽出。",
+    },
+    "D1＿地上_0819.mca": {
+        "屋内_屋外": "屋外",
+        "標高_m": 30,
+        "メモ": "地上（14:11開始）。ファイル名はD1だがシリアルは1715。ROIは自動抽出。",
     },
 }
 
@@ -107,7 +118,7 @@ def summarize(run: dict, meta: dict) -> dict:
     real = float(meta["REAL_TIME"])
     total = sum(counts)
     roi_lo, roi_hi, roi_peak = find_roi(counts)
-    roi_sum = sum(counts[roi_lo : roi_hi + 1])
+    roi_sum, roi_bg, roi_net_n, roi_net_err = roi_net(counts, roi_lo, roi_hi)
     ch0 = counts[0]
     ch1_20 = sum(counts[1:21])
     ch21_149 = sum(counts[21:150])
@@ -139,6 +150,11 @@ def summarize(run: dict, meta: dict) -> dict:
         "roi_range": f"{roi_lo}–{roi_hi}",
         "roi_counts": roi_sum,
         "roi_cps": roi_sum / live,
+        "roi_bg_counts": roi_bg,
+        "roi_bg_cps": roi_bg / live,
+        "roi_net_counts": roi_net_n,
+        "roi_net_cps": roi_net_n / live,
+        "roi_net_cps_err": roi_net_err / live,
         "ch451_511": ch451,
         "peak_ch": peak_ch,
         "peak_counts": counts[peak_ch],
@@ -244,6 +260,11 @@ def write_tables(rows: list[dict]) -> None:
         "roi_peak",
         "roi_counts",
         "roi_cps",
+        "roi_bg_counts",
+        "roi_bg_cps",
+        "roi_net_counts",
+        "roi_net_cps",
+        "roi_net_cps_err",
         "peak_ch",
         "装置",
         "シリアル",
@@ -253,6 +274,23 @@ def write_tables(rows: list[dict]) -> None:
         "メモ",
     ]
     write_csv(TABLES / "測定記録.csv", rec_fields, rows)
+
+    net_fields = [
+        "id",
+        "場所",
+        "シリアル",
+        "live_s",
+        "roi_lo",
+        "roi_hi",
+        "roi_counts",
+        "roi_cps",
+        "roi_bg_counts",
+        "roi_bg_cps",
+        "roi_net_counts",
+        "roi_net_cps",
+        "roi_net_cps_err",
+    ]
+    write_csv(TABLES / "ROI_NET_CPS.csv", net_fields, rows)
 
     n = rows[0]["n_channels"]
     spec_fields = (
@@ -357,7 +395,9 @@ def build_xlsx(rows: list[dict]) -> Path:
         ("ch0除く 計数率 [s⁻¹]", "計数率_ch0除く_s-1"),
         ("自動ROI", "roi_range"),
         ("ROI ピーク ch", "roi_peak"),
-        ("自動ROI 計数率 [s⁻¹]", "roi_cps"),
+        ("ROI gross [s⁻¹]", "roi_cps"),
+        ("ROI NET [s⁻¹]", "roi_net_cps"),
+        ("ROI NET 誤差 [s⁻¹]", "roi_net_cps_err"),
         ("ch1–20 計数率 [s⁻¹]", "ch1_20_cps"),
         ("低chピーク", "peak_ch"),
         ("装置", "装置"),
@@ -389,7 +429,9 @@ def build_xlsx(rows: list[dict]) -> Path:
         "dead_pct": "0.00",
         "計数率_s-1": "0.00",
         "計数率_ch0除く_s-1": "0.00",
-        "roi_cps": "0.000",
+        "roi_cps": "0.00000",
+        "roi_net_cps": "0.00000",
+        "roi_net_cps_err": "0.00000",
         "ch1_20_cps": "0.00",
     }
     for i, (_, key) in enumerate(labels, start=5):
@@ -589,7 +631,8 @@ def main(argv: list[str] | None = None) -> None:
         print(
             f"  {r['場所']}: live={r['live_s']:.1f}s  "
             f"ROI={r['roi_range']} (peak {r['roi_peak']})  "
-            f"R={r['計数率_s-1']:.2f} cps"
+            f"R={r['計数率_s-1']:.2f} cps  "
+            f"NET={r['roi_net_cps']:.5f}±{r['roi_net_cps_err']:.5f} /s"
         )
 
 

@@ -14,11 +14,14 @@ USB_ROOT = Path("/Volumes")
 
 def make_id(stem: str) -> str:
     s = (
-        stem.replace("管理棟2階", "kanri2f")
+        stem.replace("放射線棟2階", "hoshasen2f")
+        .replace("放射線棟", "hoshasen")
+        .replace("管理棟2階", "kanri2f")
         .replace("管理棟2F", "kanri2f")
         .replace("管理棟1階", "kanri1f")
         .replace("管理棟1F", "kanri1f")
         .replace("管理棟", "kanri")
+        .replace("地上", "ground")
     )
     s = re.sub(r"[^A-Za-z0-9_]+", "_", s).strip("_")
     if not s:
@@ -84,6 +87,25 @@ def find_roi(counts, search_lo: int = 80, pad: int = 8) -> tuple[int, int, int]:
     if hi - lo < 10:
         lo, hi = max(search_lo, peak - 25), min(n - 1, peak + 25)
     return int(lo), int(hi), int(peak)
+
+
+def roi_net(counts, lo: int, hi: int, edge: int = 6) -> tuple[float, float, float, float]:
+    """ROI 内の総カウント・直線背景・NET・誤差 (sqrt(Ntot+Nbg))。"""
+    c = np.asarray(counts, dtype=float)
+    x = np.arange(lo, hi + 1, dtype=float)
+    y = c[lo : hi + 1]
+    if len(y) < 4:
+        tot = float(y.sum())
+        return tot, 0.0, tot, float(np.sqrt(max(tot, 0.0)))
+    k = min(edge, max(2, len(y) // 5))
+    bg0 = float(np.mean(y[:k]))
+    bg1 = float(np.mean(y[-k:]))
+    bg = bg0 + (bg1 - bg0) / (x[-1] - x[0]) * (x - x[0])
+    tot = float(y.sum())
+    bg_sum = float(np.clip(bg, 0, None).sum())
+    net = tot - bg_sum
+    err = float(np.sqrt(tot + bg_sum))
+    return tot, bg_sum, net, err
 
 
 def peak_clip(counts, lo: int, hi: int, pad: float = 10.0) -> float:

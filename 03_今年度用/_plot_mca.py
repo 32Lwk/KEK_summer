@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """今年度 MCA スペクトルのグラフを 測定_20260818/figures/ に書き出す。
 
-縦軸は live time で割らない生カウント（計測数）。
+重ね書きは live time [s] で割った CPS（比較可能）。ROI NET は表を参照。
 """
 
 from __future__ import annotations
@@ -23,9 +23,9 @@ FIG = DATA / "figures"
 
 BLUE, RED, GREEN, GRAY = "#1F77B4", "#D62728", "#2CA02C", "#666666"
 PALETTE = [BLUE, RED, GREEN, "#9467BD", "#8C564B", "#E377C2", "#17BECF"]
-YLABEL = "計測数（カウント / ch）"
-YLABEL_SUM = "計測数（カウント）"
-CLIP_PAD = 10
+YLABEL = "計数率 [1/s / ch]"
+YLABEL_SUM = "計数率 [1/s]"
+CLIP_PAD = 0.002
 
 plt.rcParams.update(
     {
@@ -49,10 +49,16 @@ def color_for(sid: str, i: int) -> str:
     sl = sid.lower()
     if "linac" in sl:
         return RED
-    if "kanri" in sl and "0819" in sl:
+    if "kanri1f" in sl:
+        return PALETTE[3]
+    if "kanri2f" in sl and "0819" in sl:
         return GREEN
-    if "kanri" in sl:
+    if "kanri2f" in sl or ("kanri" in sl and "1f" not in sl):
         return BLUE
+    if "hoshasen" in sl or "0819_d1" in sl:
+        return PALETTE[6]
+    if "ground" in sl or sl.startswith("d1"):
+        return PALETTE[4]
     return PALETTE[i % len(PALETTE)]
 
 
@@ -61,7 +67,7 @@ def folder_name(場所: str) -> str:
 
 
 def clip_title(clip: float) -> str:
-    return f"クリップ {clip:.0f}"
+    return f"クリップ {clip:.3f} /s"
 
 
 def union_roi(series: list[dict]) -> tuple[int, int]:
@@ -79,6 +85,7 @@ def load_spectrum() -> dict:
         sid = rec["id"]
         c = np.array([float(r[f"counts_{sid}"]) for r in spec])
         live = float(rec["live_s"])
+        cps = c / live
         hours = live / 3600.0
         tlab = f"{hours:.1f} h" if live >= 3600 else f"{live/60:.1f} min"
         lo, hi = int(float(rec["roi_lo"])), int(float(rec["roi_hi"]))
@@ -86,15 +93,15 @@ def load_spectrum() -> dict:
             {
                 "id": sid,
                 "場所": rec["場所"],
-                "c": c,
-                "e": np.sqrt(c),
+                "c": cps,
+                "e": np.sqrt(np.maximum(c, 0.0)) / live,
                 "live": live,
                 "lab": f"{rec['場所']}（{tlab}）",
                 "color": color_for(sid, i),
                 "roi_lo": lo,
                 "roi_hi": hi,
                 "roi_peak": int(float(rec.get("roi_peak") or 0)),
-                "clip": roi_peak_clip(c, lo, hi, pad=CLIP_PAD),
+                "clip": roi_peak_clip(cps, lo, hi, pad=max(CLIP_PAD, 0.1 * float(np.max(cps[lo : hi + 1]) if hi >= lo else 0))),
             }
         )
     return {"ch": ch, "series": series}
@@ -102,6 +109,11 @@ def load_spectrum() -> dict:
 
 def overlay_clip(d: dict) -> float:
     return max(s["clip"] for s in d["series"])
+
+
+def low_clip(d: dict) -> float:
+    m = (d["ch"] >= 1) & (d["ch"] <= 80)
+    return max(float(np.max(s["c"][m])) for s in d["series"]) * 1.05
 
 
 def overlay_step(ax, d: dict, mask=None, clip=None, log=False, lw=1.3) -> None:
@@ -146,7 +158,7 @@ def step_spectrum(ax, ch, c, color, label=None, clip=None, annotate=True) -> Non
                 ax.text(
                     0.99,
                     0.97,
-                    f"{n_hi} ch が {clip:.0f} 超",
+                    f"{n_hi} ch が {clip:.3f} 超",
                     transform=ax.transAxes,
                     ha="right",
                     va="top",
@@ -212,11 +224,11 @@ def fig_low_ch(d: dict) -> None:
     save(fig, "01_低ch_線形")
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    overlay_step(ax, d, mask=m, clip=overlay_clip(d), lw=1.6)
+    overlay_step(ax, d, mask=m, clip=low_clip(d), lw=1.6)
     ax.set_xlim(1, 80)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"低ch {clip_title(overlay_clip(d))}")
+    ax.set_title(f"低ch {clip_title(low_clip(d))}")
     ax.legend(frameon=False, fontsize=8)
     save(fig, "01b_低ch_線形_クリップ")
 
@@ -227,7 +239,7 @@ def fig_full_log(d: dict) -> None:
     overlay_step(ax, d, log=True, lw=1.2)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(0.8, 3e6)
+    ax.set_ylim(1e-5, 80)
     shade_roi(ax, lo, hi)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -355,11 +367,11 @@ def _one_site(d: dict, s: dict) -> None:
     save(fig, "低ch_線形", out)
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    step_spectrum(ax, ch[m80], c[m80], color, clip=clip)
+    step_spectrum(ax, ch[m80], c[m80], color, clip=float(np.max(c[m80]) * 1.05))
     ax.set_xlim(1, 80)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"低ch {ctitle}")
+    ax.set_title("低ch クリップ")
     save(fig, "低ch_線形_クリップ", out)
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
@@ -367,7 +379,7 @@ def _one_site(d: dict, s: dict) -> None:
     ax.step(ch, y, where="mid", color=color, lw=1.3)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(0.8, 3e6)
+    ax.set_ylim(1e-5, 80)
     shade_roi(ax, lo, hi)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -413,7 +425,7 @@ def fig_overview(d: dict) -> None:
     overlay_step(ax, d, log=True, lw=1.0)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(0.8, 3e6)
+    ax.set_ylim(1e-5, 80)
     shade_roi(ax, lo, hi, label=None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -445,6 +457,33 @@ def fig_overview(d: dict) -> None:
     save(fig, "00_概要")
 
 
+def fig_linac_ground() -> None:
+    """指定値: linac 0.0647（コンクリート 150 cm）、地上 0.525。対数縦軸を上下逆向き。"""
+    labels = ["linac\n(コンクリート 150 cm)", "地上"]
+    y = [0.0647, 0.525]
+    x = np.arange(len(labels))
+    fig, ax = plt.subplots(figsize=(6.8, 4.6))
+    ax.plot(x, y, "-o", color=RED, ms=10, lw=2.0, label="CPS_NET")
+    for xi, yi in zip(x, y):
+        ax.annotate(
+            f"{yi:.4f}",
+            (xi, yi),
+            textcoords="offset points",
+            xytext=(0, 12),
+            ha="center",
+            fontsize=11,
+        )
+    ax.set_xticks(x, labels)
+    ax.set_xlim(-0.4, 1.4)
+    ax.set_yscale("log")
+    ax.set_ylim(0.04, 0.8)
+    ax.invert_yaxis()
+    ax.set_xlabel("地点")
+    ax.set_ylabel("CPS_NET [1/s]")
+    ax.legend(frameon=False)
+    save(fig, "09_linac_地上")
+
+
 def cleanup_old_figures(valid_folders: set[str]) -> None:
     stale = [
         "03_ROI_150-450.png",
@@ -474,6 +513,7 @@ def main() -> None:
     fig_full_linear(d)
     fig_bands(d)
     fig_ratio(d)
+    fig_linac_ground()
     valid = set()
     for s in d["series"]:
         _one_site(d, s)

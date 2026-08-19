@@ -1,0 +1,120 @@
+[title]
+He-3 detector with SUS304 wall and 4 GeV muon source
+
+[parameters]
+ icntl = 0
+maxcas = 2000
+maxbch = 1
+ e-mode = 1
+emin(12) = 0.1
+emin(13) = 0.1
+ itall = 1
+igamma = 1
+  negs = 2
+
+set: c1[15.0]   $ d: source-to-SUS surface distance [cm]
+
+[source]
+s-type = 2
+  proj = muon+
+    e0 = 4000
+    x0 = -2.54
+    x1 =  2.54
+    y0 = -39.53/2
+    y1 =  39.53/2
+    z0 = -2.74-c1
+    z1 = -2.74-c1
+   dir = 1.0
+
+[material]
+mat[1] 3He 1.0
+mat[2] Fe 70 Cr 18 Ni 9 Mn 2 Si 1
+
+[surface]
+1 rcc 0 -39.53/2 0  0 39.53 0  2.54
+2 rcc 0 -39.93/2 0  0 39.93 0  2.74
+3 so 100
+
+[cell]
+1  1  -0.00124   -1
+2  2  -8.0        1 -2
+3  0              2 -3
+4 -1              3
+
+[t-track]
+  part = muon+ muon- electron positron
+  mesh = xyz
+x-type = 1
+    nx = 1
+ -0.15  0.15
+y-type = 2
+    ny = 120
+  ymin = -22.0
+  ymax =  22.0
+z-type = 2
+    nz = 80
+  zmin = -20.0
+  zmax =   6.0
+e-type = 1
+    ne = 1
+   0 1e10
+  axis = yz
+  file = tracks.out
+ gshow = 1
+epsout = 1
+
+[t-track]
+  part = muon+ muon- electron positron
+  mesh = xyz
+x-type = 2
+    nx = 80
+  xmin = -3.5
+  xmax =  3.5
+y-type = 1
+    ny = 1
+ -0.2  0.2
+z-type = 2
+    nz = 80
+  zmin = -3.5
+  zmax =  3.5
+e-type = 1
+    ne = 1
+   0 1e10
+  axis = xz
+  file = tracks_xz.out
+ gshow = 1
+epsout = 1
+
+[t-4dtrack]
+file = 4dt.out
+historymax = 100
+
+[t-deposit]
+  mesh = reg
+   reg = 1
+output = deposit
+e-type = 2
+    ne = 100
+  emin = 0
+  emax = 0.05
+  file = de.out
+  axis = eng
+  unit = 3
+epsout = 1
+ dresol = 0.05
+
+[t-deposit]
+  mesh = reg
+   reg = 1
+output = deposit
+e-type = 2
+    ne = 80
+  emin = 0
+  emax = 0.03
+  file = de2.out
+  axis = eng
+  unit = 3
+epsout = 1
+ dresol = 0.05
+
+[end]

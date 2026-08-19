@@ -4,3 +4,5 @@ __pycache__/
 ~$*
 .DS_Store
 *.tmp
+.phits_web_session
+.phits_web_result.zip
