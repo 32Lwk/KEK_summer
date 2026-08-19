@@ -16,6 +16,8 @@ def make_id(stem: str) -> str:
     s = (
         stem.replace("管理棟2階", "kanri2f")
         .replace("管理棟2F", "kanri2f")
+        .replace("管理棟1階", "kanri1f")
+        .replace("管理棟1F", "kanri1f")
         .replace("管理棟", "kanri")
     )
     s = re.sub(r"[^A-Za-z0-9_]+", "_", s).strip("_")
