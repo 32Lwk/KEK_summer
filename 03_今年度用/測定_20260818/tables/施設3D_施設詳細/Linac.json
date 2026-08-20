@@ -1,0 +1,47 @@
+{
+  "id": "Linac",
+  "name": "電子陽電子 Linear Accelerator",
+  "source_pdf": "05_施設図/Linac.pdf",
+  "map_anchor": {
+    "x_pct": 20.5,
+    "y_pct": 74.0,
+    "棟No": "H02"
+  },
+  "building": {
+    "width_m": 22,
+    "depth_m": 135,
+    "height_m": 14,
+    "yBottom_m": -2
+  },
+  "tunnel": {
+    "type": "box",
+    "width_m": 10,
+    "depth_m": 95,
+    "height_m": 8,
+    "yBottom_m": -4
+  },
+  "evaluation_points": [
+    {
+      "id": "D1",
+      "label": "Linac D1",
+      "notes": "施設図上の評価点（MCA D1 とは別）"
+    }
+  ],
+  "cross_sections": [
+    {
+      "id": "Linac_tunnel",
+      "name": "ビームトンネル断面",
+      "source_pdf": "Linac.pdf",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 3.0,
+      "inner_height_m": 2.5,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 100,
+          "source": "Linac.pdf 図1.9（推定）"
+        }
+      ]
+    }
+  ]
+}

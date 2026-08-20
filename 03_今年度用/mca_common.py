@@ -14,13 +14,14 @@ USB_ROOT = Path("/Volumes")
 
 def make_id(stem: str) -> str:
     s = (
-        stem.replace("放射線棟2階", "hoshasen2f")
+        stem.replace("放射線棟BT", "hoshasenBT")
         .replace("放射線棟", "hoshasen")
         .replace("管理棟2階", "kanri2f")
         .replace("管理棟2F", "kanri2f")
         .replace("管理棟1階", "kanri1f")
         .replace("管理棟1F", "kanri1f")
         .replace("管理棟", "kanri")
+        .replace("ライナック", "linac")
         .replace("地上", "ground")
     )
     s = re.sub(r"[^A-Za-z0-9_]+", "_", s).strip("_")
@@ -30,7 +31,8 @@ def make_id(stem: str) -> str:
 
 
 def make_label(stem: str) -> str:
-    return re.sub(r"^\d{8}_\d{4}_", "", stem)
+    """表示名はファイル名（拡張子なし）。日時が残るので同地点の再測定も区別できる。"""
+    return stem
 
 
 def parse_mca(path: Path) -> dict:

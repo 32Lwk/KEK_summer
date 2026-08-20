@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>測定地点マップ — KEK 2026-08</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f4f4;
+      --card: #fff;
+      --line: #ccc;
+      --muted: #555;
+      --accent: #1f4e79;
+      --pin: #c0392b;
+      --pin-ring: #fff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #1a1a1a; --card: #242424; --line: #444; --muted: #aaa; }
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 52rem;
+      margin: 1rem auto 2rem;
+      padding: 0 0.75rem;
+      line-height: 1.5;
+      background: var(--bg);
+    }
+    h1 { font-size: 1.2rem; margin-bottom: 0.2rem; }
+    h2 { font-size: 0.95rem; margin: 1.25rem 0 0.4rem; color: var(--accent); }
+    .lead { color: var(--muted); font-size: 0.88rem; margin-bottom: 0.75rem; }
+    .source {
+      font-size: 0.8rem;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.5rem 0.65rem;
+      background: var(--card);
+      margin-bottom: 0.75rem;
+    }
+    .axis-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      margin-bottom: 0.75rem;
+    }
+    @media (max-width: 640px) { .axis-box { grid-template-columns: 1fr; } }
+    .axis-box div {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.45rem;
+      background: var(--card);
+    }
+    .axis-box strong { display: block; color: var(--accent); font-size: 0.75rem; }
+    .map-wrap {
+      position: relative;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .map-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      pointer-events: auto;
+      cursor: pointer;
+      text-align: center;
+    }
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: var(--pin);
+      border: 2px solid var(--pin-ring);
+      box-shadow: 0 0 0 1px var(--pin);
+    }
+    .pin.active .pin-dot {
+      width: 18px;
+      height: 18px;
+      background: #e67e22;
+      box-shadow: 0 0 0 2px #e67e22;
+    }
+    .pin-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #111;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #999;
+      border-radius: 3px;
+      padding: 0 0.25rem;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      background: var(--card);
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.3rem 0.4rem;
+      text-align: left;
+    }
+    th { background: var(--accent); color: #fff; }
+    tr[data-site] { cursor: pointer; }
+    tr.highlight { background: rgba(192, 57, 43, 0.12); }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    code { font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <h1>測定地点マップ（公式案内図ベース）</h1>
+  <p class="lead">
+    背景は KEK 公式案内図（Ver.2026.05）。赤ピンは 2026-08-18〜19 の MCA 測定地点。
+    座標は <code>tables/測定地点マスタ.csv</code> で編集し、
+    <code>python3 _build_site_map.py</code> で再生成する。
+  </p>
+
+  <div class="source">
+    出典: <code>05_施設図/Campus_Map_J_2026_05.pdf</code>
+    （大学共同利用機関法人 高エネルギー加速器研究機構案内図）<br>
+    画像: <code>figures/campus_official_2026_05.png</code>
+  </div>
+
+  <div class="axis-box">
+    <div><strong>① 標高 h</strong>海面から [m]。KEK ≈ 30 m</div>
+    <div><strong>② GL+ z</strong>地面から上 [m]。2階 ≈ +4 m</div>
+    <div><strong>③ 覆土 d</strong>地面より下 [m]。8/18 測定はすべて 0</div>
+  </div>
+
+  <h2>公式案内図 + 測定点</h2>
+  <div class="map-wrap" id="map">
+    <img src="figures/campus_official_2026_05.png" alt="KEK公式案内図 Ver.2026.05">
+    <div class="overlay" id="pins"></div>
+  </div>
+  <p class="lead" style="margin-top:0.4rem">ピンまたは表の行をクリックで対応付け。座標の微調整は CSV の <code>地図_x_pct</code>, <code>地図_y_pct</code>（画像左上=0,0、右下=100,100）。</p>
+
+  <h2>地点一覧</h2>
+  <div class="panel">
+    <table>
+      <thead>
+        <tr>
+          <th>地点</th><th>棟No</th><th>番地</th>
+          <th>h [m]</th><th>z [m]</th><th>d [m]</th><th>内外</th><th>ROI net CPS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-site="kanri2f">
+          <td>管理棟2階</td>
+          <td>L01</td>
+          <td>d-5</td>
+          <td>30</td>
+          <td>4.0</td>
+          <td>0</td>
+          <td>屋内</td>
+          <td>0.477</td>
+        </tr>
+        <tr data-site="kanri1f">
+          <td>管理棟1階</td>
+          <td>L01</td>
+          <td>d-5</td>
+          <td>30</td>
+          <td>0.0</td>
+          <td>0</td>
+          <td>屋内</td>
+          <td>0.341</td>
+        </tr>
+        <tr data-site="linac">
+          <td>linac</td>
+          <td>H02</td>
+          <td>a-5~7</td>
+          <td>30</td>
+          <td>0.0</td>
+          <td>0</td>
+          <td>屋内</td>
+          <td>0.056</td>
+        </tr>
+        <tr data-site="ground">
+          <td>地上（屋外）</td>
+          <td>—</td>
+          <td>d-5付近</td>
+          <td>30</td>
+          <td>0.0</td>
+          <td>0</td>
+          <td>屋外</td>
+          <td>0.387</td>
+        </tr>
+        <tr data-site="hoshasen_bt">
+          <td>放射線棟 BT</td>
+          <td>—</td>
+          <td>b-3付近</td>
+          <td>30</td>
+          <td>0.0</td>
+          <td>0</td>
+          <td>屋内</td>
+          <td>—</td>
+        </tr>
+        <tr data-site="shirane">
+          <td>白根山（昨年）</td>
+          <td>—</td>
+          <td>—</td>
+          <td>2000</td>
+          <td>0.0</td>
+          <td>0</td>
+          <td>屋外</td>
+          <td>—</td>
+        </tr>
+        <tr data-site="tsukuba">
+          <td>筑波山（昨年）</td>
+          <td>—</td>
+          <td>—</td>
+          <td>907</td>
+          <td>0.0</td>
+          <td>0</td>
+          <td>屋外</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const SITES = [
+      {
+        id: 'kanri2f',
+        name: '管理棟2階',
+        code: 'L01',
+        x: 57.2,
+        y: 55.8,
+        alt: false
+      },      {
+        id: 'kanri1f',
+        name: '管理棟1階',
+        code: 'L01',
+        x: 57.2,
+        y: 55.8,
+        alt: true
+      },      {
+        id: 'linac',
+        name: 'linac',
+        code: 'H02',
+        x: 20.5,
+        y: 74.0,
+        alt: false
+      },      {
+        id: 'ground',
+        name: '地上（屋外）',
+        code: '',
+        x: 52.0,
+        y: 61.5,
+        alt: false
+      },      {
+        id: 'hoshasen_bt',
+        name: '放射線棟 BT',
+        code: '',
+        x: 46.5,
+        y: 42.5,
+        alt: false
+      }
+    ];
+
+    const pinRoot = document.getElementById("pins");
+
+    function highlight(id) {
+      document.querySelectorAll("tr[data-site]").forEach(r => {
+        r.classList.toggle("highlight", r.dataset.site === id);
+      });
+      document.querySelectorAll(".pin").forEach(p => {
+        p.classList.toggle("active", p.dataset.site === id);
+      });
+    }
+
+    SITES.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "pin";
+      el.dataset.site = s.id;
+      el.style.left = s.x + "%";
+      el.style.top = s.y + "%";
+      el.innerHTML = `<div class="pin-label">${s.code ? s.code + " " : ""}${s.name}</div><div class="pin-dot"></div>`;
+      el.title = s.name;
+      el.addEventListener("click", () => highlight(s.id));
+      pinRoot.appendChild(el);
+    });
+
+    document.querySelectorAll("tr[data-site]").forEach(r => {
+      r.addEventListener("click", () => highlight(r.dataset.site));
+    });
+  </script>
+</body>
+</html>

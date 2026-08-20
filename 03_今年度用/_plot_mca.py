@@ -51,13 +51,17 @@ def color_for(sid: str, i: int) -> str:
         return RED
     if "kanri1f" in sl:
         return PALETTE[3]
-    if "kanri2f" in sl and "0819" in sl:
+    if "kanri2f" in sid and sid.endswith("_d1"):
+        return PALETTE[6]
+    if "kanri2f" in sl and "0832" in sl:
         return GREEN
     if "kanri2f" in sl or ("kanri" in sl and "1f" not in sl):
         return BLUE
-    if "hoshasen" in sl or "0819_d1" in sl:
-        return PALETTE[6]
-    if "ground" in sl or sl.startswith("d1"):
+    if "hoshasen" in sl and sid.endswith("_d2"):
+        return "#FF7F0E"
+    if "hoshasen" in sl:
+        return PALETTE[5]
+    if "ground" in sl:
         return PALETTE[4]
     return PALETTE[i % len(PALETTE)]
 
@@ -101,6 +105,7 @@ def load_spectrum() -> dict:
                 "roi_lo": lo,
                 "roi_hi": hi,
                 "roi_peak": int(float(rec.get("roi_peak") or 0)),
+                "roi_net_cps": float(rec["roi_net_cps"]),
                 "clip": roi_peak_clip(cps, lo, hi, pad=max(CLIP_PAD, 0.1 * float(np.max(cps[lo : hi + 1]) if hi >= lo else 0))),
             }
         )
@@ -136,10 +141,23 @@ def overlay_err(ax, d: dict, mask, ms=2.6) -> None:
         )
 
 
-def save(fig, name: str, folder: Path | None = None) -> None:
+def save(
+    fig,
+    name: str,
+    folder: Path | None = None,
+    pad_inches: float | None = None,
+    bbox_inches: str | None = None,
+) -> None:
     dest = folder if folder is not None else FIG
     dest.mkdir(parents=True, exist_ok=True)
-    fig.savefig(dest / f"{name}.png")
+    kw: dict = {}
+    if pad_inches is not None:
+        kw["pad_inches"] = pad_inches
+    if bbox_inches == "none":
+        kw["bbox_inches"] = None
+    elif bbox_inches is not None:
+        kw["bbox_inches"] = bbox_inches
+    fig.savefig(dest / f"{name}.png", **kw)
     plt.close(fig)
 
 
@@ -457,37 +475,100 @@ def fig_overview(d: dict) -> None:
     save(fig, "00_概要")
 
 
-def fig_linac_ground() -> None:
-    """指定値: linac 0.0647（コンクリート 150 cm）、地上 0.525。対数縦軸を上下逆向き。"""
-    labels = ["linac\n(コンクリート 150 cm)", "地上"]
-    y = [0.0647, 0.525]
+def _roi_net(d: dict, key: str) -> float:
+    for s in d["series"]:
+        if key in s["id"].lower():
+            return s["roi_net_cps"]
+    raise KeyError(key)
+
+
+def fig_linac_ground(d: dict) -> None:
+    """地上を左、縦軸上端を 1（地上で規格化）。"""
+    i0, i1 = _roi_net(d, "ground"), _roi_net(d, "linac")
+    labels = ["地上", "linac\n(コンクリート 150 cm)"]
+    y = [1.0, i1 / i0]
     x = np.arange(len(labels))
-    fig, ax = plt.subplots(figsize=(6.8, 4.6))
-    ax.plot(x, y, "-o", color=RED, ms=10, lw=2.0, label="CPS_NET")
+    fig, ax = plt.subplots(figsize=(7.2, 4.8))
+    fig.subplots_adjust(left=0.22)
+    ax.plot(x, y, "-o", color=RED, ms=10, lw=2.0, label="測定（地上=1）")
     for xi, yi in zip(x, y):
         ax.annotate(
             f"{yi:.4f}",
             (xi, yi),
             textcoords="offset points",
-            xytext=(0, 12),
+            xytext=(0, 10),
             ha="center",
             fontsize=11,
         )
     ax.set_xticks(x, labels)
     ax.set_xlim(-0.4, 1.4)
-    ax.set_yscale("log")
-    ax.set_ylim(0.04, 0.8)
-    ax.invert_yaxis()
+    ax.set_ylim(0, 1.08)
     ax.set_xlabel("地点")
-    ax.set_ylabel("CPS_NET [1/s]")
+    ax.set_ylabel("相対 CPS_NET（地上 = 1）", labelpad=14)
     ax.legend(frameon=False)
-    save(fig, "09_linac_地上")
+    save(fig, "09_linac_地上", pad_inches=0.45)
+
+
+def fig_linac_ground_theory(d: dict) -> None:
+    """x<0 は空気、x>0 はコンクリートの指数減衰。空気の λ は昨年（熱中性子）。"""
+    i0, i1 = _roi_net(d, "ground"), _roi_net(d, "linac")
+    x_linac = 150.0
+    y_linac = i1 / i0
+    lam_c = x_linac / np.log(i0 / i1)
+    lam_air = 1475.0 * 100.0  # 昨年: 管理棟1階→白根山・熱中性子 1475 m
+
+    x_air = np.linspace(-40, 0, 200)
+    y_air = np.exp(x_air / lam_air)
+    x_c = np.linspace(0, 180, 400)
+    y_c = np.exp(-x_c / lam_c)
+
+    fig, ax = plt.subplots(figsize=(8.4, 5.2))
+    fig.subplots_adjust(left=0.26, right=0.90, top=0.86, bottom=0.18)
+    ax.plot(
+        x_air,
+        y_air,
+        color=BLUE,
+        lw=1.8,
+        label=rf"空気  $\lambda={lam_air/100:.0f}$ m",
+    )
+    ax.plot(
+        x_c,
+        y_c,
+        color=GRAY,
+        lw=1.8,
+        label=rf"コンクリート  $\lambda={lam_c:.1f}$ cm",
+    )
+    ax.axvline(0, color="#BBBBBB", lw=0.8, zorder=1)
+    ax.plot(
+        [0, x_linac],
+        [1.0, y_linac],
+        "o",
+        color=RED,
+        ms=10,
+        zorder=3,
+        label="測定（地上=1）",
+    )
+    ax.annotate("地上  1.000", (0, 1.0), textcoords="offset points", xytext=(10, -14), fontsize=10)
+    ax.annotate(
+        f"linac  {y_linac:.4f}",
+        (x_linac, y_linac),
+        textcoords="offset points",
+        xytext=(-72, 10),
+        fontsize=10,
+    )
+    ax.set_xlim(-40, 180)
+    ax.set_ylim(0, 1.18)
+    ax.set_xlabel("厚さ [cm]（左: 空気、右: コンクリート）")
+    ax.set_ylabel("相対 CPS_NET（地上 = 1）", labelpad=12)
+    ax.legend(frameon=False)
+    save(fig, "10_linac_地上_理論フィット", bbox_inches="none")
 
 
 def cleanup_old_figures(valid_folders: set[str]) -> None:
     stale = [
         "03_ROI_150-450.png",
         "08_ピーク窓_300-380.png",
+        "11_検出器稼働帯.png",
     ]
     for name in stale:
         p = FIG / name
@@ -513,7 +594,8 @@ def main() -> None:
     fig_full_linear(d)
     fig_bands(d)
     fig_ratio(d)
-    fig_linac_ground()
+    fig_linac_ground(d)
+    fig_linac_ground_theory(d)
     valid = set()
     for s in d["series"]:
         _one_site(d, s)

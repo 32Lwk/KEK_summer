@@ -19,13 +19,23 @@ KEK_summer/
 │       └── 平均自由行程_結果.csv
 ├── 02_解析/
 │   └── 宇宙線中性子_平均自由行程.xlsx  ← 表＋計算＋カラーグラフ
-└── 03_今年度用/
-    ├── 測定_20260818/                  ← 今年度 MCA（管理棟2F・linac）
-    │   ├── raw/*.mca
-    │   ├── tables/*.csv
-    │   └── 測定_20260818_MCA.xlsx
-    ├── template_測定記録.csv           ← 今年度測定の記入用テンプレ
-    └── calc_mean_free_path.py          ← CSVからλ・Λを再計算する脚本
+├── 03_今年度用/
+│   ├── 測定_20260818/                  ← 今年度 MCA（管理棟2F・linac）
+│   │   ├── raw/*.mca
+│   │   ├── tables/*.csv
+│   │   └── 測定_20260818_MCA.xlsx
+│   ├── template_測定記録.csv           ← 今年度測定の記入用テンプレ
+│   └── calc_mean_free_path.py          ← CSVからλ・Λを再計算する脚本
+└── 05_施設図/                          ← KEK施設の図面 PDF
+    ├── Campus_Map_J_2026_05.pdf
+    ├── ATF.pdf
+    ├── BT.pdf
+    ├── DR.pdf
+    ├── Linac.pdf
+    ├── PF.pdf
+    ├── PS.pdf
+    ├── SKEKB.pdf
+    └── 先端計測実験棟.pdf
 ```
 
 ## 昨年データの要点（すぐ使うならここ）

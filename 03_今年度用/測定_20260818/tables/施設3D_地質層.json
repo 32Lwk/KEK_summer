@@ -1,0 +1,33 @@
+{
+  "source": "KEK地下測定_地質予測.xlsx / 地質_KEK シート",
+  "layers": [
+    {
+      "id": "loam",
+      "name": "関東ローム",
+      "top_m": 0,
+      "bottom_m": -3,
+      "density_g_cm3": 1.35,
+      "color": "#c4a574",
+      "lambda_m": 1.09
+    },
+    {
+      "id": "joso",
+      "name": "常総粘土",
+      "top_m": -3,
+      "bottom_m": -5,
+      "density_g_cm3": 1.65,
+      "color": "#8b7355",
+      "lambda_m": 0.89
+    },
+    {
+      "id": "shimousa",
+      "name": "下総層群",
+      "top_m": -5,
+      "bottom_m": -10,
+      "density_g_cm3": 1.85,
+      "color": "#6b5344",
+      "lambda_m": 0.8
+    }
+  ],
+  "reference": "宇野沢ほか1988、坂田ほか2018/2024、筑波台地標準層序"
+}
