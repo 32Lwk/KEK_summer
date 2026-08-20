@@ -564,6 +564,222 @@ def fig_linac_ground_theory(d: dict) -> None:
     save(fig, "10_linac_地上_理論フィット", bbox_inches="none")
 
 
+# 等価コンクリート換算（教材の質量厚さ X=ρt）
+# 理論: A = A0 * exp(-x / 0.77)、x は等価コンクリート厚 [m]
+# 土: 関東ローム ≤4 m (ρ=1.35)、以深は常総粘土 (ρ=1.65)
+RHO_CONCRETE = 2.3
+RHO_LOAM = 1.35
+RHO_JOSO = 1.65
+LOAM_MAX_CM = 400.0
+LAMBDA_M = 0.77
+
+# Book5 / ユーザー表の CPS。相対値は地上で規格化。
+USER_CPS = {
+    "地上": 0.52514597,
+    "linac": 0.06478913,
+    "BT": 0.11475671,
+    "KEKB": 0.0399324,
+    "PF": 0.25108616,
+}
+
+
+def _soil_mass_thickness(soil_cm: float) -> float:
+    loam = min(max(soil_cm, 0.0), LOAM_MAX_CM)
+    joso = max(0.0, soil_cm - LOAM_MAX_CM)
+    return loam * RHO_LOAM + joso * RHO_JOSO
+
+
+def _mass_thickness(concrete_cm: float, soil_cm: float) -> float:
+    return concrete_cm * RHO_CONCRETE + _soil_mass_thickness(soil_cm)
+
+
+def _equiv_concrete_cm_from_x(x_gcm2: float) -> float:
+    return x_gcm2 / RHO_CONCRETE
+
+
+def _theory_rel(x_eq_cm, a0: float = 1.0):
+    """A = A0 * exp(-x/0.77)。x は等価コンクリート [m]。"""
+    return a0 * np.exp(-(np.asarray(x_eq_cm, dtype=float) / 100.0) / LAMBDA_M)
+
+
+def _site_shielding_d1() -> list[dict]:
+    """層厚から X を算出し、ユーザー CPS と組み合わせる。"""
+    sites = [
+        {"label": "地上", "concrete_cm": 0.0, "soil_cm": 0.0, "note": "基準（屋外）"},
+        {"label": "PF", "concrete_cm": 105.0, "soil_cm": 0.0, "note": ""},
+        {"label": "linac", "concrete_cm": 150.0, "soil_cm": 0.0, "note": ""},
+        {"label": "BT", "concrete_cm": 60.0, "soil_cm": 220.0, "note": "土はロームのみ（220 cm < 4 m）"},
+        {
+            "label": "KEKB",
+            "concrete_cm": 80.0,
+            "soil_cm": 670.0,
+            "note": "ローム4 m + 常総2.7 m + コンクリ80 cm（Book5の117.25は桁誤り）",
+        },
+    ]
+    for site in sites:
+        site["X"] = _mass_thickness(site["concrete_cm"], site["soil_cm"])
+        site["cps"] = USER_CPS[site["label"]]
+        if not site["note"]:
+            site["note"] = f"X={site['X']:.2f}"
+    return sites
+
+
+def fig_all_sites_equiv_concrete(d: dict | None = None, absolute: bool = False) -> None:
+    """層厚換算 X + ユーザー CPS。理論 A0·exp(-x/0.77)。
+
+    absolute=False: 相対（地上=1）、図11
+    absolute=True:  実測 CPS [1/s]、図12
+    """
+    from matplotlib.ticker import MultipleLocator
+
+    cps0 = USER_CPS["地上"]
+    a0 = cps0 if absolute else 1.0
+    lam_air = 1475.0 * 100.0
+
+    rows = []
+    points = []
+    for site in _site_shielding_d1():
+        x_eq = _equiv_concrete_cm_from_x(site["X"])
+        y_rel = site["cps"] / cps0
+        y = site["cps"] if absolute else y_rel
+        y_th = float(np.asarray(_theory_rel(x_eq, a0)).reshape(-1)[0])
+        points.append(
+            {
+                "label": site["label"],
+                "x": x_eq,
+                "y": y,
+                "cps": site["cps"],
+                "y_rel": y_rel,
+                "site": site,
+            }
+        )
+        rows.append(
+            {
+                "地点": site["label"],
+                "CPS": f"{site['cps']:.8f}",
+                "相対_地上1": f"{y_rel:.6f}",
+                "土_cm": f"{site['soil_cm']:.1f}",
+                "コンクリート_cm": f"{site['concrete_cm']:.1f}",
+                "質量厚さ_X": f"{site['X']:.2f}",
+                "等価コンクリート_cm": f"{x_eq:.1f}",
+                "等価コンクリート_m": f"{x_eq / 100.0:.4f}",
+                "理論_A0exp_相対": f"{float(np.asarray(_theory_rel(x_eq, 1.0)).reshape(-1)[0]):.6f}",
+                "理論_A0exp_CPS": f"{float(np.asarray(_theory_rel(x_eq, cps0)).reshape(-1)[0]):.6f}",
+                "備考": site["note"],
+            }
+        )
+
+    out_csv = TABLES / "等価コンクリート_減衰.csv"
+    if not absolute:
+        with out_csv.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            w.writeheader()
+            w.writerows(rows)
+
+    x_max = max(p["x"] for p in points) * 1.04
+    x_air = np.linspace(-20, 0, 200)
+    x_c = np.linspace(0, x_max, 900)
+    # 空気側: 相対なら y=1、実測なら地上 CPS
+    y_air_level = a0
+
+    fig, ax = plt.subplots(figsize=(8.8, 5.2))
+    fig.subplots_adjust(left=0.20, right=0.96, top=0.90, bottom=0.16)
+
+    ax.plot(
+        x_air,
+        y_air_level * np.exp(x_air / lam_air),
+        color=BLUE,
+        lw=1.6,
+        label=r"空気  $\lambda=1475$ m",
+    )
+    ax.plot(
+        x_c,
+        _theory_rel(x_c, a0),
+        color=GRAY,
+        lw=2.0,
+        label=(
+            rf"$A_0\,e^{{-x/{LAMBDA_M}}}$  （$A_0={a0:.4f}$, $x$ [m]）"
+            if absolute
+            else rf"$A_0\,e^{{-x/{LAMBDA_M}}}$  （$A_0=1$, $x$ [m]）"
+        ),
+    )
+    ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
+
+    ax.plot(
+        [p["x"] for p in points],
+        [p["y"] for p in points],
+        "o",
+        color=RED,
+        ms=9,
+        zorder=3,
+        label="測定（実測CPS）" if absolute else "測定（ユーザーCPS・地上=1）",
+    )
+
+    offsets = {
+        "地上": (8, -28),
+        "PF": (8, 6),
+        "linac": (8, -28),
+        "BT": (8, 6),
+        "KEKB": (-10, 6),
+    }
+    for p in points:
+        dx, dy = offsets.get(p["label"], (8, 8))
+        if absolute:
+            txt = f'{p["label"]}  {p["cps"]:.4f}\n（相対 {p["y_rel"]:.3f}）'
+        else:
+            txt = f'{p["label"]}  相対{p["y_rel"]:.3f}\n（実測CPS {p["cps"]:.4f}）'
+        ax.annotate(
+            txt,
+            (p["x"], p["y"]),
+            textcoords="offset points",
+            xytext=(dx, dy),
+            fontsize=8,
+            ha="left" if dx >= 0 else "right",
+            linespacing=1.15,
+        )
+
+    ax.set_xlim(-20, x_max)
+    if absolute:
+        ax.set_ylim(0, cps0 * 1.12)
+        ax.yaxis.set_major_locator(MultipleLocator(0.05))
+        ax.yaxis.set_minor_locator(MultipleLocator(0.01))
+        ax.set_ylabel("実測 CPS [1/s]")
+        out_name = "12_全地点_等価コンクリート_実測CPS"
+    else:
+        ax.set_ylim(0, 1.12)
+        ax.yaxis.set_major_locator(MultipleLocator(0.1))
+        ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+        ax.set_ylabel("相対 CPS（地上 = 1）")
+        out_name = "11_全地点_等価コンクリート"
+
+    ax.xaxis.set_major_locator(MultipleLocator(50))
+    ax.xaxis.set_minor_locator(MultipleLocator(10))
+    ax.tick_params(which="major", direction="out", length=5)
+    ax.tick_params(which="minor", direction="out", length=3)
+    ax.grid(True, which="major", alpha=0.35, linestyle="--")
+    ax.grid(True, which="minor", alpha=0.18, linestyle=":")
+    ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
+    ax.legend(frameon=False, loc="upper right", fontsize=9)
+    save(fig, out_name, bbox_inches="none")
+    print(f"figure: {out_name}.png")
+    if not absolute:
+        print(f"equiv table: {out_csv}")
+    print(f"  理論 A0·exp(-x/{LAMBDA_M})  A0={a0:.6f}  absolute={absolute}")
+    for p in points:
+        th = float(np.asarray(_theory_rel(p["x"], a0)).reshape(-1)[0])
+        s = p["site"]
+        print(
+            f"  {p['label']}: x={p['x']:.1f} cm  "
+            f"{'CPS' if absolute else '相対'}={p['y']:.4f}  理論={th:.4f}"
+        )
+
+
+def fig_all_sites_equiv_concrete_cps(d: dict | None = None) -> None:
+    """実測 CPS 版（図12）。"""
+    fig_all_sites_equiv_concrete(d, absolute=True)
+
+
+
 def cleanup_old_figures(valid_folders: set[str]) -> None:
     stale = [
         "03_ROI_150-450.png",
@@ -596,6 +812,8 @@ def main() -> None:
     fig_ratio(d)
     fig_linac_ground(d)
     fig_linac_ground_theory(d)
+    fig_all_sites_equiv_concrete(d)
+    fig_all_sites_equiv_concrete_cps(d)
     valid = set()
     for s in d["series"]:
         _one_site(d, s)
