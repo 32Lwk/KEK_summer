@@ -139,7 +139,7 @@ e:
 # Information for Restart Calculation
 # This calculation was newly started
 # istdev =  2 # 1:Batch variance, 2:History variance
-# resc2  = 6.19901640598750916E+01 # Total source weight or Total source weight / maxcas
+# resc2  = 1.09545662252833754E+04 # Total source weight or Total source weight / maxcas
 # resc3  = 1.20000000000000000E+05 # Total history number or Total batch number
 # maxcas =       10000 # History / Batch, only used for istdev=1
 # bitrseed = 1110000000001111100010101111110011110111111001000001011011010111 # bit data of rseed

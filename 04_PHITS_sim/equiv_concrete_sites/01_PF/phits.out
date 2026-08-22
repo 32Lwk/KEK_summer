@@ -28,18 +28,17 @@
           |_________________________________________________________|
 
                         Starting Date = 2026-08-22
-                        Starting Time = 11h 33m 00
+                        Starting Time = 22h 08m 16
 
 >>> Input Echo >>>=============================================================
 
 [ Title ]
-図11相当・PF（コンクリ105 cm）+ He-3/SUS304 検出器
-PF slab with He-3 proportional counter
+PF 天井コンクリ105 cm + He-3/SUS304
 
 [ Parameters ]
  icntl    =           0     # (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
- maxcas   =       12000     # (D=10) number of particles per one batch
- maxbch   =          15     # (D=10) number of batches
+ maxcas   =        8000     # (D=10) number of particles per one batch
+ maxbch   =          10     # (D=10) number of batches
  e-mode   =           2     # (D=0) 0: Normal, 1: Event generator mode Ver.1, 2: Ver.2
  irqmd    =           1     # (D=0) 0: JQMD legacy version, 1: JQMD-2.0
  negs     =           2     # (D=-1) =-1:original, =0:No, =1:EGS, =2:EGS(HE)
@@ -58,20 +57,17 @@ PF slab with He-3 proportional counter
  emin(19) = 1.000000000E-03 # (D=1.0e-3) cut-off energy of Nucleus (MeV/n)
 
 [ Source ]
-  totfact =  2.46301E+05    # (D=1.0) global factor
-$ totfact =   749.46        # revised global factor by e-type = 25,26,28 or 29
-   s-type =   9             # spherical source
+  totfact =  -3600.0        # (D=1.0) global factor
+$ totfact =  -10.954        # revised global factor by e-type = 25,26,28 or 29
+   s-type =   2             # rectangular-solid source
      proj =  neutron        # kind of incident particle         
-       x0 =   0.0000        # (D=0.0) center position of x-axis [cm]
-       y0 =   0.0000        # (D=0.0) center position of y-axis [cm]
-       z0 =   0.0000        # (D=0.0) center position of z-axis [cm]
-       r1 =   280.00        # inner radius [cm]
-       r2 =   280.00        # outer radius [cm]
-      dir =  iso            # inner direction with uniform dis. by analog
-      ag1 =  -1.0000        # minimum zenith angle in cosine
-      ag2 =   1.0000        # maximum zenith angle in cosine
-      pg1 =   0.0000        # minimum azimuth angle in degree
-      pg2 =   360.00        # maximum azimuth angle in degree
+       x0 =  -30.000        # minimum position of x-axis [cm]
+       x1 =   30.000        # maximum position of x-axis [cm]
+       y0 =  -30.000        # minimum position of y-axis [cm]
+       y1 =   30.000        # maximum position of y-axis [cm]
+       z0 =   405.00        # minimum position of z-axis [cm]
+       z1 =   405.00        # maximum position of z-axis [cm]
+      dir =  -1.0000        # z-direction of beam [cosine]
    e-type =  25             # Cosmic-ray source
       eg1 =  1.00000E-08    # minimum cutoff energy [MeV]
       eg2 =   10000.        # maximum cutoff energy [MeV]
@@ -302,6 +298,28 @@ MAT[ 2 ]
            K         -2.9900000E-02
            Ca        -1.0000000E-01
            Fe        -3.2000000E-02
+MAT[ 3 ] 
+           H         -2.0000000E-02
+           C         -2.0000000E-02
+           O         -5.0000000E-01
+           Na        -1.0000000E-02
+           Mg        -2.0000000E-02
+           Al        -7.0000000E-02
+           Si        -2.7000000E-01
+           K         -2.0000000E-02
+           Ca        -3.0000000E-02
+           Fe        -4.0000000E-02
+MAT[ 4 ] 
+           H         -2.0000000E-02
+           C         -2.0000000E-02
+           O         -5.0000000E-01
+           Na        -1.0000000E-02
+           Mg        -2.0000000E-02
+           Al        -7.0000000E-02
+           Si        -2.7000000E-01
+           K         -2.0000000E-02
+           Ca        -3.0000000E-02
+           Fe        -4.0000000E-02
 MAT[ 5 ] 
           3He         1.0000000E+00
 MAT[ 6 ] 
@@ -314,22 +332,29 @@ MAT[ 6 ]
 [ Cell ]
  1           5 -1.2400000E-03  -11 
  2           6 -8.0000000E+00  11 -12 
- 10          1 -1.2050000E-03  -2 12 1 
- 20          2 -2.3020000E+00  2 -3 
- 30          1 -1.2050000E-03  3 -4 
- 99         -1                 4 
+ 3           0                 -50 20 -21 12 
+ 20          2 -2.3020000E+00  -30 21 -22 
+ 90          0                 -30 21 22 
+ 98          3 -1.3500000E+00  -30 -20 
+ 99         -1                 30 
 
 [ Surface ]
- 1             so    1.0000000E-03
+ 1             so    5.0000000E+02
  11            rcc   0.0000000E+00 -1.9765000E+01  0.0000000E+00
                      0.0000000E+00  3.9530000E+01  0.0000000E+00
                      2.5400000E+00
  12            rcc   0.0000000E+00 -1.9965000E+01  0.0000000E+00
                      0.0000000E+00  3.9930000E+01  0.0000000E+00
                      2.7400000E+00
- 2             so    1.0000000E+02
- 3             so    2.0500000E+02
- 4             so    2.8000000E+02
+ 20            pz    0.0000000E+00
+ 21            pz    2.5000000E+02
+ 22            pz    3.5500000E+02
+ 23            pz    3.5500000E+02
+ 24            pz    3.5500000E+02
+ 30            rpp  -4.0000000E+02  4.0000000E+02 -4.0000000E+02
+                     4.0000000E+02 -5.0000000E+01  5.0500000E+02
+ 50            rpp  -4.0000000E+02  4.0000000E+02 -4.0000000E+02
+                     4.0000000E+02  0.0000000E+00  2.5000000E+02
 
 [ T-Deposit ]
     title = He-3 付与エネルギー（検出器応答）
@@ -423,9 +448,9 @@ MAT[ 6 ]
 *                percent =     0.00 %
 
 <<< Report of material memory for low energy>>>
-*    low energy material =   520277
+*    low energy material =   774141
 *     total memory: mdas = 80000000
-*                percent =     0.65 %
+*                percent =     0.97 %
 
 <<< Report of real tally memory >>>
 *      real tally memory =      167
@@ -433,90 +458,65 @@ MAT[ 6 ]
 *                percent =     0.00 %
 
 <<< Report of temporary tally memory >>>
-* temporary tally memory =   520282
+* temporary tally memory =   774146
 *     total memory: mdas = 80000000
-*                percent =     0.65 %
+*                percent =     0.97 %
 
 <<< Report of total memory >>>
-*      used total memory =   520283
+*      used total memory =   774147
 *     total memory: mdas = 80000000
-*                percent =     0.65 %
+*                percent =     0.97 %
 *                ---------------------
 
 -------------------------------------------------------------------------------
-bat[       1] ncas =          12000.
+bat[       1] ncas =           8000.
  bitrseed = 0100001010011000001011101100011110011000110110100110010000000000
-          cpu time =  11.826 s.
+          cpu time =  19.940 s.
 
 -------------------------------------------------------------------------------
-bat[       2] ncas =          24000.
- bitrseed = 1010100111001111100001110010001010110101110001001010000111110100
-          cpu time =   5.198 s.
+bat[       2] ncas =          16000.
+ bitrseed = 1101001111101111111101001001110111010001010011111101010010001001
+          cpu time =  25.915 s.
 
 -------------------------------------------------------------------------------
-bat[       3] ncas =          36000.
+bat[       3] ncas =          24000.
+ bitrseed = 1011100010110110000001111001111101110110000111000101111101000110
+          cpu time =   8.778 s.
+
+-------------------------------------------------------------------------------
+bat[       4] ncas =          32000.
  bitrseed = 0101000000001111101010010010100101011101011110110001010101101101
-          cpu time =   4.210 s.
+          cpu time =   7.849 s.
 
 -------------------------------------------------------------------------------
-bat[       4] ncas =          48000.
- bitrseed = 0101110100111000110001000000100000011000110101000011010001110010
-          cpu time =   4.714 s.
+bat[       5] ncas =          40000.
+ bitrseed = 0100110011111100101001111110100010101011011001101010000011000111
+          cpu time =   8.202 s.
 
 -------------------------------------------------------------------------------
-bat[       5] ncas =          60000.
+bat[       6] ncas =          48000.
+ bitrseed = 0100101001011011001000100100001001111001110011010001000110110101
+          cpu time =   8.500 s.
+
+-------------------------------------------------------------------------------
+bat[       7] ncas =          56000.
  bitrseed = 1011110110010000000010111010100100100100110001001001011011001100
-          cpu time =   4.273 s.
+          cpu time =   7.441 s.
 
 -------------------------------------------------------------------------------
-bat[       6] ncas =          72000.
- bitrseed = 0110100110000100100100010011101000001011001010111110101011011100
-          cpu time =  21.914 s.
+bat[       8] ncas =          64000.
+ bitrseed = 0111001101100110011000000000101101011000111001010010011111100101
+          cpu time =   8.107 s.
 
 -------------------------------------------------------------------------------
-bat[       7] ncas =          84000.
+bat[       9] ncas =          72000.
+ bitrseed = 1100110011011011101011000111101010100100100011000011101111000111
+          cpu time =   7.409 s.
+
+-------------------------------------------------------------------------------
+bat[      10] ncas =          80000.
  bitrseed = 0011011101000001000001101101101001011000010001001111000001001011
-          cpu time =   6.093 s.
-
--------------------------------------------------------------------------------
-bat[       8] ncas =          96000.
- bitrseed = 1011111010111111000001011110001000110100100101100100110000100110
-          cpu time =   4.086 s.
-
--------------------------------------------------------------------------------
-bat[       9] ncas =         108000.
- bitrseed = 1000001110010001110011111010101111111100101011010000000010110010
-          cpu time =   4.228 s.
-
--------------------------------------------------------------------------------
-bat[      10] ncas =         120000.
- bitrseed = 0010010100001110110010000001001111101001011111101010110111111000
-          cpu time =   4.204 s.
-
--------------------------------------------------------------------------------
-bat[      11] ncas =         132000.
- bitrseed = 1110000000001111100010101111110011110111111001000001011011010111
-          cpu time =   4.344 s.
-
--------------------------------------------------------------------------------
-bat[      12] ncas =         144000.
- bitrseed = 1111010000010101011011100010001010000100011010001111011000110111
-          cpu time =   4.106 s.
-
--------------------------------------------------------------------------------
-bat[      13] ncas =         156000.
- bitrseed = 1000101110011010101100101101100101100101111100101011101000100000
-          cpu time =   4.109 s.
-
--------------------------------------------------------------------------------
-bat[      14] ncas =         168000.
- bitrseed = 0010110000100110011011100010101011101010111001111010101000001000
-          cpu time =   3.928 s.
-
--------------------------------------------------------------------------------
-bat[      15] ncas =         180000.
- bitrseed = 0101100000000000010110111000011000101101100110010010111110101100
-          cpu time =   4.193 s.
+          cpu time =   7.206 s.
 
 ===============================================================================
 
@@ -528,19 +528,19 @@ bat[      15] ncas =         180000.
      ncol          number
         1              1.   : start of calculation            
         2              1.   : end of calculation              
-        3             15.   : end of a batch                  
-        4         180000.   : source                          
+        3             10.   : end of a batch                  
+        4          80000.   : source                          
         5              0.   : detection of geometry error/warn
         6              0.   : recovery from geometry warning  
         7              0.   : termination by geometry error   
         8              0.   : termination by weight cut-off   
         9              0.   : termination by time cut-off     
-       10         194033.   : geometry boundary crossing      
-       11        1465222.   : termination by energy cut-off   
-       12         196195.   : termination by escape or leakage
-       13         507808.   : reaction : (n,x) type           
-       14       18348555.   : reaction : (n,n'x) type         
-       15           8987.   : sequential transport for tally  
+       10         220600.   : geometry boundary crossing      
+       11        1707792.   : termination by energy cut-off   
+       12          83750.   : termination by escape or leakage
+       13         574000.   : reaction : (n,x) type           
+       14       21750153.   : reaction : (n,n'x) type         
+       15           9184.   : sequential transport for tally  
 
 -------------------------------------------------------------------------------
  List of transport particles (not including source)
@@ -570,139 +570,124 @@ bat[      15] ncas =         180000.
      nu_muba       -14          0.0         0       0
      eta           221        547.5         0       0
      eta'          331        957.8         0       0
-     Kbar0        -311        497.7         0       0
      Lambda0      3122       1115.7         0       1
      Sigma+       3222       1189.4         1       1
      Sigma0       3212       1192.5         0       1
-     Sigma-       3112       1197.4        -1       1
-     K_L0          130        497.7         0       0
 
 -------------------------------------------------------------------------------
  prod. particles       number        weight        weight per source
 -------------------------------------------------------------------------------
-     neutron         6130002.     6.1300020E+06     2.5523346E+04
-     proton          3303584.     3.3035840E+06     1.3755055E+04
-     photon           249619.     2.4961900E+05     1.0393328E+03
-     alpha             57720.     5.7720000E+04     2.4032741E+02
-     deuteron          44166.     4.4166000E+04     1.8389294E+02
-     positron          25361.     2.5361000E+04     1.0559500E+02
-     triton             4060.     4.0600000E+03     1.6904527E+01
-     3he                2704.     2.7040000E+03     1.1258582E+01
-     pion-              1123.     1.1230000E+03     4.6758088E+00
-     pion0              1043.     1.0430000E+03     4.3427147E+00
-     other               849.     8.4900000E+02     3.5349614E+00
-     pion+               529.     5.2900000E+02     2.2025849E+00
-     muon+               266.     2.6600000E+02     1.1075380E+00
-     muon-                14.     1.4000000E+01     5.8291472E-02
-     electron              7.     7.0000000E+00     2.9145736E-02
-     kaon0                 6.     6.0000000E+00     2.4982060E-02
-     kaon+                 3.     3.0000000E+00     1.2491030E-02
-     kaon-                 2.     2.0000000E+00     8.3273532E-03
+     neutron         7557862.     7.5578620E+06     1.0348920E+03
+     proton          4169387.     4.1693870E+06     5.7091083E+02
+     photon           287115.     2.8711500E+05     3.9314428E+01
+     alpha             62935.     6.2935000E+04     8.6176393E+00
+     deuteron          51942.     5.1942000E+04     7.1123766E+00
+     positron          28290.     2.8290000E+04     3.8737271E+00
+     triton             4258.     4.2580000E+03     5.8304454E-01
+     3he                2805.     2.8050000E+03     3.8408641E-01
+     pion-              1079.     1.0790000E+03     1.4774661E-01
+     pion0               982.     9.8200000E+02     1.3446448E-01
+     other               834.     8.3400000E+02     1.1419895E-01
+     pion+               501.     5.0100000E+02     6.8601530E-02
+     muon+               258.     2.5800000E+02     3.5327734E-02
+     muon-                23.     2.3000000E+01     3.1493716E-03
+     electron             11.     1.1000000E+01     1.5062212E-03
+     kaon0                 4.     4.0000000E+00     5.4771680E-04
+     kaon+                 2.     2.0000000E+00     2.7385840E-04
+     kaon-                 2.     2.0000000E+00     2.7385840E-04
 
 -------------------------------------------------------------------------------
  the other kind of produced particles
 -------------------------------------------------------------------------------
      Name      kf-code        number     mass       charge   baryon
-     nu_mu          14           277       0.0         0       0
-     nu_muba       -14           275       0.0         0       0
-     nu_e           12           261       0.0         0       0
-     eta           221            11     547.5         0       0
-     nu_ebar       -12             7       0.0         0       0
+     nu_muba       -14           276       0.0         0       0
+     nu_mu          14           275       0.0         0       0
+     nu_e           12           253       0.0         0       0
+     nu_ebar       -12            11       0.0         0       0
+     eta           221             9     547.5         0       0
      Lambda0      3122             5    1115.7         0       1
-     K_L0          130             4     497.7         0       0
-     eta'          331             3     957.8         0       0
      Sigma+       3222             2    1189.4         1       1
-     Kbar0        -311             2     497.7         0       0
-     Sigma-       3112             1    1197.4        -1       1
-     Sigma0       3212             1    1192.5         0       1
+     Sigma0       3212             2    1192.5         0       1
+     eta'          331             1     957.8         0       0
 
 -------------------------------------------------------------------------------
  the other kind of particles into JAM
 -------------------------------------------------------------------------------
      Name      kf-code        number     mass       charge   baryon
-     K_L0          130           215     497.7         0       0
-     K_S0          310            27     497.7         0       0
-     Sigma+       3222            12    1189.4         1       1
+     K_L0          130            22     497.7         0       0
 
 -------------------------------------------------------------------------------
  particle decays       number        weight        weight per source
 -------------------------------------------------------------------------------
-     positron          25112.     2.5112000E+04     1.0455825E+02
-     pion0              1043.     1.0430000E+03     4.3427147E+00
-     pion+               265.     2.6500000E+02     1.1033743E+00
-     muon+               261.     2.6100000E+02     1.0867196E+00
-     other                25.     2.5000000E+01     1.0409192E-01
-     pion-                14.     1.4000000E+01     5.8291472E-02
-     muon-                 7.     7.0000000E+00     2.9145736E-02
-     kaon+                 2.     2.0000000E+00     8.3273532E-03
-     kaon-                 1.     1.0000000E+00     4.1636766E-03
+     positron          28048.     2.8048000E+04     3.8405902E+00
+     pion0               982.     9.8200000E+02     1.3446448E-01
+     pion+               257.     2.5700000E+02     3.5190805E-02
+     muon+               253.     2.5300000E+02     3.4643088E-02
+     pion-                23.     2.3000000E+01     3.1493716E-03
+     other                21.     2.1000000E+01     2.8755132E-03
+     muon-                11.     1.1000000E+01     1.5062212E-03
+     kaon+                 1.     1.0000000E+00     1.3692920E-04
 
 -------------------------------------------------------------------------------
  the other kind of decay particles
 -------------------------------------------------------------------------------
-     eta     ->  gamma   +  gamma                          7
-     eta     ->  pi0     +  pi0     +  pi0                 3
-     Lambda0 ->  p+      +  pi-                            3
-     K_S0    ->  pi0     +  pi0                            3
-     Lambda0 ->  n0      +  pi0                            2
-     eta'    ->  pi+     +  pi-     +  eta                 2
-     Sigma+  ->  p+      +  pi0                            1
-     Sigma0  ->  Lambda0 +  gamma                          1
-     eta'    ->  gamma   +  gamma                          1
-     Sigma-  ->  n0      +  pi-                            1
+     Lambda0 ->  p+      +  pi-                            5
+     eta     ->  pi0     +  pi0     +  pi0                 5
+     eta     ->  gamma   +  gamma                          2
+     K_S0    ->  pi+     +  pi-                            2
+     Sigma+  ->  n0      +  pi+                            2
+     Sigma0  ->  Lambda0 +  gamma                          2
+     eta     ->  pi+     +  pi-     +  gamma               1
+     eta'    ->  pi0     +  pi0     +  eta                 1
      eta     ->  pi+     +  pi0     +  pi-                 1
 
 -------------------------------------------------------------------------------
  stop. particles.    number        weight        weight per source
 -------------------------------------------------------------------------------
-     electron        4777733.     4.7777330E+06     1.9892935E+04
-     proton          3295458.     3.2954580E+06     1.3721221E+04
-     nucleus         2887753.     2.8877530E+06     1.2023670E+04
-     alpha             57707.     5.7707000E+04     2.4027329E+02
-     deuteron          43355.     4.3355000E+04     1.8051620E+02
-     positron          25112.     2.5112000E+04     1.0455825E+02
-     triton             4003.     4.0030000E+03     1.6667197E+01
-     3he                2697.     2.6970000E+03     1.1229436E+01
-     photon              887.     8.8700000E+02     3.6931811E+00
-     neutron              12.     1.2000000E+01     4.9964119E-02
+     electron        5397952.     5.3979520E+06     7.3913725E+02
+     proton          4161234.     4.1612340E+06     5.6979445E+02
+     nucleus         3457215.     3.4572150E+06     4.7339369E+02
+     alpha             62928.     6.2928000E+04     8.6166808E+00
+     deuteron          51123.     5.1123000E+04     7.0002315E+00
+     positron          28048.     2.8048000E+04     3.8405902E+00
+     triton             4204.     4.2040000E+03     5.7565036E-01
+     3he                2796.     2.7960000E+03     3.8285405E-01
+     photon              965.     9.6500000E+02     1.3213668E-01
+     neutron              17.     1.7000000E+01     2.3277964E-03
 
 -------------------------------------------------------------------------------
  leak. particles       number        weight        weight per source
 -------------------------------------------------------------------------------
-     neutron          158292.     1.5829200E+05     6.5907670E+02
-     photon            35815.     3.5815000E+04     1.4912208E+02
-     other               821.     8.2100000E+02     3.4183785E+00
-     electron            518.     5.1800000E+02     2.1567845E+00
-     proton              464.     4.6400000E+02     1.9319459E+00
-     positron            136.     1.3600000E+02     5.6626002E-01
-     pion-                50.     5.0000000E+01     2.0818383E-01
-     deuteron             50.     5.0000000E+01     2.0818383E-01
-     pion+                27.     2.7000000E+01     1.1241927E-01
-     alpha                 8.     8.0000000E+00     3.3309413E-02
-     triton                5.     5.0000000E+00     2.0818383E-02
-     muon+                 5.     5.0000000E+00     2.0818383E-02
-     muon-                 3.     3.0000000E+00     1.2491030E-02
-     3he                   1.     1.0000000E+00     4.1636766E-03
+     neutron           45999.     4.5999000E+04     6.2986063E+00
+     photon            35767.     3.5767000E+04     4.8975467E+00
+     other               815.     8.1500000E+02     1.1159730E-01
+     electron            506.     5.0600000E+02     6.9286176E-02
+     proton              399.     3.9900000E+02     5.4634751E-02
+     positron            152.     1.5200000E+02     2.0813239E-02
+     pion-                45.     4.5000000E+01     6.1618140E-03
+     deuteron             29.     2.9000000E+01     3.9709468E-03
+     pion+                27.     2.7000000E+01     3.6970884E-03
+     muon-                 6.     6.0000000E+00     8.2157521E-04
+     muon+                 5.     5.0000000E+00     6.8464600E-04
 
 -------------------------------------------------------------------------------
  the other kind of leakage particles
 -------------------------------------------------------------------------------
      Name      kf-code        number     mass       charge   baryon
-     nu_mu          14           277       0.0         0       0
-     nu_muba       -14           275       0.0         0       0
-     nu_e           12           261       0.0         0       0
-     nu_ebar       -12             7       0.0         0       0
-     K_L0          130             1     497.7         0       0
+     nu_muba       -14           276       0.0         0       0
+     nu_mu          14           275       0.0         0       0
+     nu_e           12           253       0.0         0       0
+     nu_ebar       -12            11       0.0         0       0
 
 -------------------------------------------------------------------------------
  source: maxcas    maxbch      irskip   average weight          total source
 -------------------------------------------------------------------------------
-       12000          15           0    1.3342908E-03    2.4017235118841E+02
+        8000          10           0    9.1288052E-02    7.3030441501954E+03
 
 -------------------------------------------------------------------------------
  used ATIMA database
 -------------------------------------------------------------------------------
-     for dedx  =      223 / mdbatima =     3000
+     for dedx  =      332 / mdbatima =     3000
 
 -------------------------------------------------------------------------------
  Geometry error summary
@@ -715,33 +700,33 @@ bat[      15] ncas =         180000.
  initial random seed:
    bitrseed = 0100001010011000001011101100011110011000110110100110010000000000
  next initial random seed:
-   bitrseed = 1100111000011111111000001110010010101001010110110001100110010010
+   bitrseed = 0010001000101001010101000110010101101010010000110000001101100101
 
 -------------------------------------------------------------------------------
  job termination date : 2026/08/22
-                 time :   11:34:35
+                 time :   22:10:10
 
 -------------------------------------------------------------------------------
     CPU time and number of event called in PHITS
 -------------------------------------------------------------------------------
 
                              sec
-total cpu time =           94.40
+total cpu time =          114.05
 
 
                            count
-      analysis =       20900815.  : data processing
-         nevap =         314123.  : evaporation
-        dexgam =         171158.  : de-excitation
-         nreac =       18856379.  : atomic and nuclear reactions
-         dklos =          26730.  : particle decay
-         hydro =             69.  : nucleon-nucleon scattering
-        n-data =        5921098.  : neutron data library
+      analysis =       24425489.  : data processing
+         nevap =         355612.  : evaporation
+        dexgam =         197814.  : de-excitation
+         nreac =       22324167.  : atomic and nuclear reactions
+         dklos =          29596.  : particle decay
+         hydro =             65.  : nucleon-nucleon scattering
+        n-data =        7334826.  : neutron data library
         h-data =              0.  : p, d, a data library
         p-data =              0.  : photon data library
         e-data =              0.  : electron data library
-        p-egs5 =        2646365.  : photon interaction with EGS5
-        e-egs5 =       10054164.  : electron interaction with EGS5
+        p-egs5 =        2999067.  : photon interaction with EGS5
+        e-egs5 =       11730976.  : electron interaction with EGS5
       e-tsmode =              0.  : electron track structure mode
     ion-tsmode =              0.  : ion track structure mode
      photonucl =              0.  : photo-nuclear reaction
@@ -749,16 +734,16 @@ total cpu time =           94.40
        mu-reac =              0.  : muon-induced nuclear reaction
        mu-brem =              0.  : muon-induced bremsstrahlung
        mu-pprd =              0.  : muon-induced pair production
-        mu-cap =              4.  : muon capture in nucleus
-         elast =         117256.  : elastic scattering
-         ncasc =         355032.  : nuclear reaction model
+        mu-cap =              6.  : muon capture in nucleus
+         elast =         130373.  : elastic scattering
+         ncasc =         389976.  : nuclear reaction model
 
        bertini =              0.  : Bertini model
         isobar =              0.  : isobar model
-           JAM =            882.  : JAM model
+           JAM =            651.  : JAM model
            QMD =              0.  : JQMD model
         JAMQMD =              0.  : JAMQMD model
-          INCL =         354049.  : INCL model
+          INCL =         389325.  : INCL model
         INCELF =              0.  : INCELF model
      frag data =              0.  : user defined cross section
        SCINFUL =              0.  : SCINFUL mode

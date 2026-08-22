@@ -1,0 +1,142 @@
+[ Title ]
+地上（開空）+ He-3/SUS304 — 天井なし
+
+[ Parameters ]
+ icntl    =   0
+ maxcas   = 20000
+ maxbch   = 20
+ e-mode   =   1
+ irqmd    =   1
+ negs     =   2
+ igamma   =   1
+ itall    =   1
+ mdbatima = 3000
+ maxbnk   = 100000
+ iMeVperU =   1
+ esmax    = 100000000.
+ emin(12) = 1.0
+ emin(13) = 1.0
+ emin(15) = 1.0e-3
+ emin(16) = 1.0e-3
+ emin(17) = 1.0e-3
+ emin(18) = 1.0e-3
+ emin(19) = 1.0e-3
+
+$ c1=部屋半幅 c11=線源面半幅（検出器付近） c2=室内高 c3=コンクリ…
+$ c8=c2+c3, c9=c8+c4, c10=c9+c5, c7=線源高さ
+set: c1[400.0] c11[30.0] c2[250.0] c3[0.0] c4[0.0] c5[0.0]
+set: c8[c2+c3] c9[c8+c4] c10[c9+c5] c7[c10+50.0]
+
+[ Source ]
+   s-type = 2
+     proj = neutron
+       e0 = 2.5e-8
+       x0 = -2.54
+       x1 =  2.54
+       y0 = -19.765
+       y1 =  19.765
+       z0 =  c7
+       z1 =  c7
+      dir = -1.0
+
+[ Material ]
+m1
+  N  0.7553
+  O  0.2318
+  Ar 0.0129
+
+m2
+  H     -0.023
+  C     -0.0023
+  O     -1.22
+  Na    -0.0368
+  Mg    -0.005
+  Al    -0.078
+  Si    -0.775
+  K     -0.0299
+  Ca    -0.1
+  Fe    -0.032
+
+m3
+  H     -0.02
+  C     -0.02
+  O     -0.50
+  Na    -0.01
+  Mg    -0.02
+  Al    -0.07
+  Si    -0.27
+  K     -0.02
+  Ca    -0.03
+  Fe    -0.04
+
+m4
+  H     -0.02
+  C     -0.02
+  O     -0.50
+  Na    -0.01
+  Mg    -0.02
+  Al    -0.07
+  Si    -0.27
+  K     -0.02
+  Ca    -0.03
+  Fe    -0.04
+
+m5
+  3He  1.0
+
+m6
+  Fe 70
+  Cr 18
+  Ni  9
+  Mn  2
+  Si  1
+
+[ Surface ]
+  1   so   0.001
+ 11   rcc  0  -39.53/2  0   0  39.53  0   2.54
+ 12   rcc  0  -39.93/2  0   0  39.93  0   2.74
+ 20   pz   0.0
+ 21   pz   c2
+ 22   pz   c8
+ 23   pz   c9
+ 24   pz   c10
+ 30   rpp  -c1  c1  -c1  c1  -50.0  c7+100.0
+ 50   rpp  -c1  c1  -c1  c1   0.0  c2
+
+[ Cell ]
+  1   5  -0.00124   -11
+  2   6  -8.0        11 -12
+ 10   1  -1.205e-3  -30  20
+ 98   3  -1.35       -30 -20
+ 99  -1               30
+
+[ T-Deposit ]
+    title = He-3 付与エネルギー（検出器応答）
+     mesh =  reg
+      reg =  1
+   output = deposit
+   e-type =    2
+       ne =   75
+     emin =    0
+     emax =  1.5
+     file = de.out
+     axis =  eng
+     unit =    3
+   epsout =    1
+   dresol = 0.05
+
+[ T-Track ]
+    title = He-3 内 中性子フラックス
+     mesh =  reg
+      reg =  1
+   e-type =    3
+       ne =   80
+     emin =  1.0e-9
+     emax =  1.0e4
+     unit =    1
+     axis =  eng
+     file = neutron_he3.out
+     part = neutron
+   epsout =    1
+
+[ End ]

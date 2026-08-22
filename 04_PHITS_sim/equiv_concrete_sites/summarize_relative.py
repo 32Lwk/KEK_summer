@@ -107,9 +107,46 @@ def theory_rel(teq_cm: float) -> float:
 
 
 def main() -> None:
+    import argparse
+
+    from detector_specs import DETECTORS, detector_root
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--detector",
+        choices=list(DETECTORS),
+        default="D1",
+        help="結果を読む検出器（d1/d2=小径, D1/D2=大径。default: D1）",
+    )
+    args = parser.parse_args()
+    det_root = detector_root(BASE, args.detector)
+    spec = DETECTORS[args.detector]
+
+    out_csv = (
+        REPO
+        / "03_今年度用"
+        / "測定_20260818"
+        / "tables"
+        / f"PHITS_等価コンクリート_相対_{args.detector}.csv"
+    )
+    out_fig = (
+        REPO
+        / "03_今年度用"
+        / "測定_20260818"
+        / "figures"
+        / f"15_PHITS_等価コンクリート_比較_{args.detector}.png"
+    )
+    out_fig_log = (
+        REPO
+        / "03_今年度用"
+        / "測定_20260818"
+        / "figures"
+        / f"15_PHITS_等価コンクリート_比較_{args.detector}_片対数.png"
+    )
+
     results = []
     for site in SITES:
-        d = BASE / site["dir"]
+        d = det_root / site["dir"]
         de = parse_spectrum(d / "de.out")
         he = parse_spectrum(d / "neutron_he3.out")
         results.append(
@@ -128,7 +165,7 @@ def main() -> None:
     if d0 <= 0 and f0 <= 0:
         raise SystemExit("ground He-3 response is zero — cannot normalize")
 
-    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
     fields = [
         "地点",
         "コンクリート_cm",
@@ -171,11 +208,11 @@ def main() -> None:
             }
         )
 
-    with OUT_CSV.open("w", newline="", encoding="utf-8") as f:
+    with out_csv.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
         w.writerows(rows_out)
-    print(f"wrote {OUT_CSV}")
+    print(f"wrote {out_csv}")
 
     x = np.array([r["teq_cm"] for r in results])
     y_de = np.array([(r["deposit"] / d0) if d0 > 0 else np.nan for r in results])
@@ -184,7 +221,7 @@ def main() -> None:
     x_th = np.linspace(0, max(520.0, float(x.max()) + 20), 400)
     y_th = np.exp(-x_th / LAMBDA_CM)
 
-    for logy, path in ((False, OUT_FIG), (True, OUT_FIG_LOG)):
+    for logy, path in ((False, out_fig), (True, out_fig_log)):
         fig, ax = plt.subplots(figsize=(8.6, 5.2))
         ax.plot(
             x_th,
@@ -223,7 +260,7 @@ def main() -> None:
             )
         ax.set_xlabel("等価コンクリート厚さ [cm]", fontproperties=_JP_FONT)
         ax.set_ylabel("相対値 (地上 = 1)", fontproperties=_JP_FONT)
-        title = "図11比較: 測定 / 理論 / PHITS (He-3+SUS304)"
+        title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
         if logy:
             ax.set_yscale("log")
             ax.set_ylim(1e-5, max(2.0, float(np.nanmax(y_de)) * 1.3))

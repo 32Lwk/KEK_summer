@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""各地点 PHITS 球殻ジオメトリと中性子スペクトルを 3D 可視化する。
+"""各地点 PHITS 天井スラブジオメトリと中性子スペクトルを 3D 可視化する。
 
 各サイトフォルダに:
-  figures/3d_geometry.html / .png  — 同心球殻（内腔・コンクリート・土）
+  figures/3d_geometry.html / .png  — 水平天井スラブ + He-3/SUS304
   figures/3d_spectrum.html / .png  — エネルギー×フラックスの 3D 棒
 を書き出す。
 """
@@ -19,6 +19,11 @@ from matplotlib import font_manager
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 BASE = Path(__file__).resolve().parent
+
+from detector_specs import DETECTORS, DetectorSpec, detector_root  # noqa: E402
+
+_DET_ROOT = detector_root(BASE, "D1")
+_SPEC: DetectorSpec = DETECTORS["D1"]
 
 _FONT_CANDIDATES = [
     Path("/Library/Fonts/Arial Unicode.ttf"),
@@ -41,76 +46,65 @@ plt.rcParams.update(
     }
 )
 
+LXY_DEFAULT = 400.0
+HROOM_DEFAULT = 250.0
+ZSRC_MARGIN = 50.0
+
 SITES = [
     {
         "dir": "00_ground",
         "label": "地上",
-        "layers": [("air", "空気（開空）", "#AED6F1", 0.25)],
+        "tc": 0.0,
+        "tl": 0.0,
+        "tj": 0.0,
     },
-    {
-        "dir": "01_PF",
-        "label": "PF",
-        "layers": [
-            ("cavity", "内腔空気", "#D6EAF8", 0.15),
-            ("concrete", "コンクリート 105 cm", "#7F8C8D", 0.35),
-            ("outer", "外側大気", "#AED6F1", 0.08),
-        ],
-    },
-    {
-        "dir": "02_linac",
-        "label": "linac",
-        "layers": [
-            ("cavity", "内腔空気", "#D6EAF8", 0.15),
-            ("concrete", "コンクリート 150 cm", "#7F8C8D", 0.35),
-            ("outer", "外側大気", "#AED6F1", 0.08),
-        ],
-    },
-    {
-        "dir": "03_BT",
-        "label": "BT",
-        "layers": [
-            ("cavity", "内腔空気", "#D6EAF8", 0.12),
-            ("concrete", "コンクリート 60 cm", "#7F8C8D", 0.35),
-            ("loam", "ローム 220 cm", "#C0392B", 0.30),
-            ("outer", "外側大気", "#AED6F1", 0.08),
-        ],
-    },
-    {
-        "dir": "04_KEKB",
-        "label": "KEKB",
-        "layers": [
-            ("cavity", "内腔空気", "#D6EAF8", 0.10),
-            ("concrete", "コンクリート 80 cm", "#7F8C8D", 0.30),
-            ("loam", "ローム 400 cm", "#C0392B", 0.28),
-            ("joso", "常総粘土 270 cm", "#6E2C00", 0.28),
-            ("outer", "外側大気", "#AED6F1", 0.06),
-        ],
-    },
+    {"dir": "01_PF", "label": "PF", "tc": 105.0, "tl": 0.0, "tj": 0.0},
+    {"dir": "02_linac", "label": "linac", "tc": 150.0, "tl": 0.0, "tj": 0.0},
+    {"dir": "03_BT", "label": "BT", "tc": 60.0, "tl": 220.0, "tj": 0.0},
+    {"dir": "04_KEKB", "label": "KEKB", "tc": 80.0, "tl": 400.0, "tj": 270.0},
 ]
 
+SLAB_STYLE = {
+    "air": ("室内空気", "#D6EAF8", 0.18),
+    "concrete": ("コンクリート", "#7F8C8D", 0.45),
+    "loam": ("ローム", "#C0392B", 0.40),
+    "joso": ("常総粘土", "#6E2C00", 0.40),
+    "source": ("線源面（垂直降下）", "#F39C12", 0.25),
+}
 
-def parse_sets(main_inp: Path) -> dict[str, float]:
+
+def parse_params(main_inp: Path) -> dict[str, float]:
     text = main_inp.read_text(encoding="utf-8")
-    return {m.group(1): float(m.group(2)) for m in re.finditer(r"set:c(\d+)\[([0-9.]+)\]", text)}
+    params: dict[str, float] = {}
+    for m in re.finditer(r"set:\s*c(\d+)\[([0-9.]+)\]", text):
+        params[f"c{m.group(1)}"] = float(m.group(2))
+    return params
 
 
-def radii_for_site(sets: dict[str, float], n_layers: int) -> list[float]:
-    """各層の外半径 [cm] を内側から順に返す。"""
-    if n_layers == 1:
-        # 地上: 空気球のみ
-        return [sets.get("1", 200.0)]
-    c1 = sets["1"]  # source
-    c2 = sets["2"]  # cavity
-    c3 = sets.get("3", 0.0)
-    c4 = sets.get("4", 0.0)
-    c5 = sets.get("5", 0.0)
-    if n_layers == 3:  # cavity, concrete, outer
-        return [c2, c2 + c3, c1]
-    if n_layers == 4:  # + loam
-        return [c2, c2 + c3, c2 + c3 + c4, c1]
-    if n_layers == 5:  # + joso
-        return [c2, c2 + c3, c2 + c3 + c4, c2 + c3 + c4 + c5, c1]
-    raise ValueError(f"unsupported n_layers={n_layers}")
+def slabs_for_site(site: dict, lxy: float, hroom: float) -> list[tuple[str, str, str, float, float, float]]:
+    """(key, name, color, opacity, z0, z1) を床から上へ返す。"""
+    tc, tl, tj = site["tc"], site["tl"], site["tj"]
+    slabs: list[tuple[str, str, str, float, float, float]] = []
+    z = 0.0
+    name, color, op = SLAB_STYLE["air"]
+    slabs.append(("air", f"{name} 0–{hroom:.0f} cm", color, op, z, hroom))
+    z = hroom
+    if tc > 0:
+        name, color, op = SLAB_STYLE["concrete"]
+        slabs.append(("concrete", f"{name} {tc:.0f} cm", color, op, z, z + tc))
+        z += tc
+    if tl > 0:
+        name, color, op = SLAB_STYLE["loam"]
+        slabs.append(("loam", f"{name} {tl:.0f} cm", color, op, z, z + tl))
+        z += tl
+    if tj > 0:
+        name, color, op = SLAB_STYLE["joso"]
+        slabs.append(("joso", f"{name} {tj:.0f} cm", color, op, z, z + tj))
+        z += tj
+    name, color, op = SLAB_STYLE["source"]
+    zsrc = z + ZSRC_MARGIN
+    slabs.append(("source", f"{name} z={zsrc:.0f} cm", color, op, zsrc, zsrc))
+    return slabs
 
 
 def hex_to_rgb(h: str) -> str:
@@ -119,46 +113,71 @@ def hex_to_rgb(h: str) -> str:
     return f"rgb({r},{g},{b})"
 
 
-def sphere_mesh(r: float, n: int = 48) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    u = np.linspace(0, 2 * np.pi, n)
-    v = np.linspace(0, np.pi, n // 2)
-    x = r * np.outer(np.cos(u), np.sin(v))
-    y = r * np.outer(np.sin(u), np.sin(v))
-    z = r * np.outer(np.ones_like(u), np.cos(v))
-    return x, y, z
+def slab_top_mesh(
+    lxy: float, z: float, n: int = 24
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    xs = np.linspace(-lxy, lxy, n)
+    ys = np.linspace(-lxy, lxy, n)
+    xg, yg = np.meshgrid(xs, ys)
+    zg = np.full_like(xg, z)
+    return xg, yg, zg
 
 
-# He-3 / SUS304（既存 he3_sus304.inp と同じ寸法）
-R_HE3, R_SUS = 2.54, 2.74
-L_HE3, L_SUS = 39.53, 39.93
+def slab_side_mesh(
+    lxy: float, z0: float, z1: float, n_z: int = 8
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ys = np.linspace(-lxy, lxy, 2)
+    zs = np.linspace(z0, z1, n_z)
+    yg, zg = np.meshgrid(ys, zs)
+    xg = np.full_like(yg, lxy)
+    return xg, yg, zg
+
+
+# He-3 / SUS304 / 信管 / PE（detector_specs から取得、筒軸=z）
+def _det_dims() -> tuple[float, float, float, float, float, float]:
+    s = _SPEC
+    z0, z1 = 0.0, s.length_cm
+    z_pmt = z1 - s.l_pmt_cm
+    return s.r_in_cm, s.r_out_cm, s.r_pe_out_cm, z0, z1, z_pmt
 
 
 def cylinder_mesh(
-    radius: float, y0: float, y1: float, n_theta: int = 36, n_y: int = 12
+    radius: float, z0: float, z1: float, n_theta: int = 36, n_z: int = 12
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     th = np.linspace(0, 2 * np.pi, n_theta)
-    yy = np.linspace(y0, y1, n_y)
-    thg, yg = np.meshgrid(th, yy)
+    zz = np.linspace(z0, z1, n_z)
+    thg, zg = np.meshgrid(th, zz)
     x = radius * np.cos(thg)
-    z = radius * np.sin(thg)
-    return x, yg, z
+    y = radius * np.sin(thg)
+    return x, y, zg
 
 
 def detector_plotly_traces() -> list[dict]:
-    """中心の He-3 ガス筒 + SUS304 外壁。"""
+    """He-3 有効ガス + SUS304 + 信管 + PE（任意）。"""
+    r_in, r_out, r_pe, z0, z1, z_pmt = _det_dims()
     traces = []
-    for r, y0, y1, color, name, op in [
-        (R_HE3, -L_HE3 / 2, L_HE3 / 2, "#F4D03F", "He-3 ガス", 0.95),
-        (R_SUS, -L_SUS / 2, L_SUS / 2, "#5D6D7E", "SUS304 壁", 0.55),
-    ]:
-        x, y, z = cylinder_mesh(r, y0, y1)
+    parts = [
+        (r_in, z0, z_pmt, "#F4D03F", "He-3 有効ガス", 0.95),
+        (r_out, z0, z1, "#5D6D7E", "SUS304 壁", 0.55),
+        (_SPEC.r_pmt_cm, z_pmt, z1, "#AEB6BF", "信管（推定）", 0.7),
+    ]
+    if _SPEC.pe_style == "wrap":
+        parts.append((r_pe, z0, z1, "#AED6F1", "PE 薄肉筒", 0.35))
+    elif _SPEC.pe_style == "block":
+        pe_z1 = _SPEC.pe_block_h_cm
+        parts.append((r_pe, z0, pe_z1, "#AED6F1", "PE 容器（外筒）", 0.35))
+        parts.append(
+            (_SPEC.r_pe_in_cm, z0, _SPEC.pe_block_bore_h_cm, "#D5F5E3", "PE 内空", 0.15)
+        )
+    for r, za, zb, color, name, op in parts:
+        x, y, z = cylinder_mesh(r, za, zb)
         traces.append(
             {
                 "type": "surface",
                 "x": x.tolist(),
                 "y": y.tolist(),
                 "z": z.tolist(),
-                "name": f"{name} (R={r} cm, L={y1 - y0:.2f} cm)",
+                "name": f"{name} (R={r:.1f} cm)",
                 "showscale": False,
                 "opacity": op,
                 "colorscale": [[0, hex_to_rgb(color)], [1, hex_to_rgb(color)]],
@@ -171,16 +190,26 @@ def detector_plotly_traces() -> list[dict]:
 def draw_detector_mpl(ax) -> list:
     from matplotlib.patches import Patch
 
-    for r, y0, y1, color, op in [
-        (R_HE3, -L_HE3 / 2, L_HE3 / 2, "#F4D03F", 0.95),
-        (R_SUS, -L_SUS / 2, L_SUS / 2, "#5D6D7E", 0.45),
+    r_in, r_out, r_pe, z0, z1, z_pmt = _det_dims()
+    patches = []
+    for r, za, zb, color, op, lab in [
+        (r_in, z0, z_pmt, "#F4D03F", 0.95, f"He-3 R={r_in:.1f}"),
+        (r_out, z0, z1, "#5D6D7E", 0.45, f"SUS R={r_out:.1f}"),
+        (_SPEC.r_pmt_cm, z_pmt, z1, "#AEB6BF", 0.5, f"信管 R={_SPEC.r_pmt_cm:.1f}"),
     ]:
-        x, y, z = cylinder_mesh(r, y0, y1, n_theta=28, n_y=10)
+        x, y, z = cylinder_mesh(r, za, zb, n_theta=28, n_z=10)
         ax.plot_surface(x, y, z, color=color, alpha=op, linewidth=0, shade=True)
-    return [
-        Patch(facecolor="#F4D03F", label=f"He-3 (R={R_HE3})"),
-        Patch(facecolor="#5D6D7E", label=f"SUS304 (R={R_SUS})"),
-    ]
+        patches.append(Patch(facecolor=color, label=lab))
+    if _SPEC.pe_style == "wrap":
+        x, y, z = cylinder_mesh(r_pe, z0, z1, n_theta=28, n_z=10)
+        ax.plot_surface(x, y, z, color="#AED6F1", alpha=0.3, linewidth=0, shade=True)
+        patches.append(Patch(facecolor="#AED6F1", label="PE 薄肉筒"))
+    elif _SPEC.pe_style == "block":
+        pe_z1 = _SPEC.pe_block_h_cm
+        x, y, z = cylinder_mesh(r_pe, z0, pe_z1, n_theta=28, n_z=10)
+        ax.plot_surface(x, y, z, color="#AED6F1", alpha=0.3, linewidth=0, shade=True)
+        patches.append(Patch(facecolor="#AED6F1", label="PE 容器"))
+    return patches
 
 
 def parse_spectrum(path: Path) -> list[tuple[float, float, float, float]]:
@@ -226,24 +255,61 @@ Plotly.newPlot("plot", data, layout, {{responsive: true}});
 
 
 def plot_geometry(site: dict) -> None:
-    d = BASE / site["dir"]
+    d = _DET_ROOT / site["dir"]
     out = d / "figures"
     out.mkdir(parents=True, exist_ok=True)
-    sets = parse_sets(d / "main.inp")
-    radii = radii_for_site(sets, len(site["layers"]))
+    params = parse_params(d / "main.inp")
+    lxy = params.get("c1", LXY_DEFAULT)
+    hroom = params.get("c2", HROOM_DEFAULT)
+    slabs = slabs_for_site(site, lxy, hroom)
     label = site["label"]
+    zmax = max(s[5] for s in slabs) + 80.0
 
-    # ---- Plotly（外側球殻 → 内側検出器の順） ----
+    # ---- Plotly ----
     traces: list[dict] = []
-    for (key, name, color, opacity), r in reversed(list(zip(site["layers"], radii))):
-        x, y, z = sphere_mesh(r, n=40)
+    for key, name, color, opacity, z0, z1 in reversed(slabs):
+        if key == "source":
+            x, y, z = slab_top_mesh(lxy * 0.85, z0, n=20)
+        else:
+            x, y, z = slab_top_mesh(lxy, z1, n=24)
+            traces.append(
+                {
+                    "type": "surface",
+                    "x": x.tolist(),
+                    "y": y.tolist(),
+                    "z": z.tolist(),
+                    "name": f"{name} (上面 z={z1:.0f})",
+                    "showscale": False,
+                    "opacity": opacity,
+                    "colorscale": [[0, hex_to_rgb(color)], [1, hex_to_rgb(color)]],
+                    "hoverinfo": "name",
+                }
+            )
+            if z1 - z0 > 1.0:
+                for sign in (-1.0, 1.0):
+                    xs, ys, zs = slab_side_mesh(lxy * sign, z0, z1, n_z=6)
+                    traces.append(
+                        {
+                            "type": "surface",
+                            "x": xs.tolist(),
+                            "y": ys.tolist(),
+                            "z": zs.tolist(),
+                            "name": name,
+                            "showscale": False,
+                            "opacity": opacity * 0.55,
+                            "colorscale": [[0, hex_to_rgb(color)], [1, hex_to_rgb(color)]],
+                            "hoverinfo": "skip",
+                            "showlegend": False,
+                        }
+                    )
+            continue
         traces.append(
             {
                 "type": "surface",
                 "x": x.tolist(),
                 "y": y.tolist(),
                 "z": z.tolist(),
-                "name": f"{name} (R={r:.0f} cm)",
+                "name": name,
                 "showscale": False,
                 "opacity": opacity,
                 "colorscale": [[0, hex_to_rgb(color)], [1, hex_to_rgb(color)]],
@@ -251,53 +317,58 @@ def plot_geometry(site: dict) -> None:
             }
         )
     traces.extend(detector_plotly_traces())
-    rmax = max(radii) * 1.05
     layout = {
-        "title": f"{label} — 遮蔽球殻 + He-3/SUS304",
+        "title": f"{label} — 水平天井スラブ + {_SPEC.label}",
         "scene": {
-            "xaxis": {"title": "x [cm]", "range": [-rmax, rmax]},
-            "yaxis": {"title": "y [cm]", "range": [-rmax, rmax]},
-            "zaxis": {"title": "z [cm]", "range": [-rmax, rmax]},
+            "xaxis": {"title": "x [cm]", "range": [-lxy, lxy]},
+            "yaxis": {"title": "y [cm]", "range": [-lxy, lxy]},
+            "zaxis": {"title": "z [cm]（上向き）", "range": [-20, zmax]},
             "aspectmode": "data",
-            "camera": {"eye": {"x": 1.45, "y": 1.45, "z": 0.95}},
+            "camera": {"eye": {"x": 1.6, "y": 1.35, "z": 0.55}},
         },
         "legend": {"title": {"text": "層・検出器（クリックで切替）"}},
         "margin": {"l": 0, "r": 0, "t": 50, "b": 0},
         "template": "plotly_white",
     }
+    r_in, r_out, _, z0, z1, z_pmt = _det_dims()
     note = (
-        f"{label}: 中心に He-3 (R={R_HE3} cm) + SUS304 (R={R_SUS} cm)<br>"
-        + " → ".join(f"{n}({r:.0f}cm)" for (_, n, _, _), r in zip(site["layers"], radii))
-        + "<br>マウスで回転・ズーム"
+        f"{label}: z=0 床、{_SPEC.label}<br>"
+        f"高さ={z1-z0:.0f} cm, He-3 R={r_in:.1f}, SUS R={r_out:.1f}, 有効長~{z_pmt-z0:.0f} cm<br>"
+        + " / ".join(s[1] for s in slabs[:-1])
+        + "<br>上から垂直降下中性子（dir=-1）"
     )
     write_plotly_html(traces, layout, out / "3d_geometry.html", f"{label} geometry", note)
 
-    # ---- Matplotlib PNG（ズーム: 検出器が見える縮尺も別保存） ----
+    # ---- Matplotlib PNG ----
     from matplotlib.patches import Patch
 
-    fig = plt.figure(figsize=(8.5, 7.5))
+    fig = plt.figure(figsize=(9.0, 7.5))
     ax = fig.add_subplot(111, projection="3d")
-    for (key, name, color, opacity), r in reversed(list(zip(site["layers"], radii))):
-        x, y, z = sphere_mesh(r, n=36)
-        ax.plot_surface(x, y, z, color=color, alpha=min(opacity, 0.25), linewidth=0, shade=True)
-        th = np.linspace(0, 2 * np.pi, 120)
-        ax.plot(r * np.cos(th), r * np.sin(th), np.zeros_like(th), color=color, lw=1.0, alpha=0.7)
+    for key, name, color, opacity, z0, z1 in slabs:
+        if key == "source":
+            x, y, z = slab_top_mesh(lxy * 0.85, z0, n=16)
+            ax.plot_surface(x, y, z, color=color, alpha=opacity, linewidth=0, shade=False)
+            continue
+        x, y, z = slab_top_mesh(lxy, z1, n=18)
+        ax.plot_surface(x, y, z, color=color, alpha=min(opacity, 0.35), linewidth=0, shade=True)
+        if z1 - z0 > 1.0:
+            for sign in (-1.0, 1.0):
+                xs, ys, zs = slab_side_mesh(lxy * sign, z0, z1, n_z=5)
+                ax.plot_surface(xs, ys, zs, color=color, alpha=min(opacity, 0.20), linewidth=0)
     det_handles = draw_detector_mpl(ax)
     ax.set_xlabel("x [cm]", fontproperties=_JP_FONT)
     ax.set_ylabel("y [cm]", fontproperties=_JP_FONT)
     ax.set_zlabel("z [cm]", fontproperties=_JP_FONT)
-    ax.set_title(f"{label} — 遮蔽 + He-3/SUS304", fontproperties=_JP_FONT)
+    ax.set_title(f"{label} — 天井スラブ + He-3/SUS304", fontproperties=_JP_FONT)
     handles = [
-        Patch(facecolor=c, edgecolor=c, alpha=min(0.85, op + 0.3), label=f"{n} (R={r:.0f})")
-        for (_, n, c, op), r in zip(site["layers"], radii)
+        Patch(facecolor=s[2], edgecolor=s[2], alpha=0.75, label=s[1]) for s in slabs
     ] + det_handles
     ax.legend(handles=handles, loc="upper left", prop=_JP_FONT, fontsize=7)
-    lim = max(radii) * 1.05
-    ax.set_xlim(-lim, lim)
-    ax.set_ylim(-lim, lim)
-    ax.set_zlim(-lim, lim)
+    ax.set_xlim(-lxy, lxy)
+    ax.set_ylim(-lxy, lxy)
+    ax.set_zlim(-20, zmax)
     try:
-        ax.set_box_aspect((1, 1, 1))
+        ax.set_box_aspect((1, 1, max(zmax / (2 * lxy), 0.4)))
     except Exception:
         pass
     fig.tight_layout()
@@ -322,7 +393,7 @@ def plot_geometry(site: dict) -> None:
 
 
 def plot_spectrum(site: dict) -> None:
-    d = BASE / site["dir"]
+    d = _DET_ROOT / site["dir"]
     out = d / "figures"
     out.mkdir(parents=True, exist_ok=True)
     label = site["label"]
@@ -457,15 +528,15 @@ def plot_spectrum(site: dict) -> None:
 
 def plot_all_spectra_surface() -> None:
     """全地点スペクトルを 1 枚の 3D 曲面で比較。"""
-    out = BASE / "figures"
+    out = _DET_ROOT / "figures"
     out.mkdir(parents=True, exist_ok=True)
     mats = []
     labels = []
     loge_ref = None
     for site in SITES:
-        rows = parse_spectrum(BASE / site["dir"] / "neutron_he3.out")
+        rows = parse_spectrum(_DET_ROOT / site["dir"] / "neutron_he3.out")
         if not rows:
-            rows = parse_spectrum(BASE / site["dir"] / "neutron_cavity.out")
+            rows = parse_spectrum(_DET_ROOT / site["dir"] / "neutron_cavity.out")
         if not rows:
             continue
         e_mid = np.array([np.sqrt(max(r[0] * r[1], 1e-30)) for r in rows])
@@ -534,12 +605,26 @@ def plot_all_spectra_surface() -> None:
 
 
 def main() -> None:
+    import argparse
+
+    global _DET_ROOT, _SPEC
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--detector",
+        choices=list(DETECTORS),
+        default="D1",
+        help="可視化する検出器サブフォルダ",
+    )
+    args = parser.parse_args()
+    _DET_ROOT = detector_root(BASE, args.detector)
+    _SPEC = DETECTORS[args.detector]
+
     for site in SITES:
         plot_geometry(site)
         plot_spectrum(site)
     plot_all_spectra_surface()
-    # ルートにも各地点へのリンク一覧
-    index = BASE / "figures" / "index.html"
+    index = detector_root(BASE, args.detector) / "figures" / "index.html"
     index.parent.mkdir(parents=True, exist_ok=True)
     links = []
     for site in SITES:
@@ -551,12 +636,12 @@ def main() -> None:
             f'<a href="../{d}/figures/3d_spectrum.html">スペクトル</a></li>'
         )
     links.append(
-        '<li><b>全地点</b>: <a href="3d_all_spectra.html">スペクトル比較</a></li>'
+        f'<li><b>全地点</b>: <a href="3d_all_spectra.html">スペクトル比較</a></li>'
     )
     index.write_text(
         "<!DOCTYPE html><html lang='ja'><head><meta charset='utf-8'/>"
-        "<title>PHITS 3D 一覧</title></head><body>"
-        "<h1>等価コンクリート各地点 — 3D 可視化</h1><ul>"
+        f"<title>PHITS 3D — {args.detector}</title></head><body>"
+        f"<h1>等価コンクリート各地点 — 3D ({_SPEC.label})</h1><ul>"
         + "\n".join(links)
         + "</ul></body></html>",
         encoding="utf-8",

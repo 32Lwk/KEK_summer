@@ -1,11 +1,10 @@
 [ Title ]
-図11相当・PF（コンクリ105 cm）+ He-3/SUS304 検出器
-PF slab with He-3 proportional counter
+PF 天井コンクリ105 cm + He-3/SUS304
 
 [ Parameters ]
  icntl    =   0
- maxcas   = 12000
- maxbch   =   15
+ maxcas   = 8000
+ maxbch   = 10
  e-mode   =   2
  irqmd    =   1
  negs     =   2
@@ -23,13 +22,14 @@ PF slab with He-3 proportional counter
  emin(18) = 1.0e-3
  emin(19) = 1.0e-3
 
-set:c1[280.0]
-set:c2[100.0]
-set:c3[105.0]
+$ c1=部屋半幅 c11=線源面半幅（検出器付近） c2=室内高 c3=コンクリ…
+$ c8=c2+c3, c9=c8+c4, c10=c9+c5, c7=線源高さ
+set: c1[400.0] c11[30.0] c2[250.0] c3[105.0] c4[0.0] c5[0.0]
+set: c8[c2+c3] c9[c8+c4] c10[c9+c5] c7[c10+50.0]
 
 [ Source ]
-  totfact = pi*c1**2
- infl:{source.inp}
+  totfact = -(2*c11)**2
+ infl:{source_ceiling.inp}
      proj = neutron
 
 [ Material ]
@@ -50,6 +50,30 @@ m2
   Ca    -0.1
   Fe    -0.032
 
+m3
+  H     -0.02
+  C     -0.02
+  O     -0.50
+  Na    -0.01
+  Mg    -0.02
+  Al    -0.07
+  Si    -0.27
+  K     -0.02
+  Ca    -0.03
+  Fe    -0.04
+
+m4
+  H     -0.02
+  C     -0.02
+  O     -0.50
+  Na    -0.01
+  Mg    -0.02
+  Al    -0.07
+  Si    -0.27
+  K     -0.02
+  Ca    -0.03
+  Fe    -0.04
+
 m5
   3He  1.0
 
@@ -61,20 +85,25 @@ m6
   Si  1
 
 [ Surface ]
-  1   so   0.001
+  1   so   500.0
  11   rcc  0  -39.53/2  0   0  39.53  0   2.54
  12   rcc  0  -39.93/2  0   0  39.93  0   2.74
-  2   so   c2
-  3   so   c2+c3
-  4   so   c1
+ 20   pz   0.0
+ 21   pz   c2
+ 22   pz   c8
+ 23   pz   c9
+ 24   pz   c10
+ 30   rpp  -c1  c1  -c1  c1  -50.0  c7+100.0
+ 50   rpp  -c1  c1  -c1  c1   0.0  c2
 
 [ Cell ]
   1   5  -0.00124   -11
   2   6  -8.0        11 -12
- 10   1  -1.205e-3   -2  12  1
- 20   2  -2.302       2 -3
- 30   1  -1.205e-3    3 -4
- 99  -1               4
+  3   0               -50  20 -21  12
+ 20   2  -2.302      -30  21 -22
+ 90   0               -30  21  22
+ 98   3  -1.35       -30 -20
+ 99  -1               30
 
 [ T-Deposit ]
     title = He-3 付与エネルギー（検出器応答）

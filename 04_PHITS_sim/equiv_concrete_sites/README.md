@@ -1,25 +1,40 @@
 # 各地点・等価コンクリート層 PHITS シミュレーション
 
-図11と同じ遮蔽層厚で、宇宙線中性子 + **He-3/SUS304 検出器**の応答を
+図11と同じ遮蔽層厚で、宇宙線中性子 + **He-3 比例計数管（信管付き）**の応答を
 [Web PHITS](https://phits.kek.jp/web/cli.html) 上で計算し、地上比を測定・理論と比較する。
+
+## 検出器 4 種（測定ファイル名規則と同じ）
+
+| キー | サイズ | PE 緩衝 | 系列 | 出力フォルダ |
+|------|--------|---------|------|--------------|
+| **d1** | 小径 | なし | SN 2162 系 | `small/d1/` |
+| **d2** | 小径 | 5 cm | SN 2162 系 | `small/d2/` |
+| **D1** | 大径 | なし | SN 1715 系 | `large/D1/` |
+| **D2** | 大径 | 5 cm | SN 1715 系 | `large/D2/` |
+
+- **小文字 d** = 小径、**大文字 D** = 大径（混同しない）
+- **末尾 1** = PE なし、**末尾 2** = PE あり
+
+`small/` と `large/` に分けているのは、macOS 等で `d1` と `D1` が同一フォルダ扱いになるのを避けるためです。
+
+### 寸法（推定）
+
+| 項目 | 小径 d | 大径 D |
+|------|--------|--------|
+| 高さ | 39.5 cm | 66 cm |
+| 外径 | ~5.5 cm | 10 cm |
+| SUS 肉厚 | 2 mm | 2 mm |
+| 信管（上端） | ~8.5 cm | 14 cm |
+| 有効 He-3 | 信管除く | 信管除く |
+| タリー | cell 1 = 有効 He-3 のみ | 同左 |
 
 ## 方針
 
 | 項目 | 内容 |
 |------|------|
-| 線源 | `e-type=25`, `icenv=5`, `proj=neutron`, KEK つくば |
-| 遮蔽 | 同心球殻（コンクリート ± ローム ± 常総、図11層厚） |
-| 検出器 | 既存 [`he3_sus304`](../he3_sus304/he3_sus304.inp) と同寸法・同組成を中心に配置 |
-|  | He-3 ガス R=2.54 cm, L=39.53 cm, ρ=0.00124 g/cm³ |
-|  | SUS304 外壁 R=2.74 cm, L=39.93 cm, ρ=8.0 g/cm³ |
-| タリー | `T-Deposit` → `de.out`（波高＝検出器応答） |
-|  | He-3 内 `T-Track` → `neutron_he3.out` |
-| 比較 | 測定 CPS / 理論 / Deposit 相対 / He-3 内フラックス相対 |
-
-**解釈メモ**
-
-- He-3 は熱中性子に高感度。コンクリート背後でスペクトルが軟化すると、**Deposit が地上より増える**ことがある（熱化効果）。減衰トレンドの比較には **He-3 内フラックス相対**の方が安定。
-- BT / KEKB は検出器体積が小さく、現行ヒストリでは Deposit・フラックスとも統計ゼロ（上限）。
+| 線源 | 天井上方 `s-type=2`, `dir=-1`, `e-type=25`, `icenv=5`（c11=30 cm） |
+| 遮蔽 | 水平天井スラブ（z=0 床、上向き） |
+| 比較 | 測定 CPS / 理論 / He-3 Deposit 相対 / フラックス相対 |
 
 ## 地点
 
@@ -34,19 +49,23 @@
 ## 実行方法
 
 ```bash
+python3 build_ceiling_main.py                    # 4 検出器すべて生成
+python3 build_ceiling_main.py --detector D1      # 1 種類だけ
+
+./run_all_phits.sh                               # 全検出器・全地点
+
 RUNNER=../../phits-agent-kit/phits_web_run.py
-SRC=../source.inp
+cd large/D1/00_ground
+python3 "$RUNNER" main.inp ../../source_ceiling.inp --version phits336 --new-session
 
-cd 00_ground && python3 "$RUNNER" main.inp "$SRC" --version phits336 --new-session
-# 同様に 01_PF … 04_KEKB
-
-python3 summarize_relative.py
-python3 plot_3d_sites.py
+python3 summarize_relative.py --detector d1
+python3 plot_3d_sites.py --detector D2
 ```
 
 ## 成果物
 
-- 各地点: `de.out`, `neutron_he3.out`, `phits.out`, `figures/3d_*.{html,png}`
-- [`tables/PHITS_等価コンクリート_相対.csv`](../../03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対.csv)
-- [`figures/15_PHITS_等価コンクリート_比較.png`](../../03_今年度用/測定_20260818/figures/15_PHITS_等価コンクリート_比較.png)
-- [`figures/index.html`](figures/index.html) — 3D 一覧
+- `small/d1/`, `small/d2/`, `large/D1/`, `large/D2/` 配下に各地点の `main.inp`, `de.out`
+- `tables/PHITS_等価コンクリート_相対_<検出器>.csv`
+- `figures/15_PHITS_等価コンクリート_比較_<検出器>.png`
+
+仕様の詳細は [`detector_specs.py`](detector_specs.py)。
