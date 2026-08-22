@@ -62,10 +62,18 @@ SH060,ATF,linac,target,section,鉛,5,cm,ATF.pdf 図1.8 p.12,加速管,#2c3e50
 SH061,ATF,linac,target,section,鉛,20,cm,ATF.pdf 図1.8 p.12,,#2c3e50
 SH062,ATF,linac,target,section,鉛,10,cm,ATF.pdf 図1.8 p.12,,#2c3e50
 SH063,ATF,linac,target,section,鉄,50,cm,ATF.pdf 図1.8 p.12,厚さ50,#566573
-SH064,Linac,H02,tunnel,beam,コンクリート,100,cm,Linac.pdf 図1.9 等,ビームトンネル側壁（推定・要図面確認）,#95a5a6
-SH065,Linac,H02,building,1F,コンクリート,20,cm,Linac.pdf + 解析レポート,入射器棟外壁（推定・要現地確認）,#95a5a6
-SH066,SKEKB,KEKB_ring,LER,S1-E1,コンクリート,50,cm,SKEKB.pdf / BT.pdf 表2.1,LER 側壁,#95a5a6
-SH067,SKEKB,KEKB_ring,HER,S8-E8,コンクリート,100,cm,SKEKB.pdf / BT.pdf 表2.1,,#95a5a6
-SH068,SKEKB,KEKB_ring,HER,S12-E12,コンクリート,200,cm,SKEKB.pdf / BT.pdf 表2.1,,#95a5a6
-SH069,先端計測,N15,B1,wall,コンクリート,30,cm,先端計測実験棟.pdf,地下1階平面図（様式3）外壁推定,#95a5a6
-SH070,先端計測,N15,B2,wall,コンクリート,30,cm,先端計測実験棟.pdf,地下2階,#95a5a6
+SH064,Linac,H02,tunnel_std,beam,コンクリート,250,cm,Linac.pdf 図1.27 PDF p.41(本文34頁),第1セクター以降: トンネル室天井＝ギャラリー床。GL→天井 2.5 m（図面記入値）,#95a5a6
+SH065,Linac,H02,tunnel_std,beam_side,コンクリート,150,cm,Linac.pdf 図1.27 PDF p.41,側壁。外側は土中（本文 PDF p.55）,#95a5a6
+SH066,Linac,H02,tunnel_up,beam,コンクリート,150,cm,Linac.pdf 本文 PDF p.55 / 図1.21,A〜Cセクター: 天井 1.5 m、その上はクライストロンギャラリー,#95a5a6
+SH067,Linac,H02,tunnel_up,beam_side,コンクリート,150,cm,Linac.pdf 本文 PDF p.55 / 図1.21,側面 1.5 m、外側はテストホール,#95a5a6
+SH068,Linac,H02,building,1F_gallery_roof,コンクリート,30,cm,Linac.pdf 図1.27 PDF p.41(実測),クライストロンギャラリー屋根 ≈0.29 m（±10 cm）。1F 測定点の頭上遮蔽はこれだけ,#95a5a6
+SH069,Linac,H02,building,1F_gallery_wall,コンクリート,20,cm,Linac.pdf 本文 PDF p.55,ギャラリー外壁（南側 0.2 m と明記）,#95a5a6
+SH070,Linac,H02,sy3,beam,コンクリート,150,cm,Linac.pdf 本文 PDF p.59 / 図1.28,第3スイッチヤード天井。ビームライン〜地表最上部 8.6 m,#95a5a6
+SH071,Linac,H02,sy3,beam,土,250,cm,Linac.pdf 本文 PDF p.59 / 図1.28,第3スイッチヤード天井の盛土（2.5 m 以上）,#8B6914
+SH072,Linac,H02,sy3,east,コンクリート,100,cm,Linac.pdf 本文 PDF p.59,東側面,#95a5a6
+SH073,Linac,H02,sy3,east,土,800,cm,Linac.pdf 本文 PDF p.59,東側面の盛土（ビームライン〜道路で土 8 m 以上）,#8B6914
+SH074,SKEKB,KEKB_ring,LER,S1-E1,コンクリート,50,cm,SKEKB.pdf / BT.pdf 表2.1,LER 側壁,#95a5a6
+SH075,SKEKB,KEKB_ring,HER,S8-E8,コンクリート,100,cm,SKEKB.pdf / BT.pdf 表2.1,,#95a5a6
+SH076,SKEKB,KEKB_ring,HER,S12-E12,コンクリート,200,cm,SKEKB.pdf / BT.pdf 表2.1,,#95a5a6
+SH077,先端計測,N15,B1,wall,コンクリート,30,cm,先端計測実験棟.pdf,地下1階平面図（様式3）外壁推定,#95a5a6
+SH078,先端計測,N15,B2,wall,コンクリート,30,cm,先端計測実験棟.pdf,地下2階,#95a5a6

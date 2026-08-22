@@ -193,10 +193,21 @@ ATF_SHIELDING = [
     ("ATF", "linac", "target", "section", "鉄", 50, "cm", "ATF.pdf 図1.8 p.12", "厚さ50"),
 ]
 
-# Linac.pdf — ビームトンネル（鉄筋コンクリート、深さは配置図より推定）
+# Linac.pdf — 断面図から確定（詳細: 04_PHITS_sim/linac_cosmic/linac_構成と遮蔽.md）
+#   タイプB 下流部標準断面 = 図1.27（PDF p.41 / 本文34頁）
+#   タイプA 上流部（A〜Cセクター）= 図1.21（PDF p.35 / 本文28頁）＋本文 PDF p.55
+#   タイプC 第3スイッチヤード = 図1.28（PDF p.42 / 本文35頁）＋本文 PDF p.59
 LINAC_SHIELDING = [
-    ("Linac", "H02", "tunnel", "beam", "コンクリート", 100, "cm", "Linac.pdf 図1.9 等", "ビームトンネル側壁（推定・要図面確認）"),
-    ("Linac", "H02", "building", "1F", "コンクリート", 20, "cm", "Linac.pdf + 解析レポート", "入射器棟外壁（推定・要現地確認）"),
+    ("Linac", "H02", "tunnel_std", "beam", "コンクリート", 250, "cm", "Linac.pdf 図1.27 PDF p.41(本文34頁)", "第1セクター以降: トンネル室天井＝ギャラリー床。GL→天井 2.5 m（図面記入値）"),
+    ("Linac", "H02", "tunnel_std", "beam_side", "コンクリート", 150, "cm", "Linac.pdf 図1.27 PDF p.41", "側壁。外側は土中（本文 PDF p.55）"),
+    ("Linac", "H02", "tunnel_up", "beam", "コンクリート", 150, "cm", "Linac.pdf 本文 PDF p.55 / 図1.21", "A〜Cセクター: 天井 1.5 m、その上はクライストロンギャラリー"),
+    ("Linac", "H02", "tunnel_up", "beam_side", "コンクリート", 150, "cm", "Linac.pdf 本文 PDF p.55 / 図1.21", "側面 1.5 m、外側はテストホール"),
+    ("Linac", "H02", "building", "1F_gallery_roof", "コンクリート", 30, "cm", "Linac.pdf 図1.27 PDF p.41(実測)", "クライストロンギャラリー屋根 ≈0.29 m（±10 cm）。1F 測定点の頭上遮蔽はこれだけ"),
+    ("Linac", "H02", "building", "1F_gallery_wall", "コンクリート", 20, "cm", "Linac.pdf 本文 PDF p.55", "ギャラリー外壁（南側 0.2 m と明記）"),
+    ("Linac", "H02", "sy3", "beam", "コンクリート", 150, "cm", "Linac.pdf 本文 PDF p.59 / 図1.28", "第3スイッチヤード天井。ビームライン〜地表最上部 8.6 m"),
+    ("Linac", "H02", "sy3", "beam", "土", 250, "cm", "Linac.pdf 本文 PDF p.59 / 図1.28", "第3スイッチヤード天井の盛土（2.5 m 以上）"),
+    ("Linac", "H02", "sy3", "east", "コンクリート", 100, "cm", "Linac.pdf 本文 PDF p.59", "東側面"),
+    ("Linac", "H02", "sy3", "east", "土", 800, "cm", "Linac.pdf 本文 PDF p.59", "東側面の盛土（ビームライン〜道路で土 8 m 以上）"),
 ]
 
 # SKEKB — KEKB リングトンネル（BT/SKEKB 共通）
@@ -287,14 +298,22 @@ def build_facility_details() -> dict[str, dict]:
         "name": "電子陽電子 Linear Accelerator",
         "source_pdf": "05_施設図/Linac.pdf",
         "map_anchor": {"x_pct": 20.5, "y_pct": 74.0, "棟No": "H02"},
-        "building": {"width_m": 22, "depth_m": 135, "height_m": 14, "yBottom_m": -2},
-        "tunnel": {"type": "box", "width_m": 10, "depth_m": 95, "height_m": 8, "yBottom_m": -4},
-        "evaluation_points": [{"id": "D1", "label": "Linac D1", "notes": "施設図上の評価点（MCA D1 とは別）"}],
+        "building": {"width_m": 9.0, "depth_m": 135, "height_m": 5.8, "yBottom_m": 0.0},
+        "tunnel": {"type": "box", "width_m": 5.0, "depth_m": 95, "height_m": 3.14, "yBottom_m": -5.64},
+        "evaluation_points": [
+            {"id": "E10A", "label": "E10A クライストロンギャラリー", "notes": "図1.27 の評価点（地上・GL）"},
+            {"id": "S10", "label": "S10 トンネル室ビームライン", "notes": "GL -4.30 m"},
+        ],
         "cross_sections": [
-            _tunnel_cross_section("Linac_tunnel", "ビームトンネル断面", "Linac.pdf", 3.0, 2.5, [
-                {"material": "コンクリート", "thickness_cm": 100, "source": "Linac.pdf 図1.9（推定）"},
+            _tunnel_cross_section("Linac_tunnel_std", "下流部標準断面（第1セクター以降）", "Linac.pdf 図1.27 PDF p.41", 5.0, 3.14, [
+                {"material": "コンクリート", "thickness_cm": 250, "source": "Linac.pdf 図1.27（図面記入値 2500 mm）"},
+            ]),
+            _tunnel_cross_section("Linac_tunnel_up", "上流部断面（A〜Cセクター）", "Linac.pdf 図1.21 PDF p.35", 5.6, 4.2, [
+                {"material": "コンクリート", "thickness_cm": 150, "source": "Linac.pdf 本文 PDF p.55"},
             ]),
         ],
+        "notes": "GL=クライストロンギャラリー床。ギャラリー内寸 8.65 m(W) x 5.49 m(H)、屋根 ≈0.3 m。"
+                 "1F（ギャラリー）の頭上遮蔽は屋根だけで、2.5 m コンクリートは床側にある。",
     }
 
     details["PF"] = {

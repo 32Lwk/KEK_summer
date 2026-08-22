@@ -16,6 +16,8 @@ import numpy as np
 
 from mca_common import peak_clip as roi_peak_clip
 
+import equiv_shielding as esh
+
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "測定_20260818"
 TABLES = DATA / "tables"
@@ -564,17 +566,19 @@ def fig_linac_ground_theory(d: dict) -> None:
     save(fig, "10_linac_地上_理論フィット", bbox_inches="none")
 
 
-# 等価コンクリート換算（教材の質量厚さ X=ρt）
-# 理論: A = A0 * exp(-x / 0.77)、x は等価コンクリート厚 [m]
-# 土: 関東ローム ≤4 m (ρ=1.35)、以深は常総粘土 (ρ=1.65)
-RHO_CONCRETE = 2.3
-RHO_LOAM = 1.35
-RHO_JOSO = 1.65
-LOAM_MAX_CM = 400.0
-LAMBDA_M = 0.77
-# 教材スライド3（混合則）— 組成補正版（図13/14）のみ使用
-LAMBDA_CONCRETE_GCM2 = 92.0  # O53/Si34/Ca4/Al3/H1 %
-LAMBDA_SOIL_GCM2 = 93.0  # O50/Si27/Al7/Fe4/H2 %
+# 等価コンクリート換算（教材の質量厚さ X=ρt + 元素混合則）
+# 理論: A = A0 * exp(-x / λ_c)、x・λ_c とも等価コンクリート厚 [cm]
+# λ_c は equiv_shielding の詳細計算（Λ_i=37·A^0.3, 1/Λ=Σw_i/Λ_i）
+# 土層プロファイル既定: tsukuba（ローム3.5 m → 常総2.0 m → 下総）
+SOIL_PROFILE = esh.DEFAULT_PROFILE
+RHO_CONCRETE = esh.RHO_CONCRETE
+RHO_LOAM = esh.RHO_LOAM
+RHO_JOSO = esh.RHO_JOSO
+LOAM_MAX_CM = esh.LOAM_MAX_CM
+LAMBDA_CONCRETE_GCM2 = esh.LAMBDA_CONCRETE_GCM2
+LAMBDA_SOIL_GCM2 = esh.LAMBDA_SOIL_GCM2
+LAMBDA_CM = esh.LAMBDA_CONCRETE_CM  # ≈39.2 cm（旧77 cmは誤り）
+LAMBDA_M = esh.LAMBDA_CONCRETE_M    # ≈0.392 m（旧0.77 mは誤り）
 
 # Book5 / ユーザー表の CPS。相対値は地上で規格化。
 USER_CPS = {
@@ -594,14 +598,12 @@ USER_CPS_D2 = {
 }
 
 
-def _soil_mass_thickness(soil_cm: float) -> float:
-    loam = min(max(soil_cm, 0.0), LOAM_MAX_CM)
-    joso = max(0.0, soil_cm - LOAM_MAX_CM)
-    return loam * RHO_LOAM + joso * RHO_JOSO
+def _soil_mass_thickness(soil_cm: float, profile: str = SOIL_PROFILE) -> float:
+    return esh.soil_mass_thickness_gcm2(soil_cm, profile=profile)
 
 
-def _mass_thickness(concrete_cm: float, soil_cm: float) -> float:
-    return concrete_cm * RHO_CONCRETE + _soil_mass_thickness(soil_cm)
+def _mass_thickness(concrete_cm: float, soil_cm: float, profile: str = SOIL_PROFILE) -> float:
+    return concrete_cm * RHO_CONCRETE + _soil_mass_thickness(soil_cm, profile=profile)
 
 
 def _equiv_concrete_cm_from_x(x_gcm2: float) -> float:
@@ -618,9 +620,14 @@ def _equiv_concrete_cm_composition(x_c: float, x_s: float) -> float:
     return _optical_depth(x_c, x_s) * LAMBDA_CONCRETE_GCM2 / RHO_CONCRETE
 
 
+def _equiv_from_layers(concrete_cm: float, soil_cm: float, profile: str = SOIL_PROFILE):
+    """土+コンクリート厚から等価コンクリート（自動換算）。"""
+    return esh.equiv_concrete(concrete_cm, soil_cm, profile=profile)
+
+
 def _theory_rel(x_eq_cm, a0: float = 1.0):
-    """A = A0 * exp(-x/0.77)。x は等価コンクリート [m]。"""
-    return a0 * np.exp(-(np.asarray(x_eq_cm, dtype=float) / 100.0) / LAMBDA_M)
+    """A = A0 * exp(-x/λ_c)。x・λ_c とも等価コンクリート [cm]。"""
+    return esh.theory_attenuation(x_eq_cm, a0=a0)
 
 
 def _site_layers() -> list[dict]:
@@ -629,12 +636,12 @@ def _site_layers() -> list[dict]:
         {"label": "地上", "concrete_cm": 0.0, "soil_cm": 0.0, "note": "基準（屋外）"},
         {"label": "PF", "concrete_cm": 105.0, "soil_cm": 0.0, "note": ""},
         {"label": "linac", "concrete_cm": 150.0, "soil_cm": 0.0, "note": ""},
-        {"label": "BT", "concrete_cm": 60.0, "soil_cm": 220.0, "note": "土はロームのみ（220 cm < 4 m）"},
+        {"label": "BT", "concrete_cm": 60.0, "soil_cm": 220.0, "note": "土はロームのみ（220 cm < 3.5 m）"},
         {
             "label": "KEKB",
             "concrete_cm": 80.0,
             "soil_cm": 670.0,
-            "note": "ローム4 m + 常総2.7 m + コンクリ80 cm（Book5の117.25は桁誤り）",
+            "note": "ローム3.5 m + 常総2.0 m + 下総1.2 m + コンクリ80 cm（Book5の117.25は桁誤り）",
         },
     ]
 
@@ -665,21 +672,22 @@ def load_d2_cps() -> dict[str, float]:
 
 
 def _site_shielding_composition() -> list[dict]:
-    """組成補正付き X・t_eq（図13/14）。図11/12は変更しない。"""
+    """組成補正付き X・t_eq（図13/14）。土層は SOIL_PROFILE で自動換算。"""
     sites = []
     for base in _site_shielding_d1():
         site = dict(base)
-        x_c = site["concrete_cm"] * RHO_CONCRETE
-        x_s = _soil_mass_thickness(site["soil_cm"])
-        site["X_c"] = x_c
-        site["X_s"] = x_s
-        site["X"] = x_c + x_s
-        site["tau"] = _optical_depth(x_c, x_s)
-        site["t_eq"] = _equiv_concrete_cm_composition(x_c, x_s)
+        r = _equiv_from_layers(site["concrete_cm"], site["soil_cm"])
+        site["X_c"] = r.x_concrete_gcm2
+        site["X_s"] = r.x_soil_gcm2
+        site["X"] = r.x_total_gcm2
+        site["tau"] = r.tau
+        site["t_eq"] = r.t_eq_cm
         if site["soil_cm"] > 0:
-            site["note"] = site["note"].rstrip("。") + "・組成λ補正"
+            site["note"] = site["note"].rstrip("。") + f"・組成λ補正({r.profile})"
         sites.append(site)
     return sites
+
+
 
 
 def fig_all_sites_equiv_concrete(
@@ -694,7 +702,7 @@ def fig_all_sites_equiv_concrete(
     measure_label: str | None = None,
     detector: str = "D1",
 ) -> None:
-    """層厚換算 X + CPS。理論 A0·exp(-x/0.77)。
+    """層厚換算 X + CPS。理論 A0·exp(-x/λ_c)。
 
     absolute=False: 相対（ref_label=1）、図11
     absolute=True:  実測 CPS [1/s]、図12
@@ -784,9 +792,9 @@ def fig_all_sites_equiv_concrete(
         color=GRAY,
         lw=2.0,
         label=(
-            rf"$A_0\,e^{{-x/{LAMBDA_M}}}$  （$A_0={a0:.4f}$, $x$ [m]）"
+            rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0={a0:.4f}$）"
             if absolute
-            else rf"$A_0\,e^{{-x/{LAMBDA_M}}}$  （$A_0=1$, $x$ [m]）"
+            else rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）"
         ),
     )
     if not logy:
@@ -891,7 +899,7 @@ def fig_all_sites_equiv_concrete(
     if not absolute and not logy:
         print(f"equiv table: {out_csv}")
     print(
-        f"  理論 A0·exp(-x/{LAMBDA_M})  A0={a0:.6f}  "
+        f"  理論 A0·exp(-x/λ_c)  λ_c={LAMBDA_CM:.2f} cm  A0={a0:.6f}  "
         f"absolute={absolute}  logy={logy}  ref={ref_label}→{rel_tag}"
     )
     for p in points:
@@ -1019,9 +1027,9 @@ def fig_all_sites_equiv_concrete_composition(
         color=GRAY,
         lw=2.0,
         label=(
-            rf"$A_0\,e^{{-x/{LAMBDA_M}}}$  （$A_0={a0:.4f}$, $x$ [m]）"
+            rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0={a0:.4f}$）"
             if absolute
-            else rf"$A_0\,e^{{-x/{LAMBDA_M}}}$  （$A_0=1$, $x$ [m]）"
+            else rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）"
         ),
     )
     ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
@@ -1089,7 +1097,7 @@ def fig_all_sites_equiv_concrete_composition(
     if not absolute:
         print(f"equiv table: {out_csv}")
     print(
-        f"  組成補正 A0·exp(-x/{LAMBDA_M})  A0={a0:.6f}  "
+        f"  組成補正 A0·exp(-x/λ_c)  λ_c={LAMBDA_CM:.2f} cm  A0={a0:.6f}  "
         f"λ_c={LAMBDA_CONCRETE_GCM2} λ_s={LAMBDA_SOIL_GCM2}"
     )
     for p in points:

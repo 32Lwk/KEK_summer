@@ -10,6 +10,8 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+import equiv_shielding as esh
+
 from openpyxl import Workbook, load_workbook
 from openpyxl.chart import Reference, ScatterChart, Series
 from openpyxl.chart.axis import ChartLines
@@ -34,19 +36,18 @@ center = Alignment(horizontal="center", vertical="center", wrap_text=True)
 left = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
 A0 = 1.0
-LAMBDA_CM = 77.0  # cm（= 0.77 m）。横軸と同じ単位で A=A0*EXP(-x/lambda_cm)
-RHO_C = 2.3
-RHO_LOAM = 1.35
-RHO_JOSO = 1.65
-LOAM_MAX = 400.0
+LAMBDA_CM = esh.LAMBDA_CONCRETE_CM  # ≈39.2 cm（詳細計算。旧77 cmは誤り）
+RHO_C = esh.RHO_CONCRETE
+RHO_LOAM = esh.RHO_LOAM
+RHO_JOSO = esh.RHO_JOSO
+LOAM_MAX = esh.LOAM_MAX_CM
 LAMBDA_AIR = 1475.0
+SOIL_PROFILE = esh.DEFAULT_PROFILE
 
 
 def _x_from_layers(tc: float, ts: float) -> float:
-    """コンクリート + 土（ローム≤4 m、以深は常総）から質量厚さ X [g/cm²]。"""
-    loam = min(max(ts, 0.0), LOAM_MAX)
-    joso = max(0.0, ts - LOAM_MAX)
-    return tc * RHO_C + loam * RHO_LOAM + joso * RHO_JOSO
+    """コンクリート + 土から質量厚さ X [g/cm²]（プロファイル準拠）。"""
+    return tc * RHO_C + esh.soil_mass_thickness_gcm2(ts, profile=SOIL_PROFILE)
 
 
 # (地点, t_c, t_soil, CPS, 備考) — X は層厚から算出（Book5のKEKB 117.25は使わない）
@@ -54,8 +55,8 @@ _SITES_IN = [
     ("地上", 0.0, 0.0, 0.52514597, "基準（屋外）"),
     ("PF", 105.0, 0.0, 0.25108616, ""),
     ("linac", 150.0, 0.0, 0.06478913, ""),
-    ("BT", 60.0, 220.0, 0.11475671, "土はロームのみ（220 cm < 4 m）"),
-    ("KEKB", 80.0, 670.0, 0.0399324, "ローム4 m + 常総2.7 m（Book5の117.25は桁誤り）"),
+    ("BT", 60.0, 220.0, 0.11475671, "土はロームのみ（220 cm < 3.5 m）"),
+    ("KEKB", 80.0, 670.0, 0.0399324, "ローム3.5 m + 常総2.0 m + 下総1.2 m（Book5の117.25は桁誤り）"),
 ]
 SITES = []
 for _label, _tc, _ts, _cps, _note in _SITES_IN:
@@ -204,7 +205,7 @@ def build() -> Path:
     rows_p = [
         (5, "A0", A0, "-", "理論の規格化"),
         (6, "lambda_cm", LAMBDA_CM, "cm", "A=A0*EXP(-x/lambda_cm), x is t_eq [cm]"),
-        (7, "lambda_m", "=B6/100", "m", "lambda_cm / 100 (=0.77 m)"),
+        (7, "lambda_m", "=B6/100", "m", "lambda_cm / 100 (=λ_c from detailed MFP)"),
         (8, "rho_c", RHO_C, "g/cm3", "concrete density"),
         (9, "rho_loam", RHO_LOAM, "g/cm3", "Kanto loam"),
         (10, "rho_joso", RHO_JOSO, "g/cm3", "Joso clay"),
@@ -247,7 +248,7 @@ def build() -> Path:
     ws = wb.create_sheet("測定点")
     ws["A1"] = "測定点（黄色=入力、水色=数式）"
     ws["A1"].font = Font(size=16, bold=True, color=HEADER)
-    ws["A2"] = "理論セル例: =パラメータ!$B$5*EXP(-G5/パラメータ!$B$6)  （G=t_eq[cm], B6=lambda=77cm）"
+    ws["A2"] = "理論セル例: =パラメータ!$B$5*EXP(-G5/パラメータ!$B$6)  （G=t_eq[cm], B6=lambda=λ_c cm）"
     ws["A2"].font = Font(size=10, color=GRAY)
 
     headers = [
@@ -296,7 +297,7 @@ def build() -> Path:
     chk = last + 3
     ws[f"A{chk}"] = "手計算チェック"
     ws[f"A{chk}"].font = Font(size=12, bold=True)
-    box(ws, chk + 1, 1, "EXP(-150/77)", fill=PALE, bold=True)
+    box(ws, chk + 1, 1, "EXP(-150/λ_c)", fill=PALE, bold=True)
     box(ws, chk + 1, 2, "=パラメータ!$B$5*EXP(-150/パラメータ!$B$6)", "0.000000", fill=CYAN)
     box(ws, chk + 1, 3, "linac理論", fill=PALE)
     box(ws, chk + 1, 4, f"=H{first + 2}", "0.000000", fill=CYAN)
@@ -361,7 +362,7 @@ def build() -> Path:
         box(wsc, r, 12, explanations[label], align=left)
 
     chart = ScatterChart()
-    chart.title = "相対CPSと理論減衰 A=A0·EXP(-x/77)（x [cm]）"
+    chart.title = "相対CPSと理論減衰 A=A0·EXP(-x/λ_c)（x [cm]）"
     chart.height = 14
     chart.width = 16
     chart.legend.position = "b"
@@ -380,7 +381,7 @@ def build() -> Path:
     s_th = Series(
         Reference(wsc, min_col=3, min_row=5, max_row=5 + n_c),
         Reference(wsc, min_col=1, min_row=5, max_row=5 + n_c),
-        title="理論 A=A0·EXP(-x/77)",
+        title="理論 A=A0·EXP(-x/λ_c)",
     )
     s_th.graphicalProperties.line.solidFill = GRAY
     s_th.graphicalProperties.line.width = 25000
@@ -450,7 +451,7 @@ def build() -> Path:
             "グラフは「減衰曲線」シート。タイトル・軸・凡例は日本語。各地点は色分けされ凡例に名前が出る。",
             "各点の解説はグラフ下の表（地点・相対・理論・解説）を参照。",
             "本物の数式は水色セル（例: 測定点!H5 =パラメータ!$B$5*EXP(-G5/パラメータ!$B$6)）。",
-            "PNG図: figures/11_全地点_等価コンクリート.png。理論は A=A0·exp(-x/77)、xは等価コンクリート厚[cm]。",
+            "PNG図: figures/11_全地点_等価コンクリート.png。理論は A=A0·exp(-x/λ_c)、xは等価コンクリート厚[cm]。",
         ],
         3,
     ):

@@ -3,3 +3,28 @@
 # AI agents: append new lessons learned on this machine below this header.
 # This file is never overwritten by kit updates. Do not write lessons into
 # knowledge_base/ — that folder is replaced when the kit is updated.
+
+## 宇宙線線源 (e-type=25, s-type=9, dir=iso) の球の切り方  [2026-08-22, KEK_summer/04_PHITS_sim/linac_cosmic]
+
+線源粒子は「半径 r1 の球面上」に発生し、平行ビームとして内向きに入る。したがって:
+
+- 線源球の半径 r1 を [Surface] のどれかの面と一致させてはいけない。
+  一致させると発生点が境界上になり "Lost particle" で計算が止まる。
+- 線源球を outer void の境界（例: `2 so c1` の外側を mat=-1 にする書き方）と
+  一致させると、線源粒子がその場で捨てられ、タリーのフラックスが 30〜70% 過小になる。
+  PHITS はエラーも警告も出さないので気づきにくい。
+- 正しい形は球3枚:
+      モデル球 c3 (全構造物を内側に)  <  線源球 c1  <  世界球 c2
+  c3〜c2 は真空(mat=0)、c2 の外だけ outer void(mat=-1)。
+- 検算方法: 物質を置かない球でフラックスをタリーし、phits.out の
+  ` <Source> = ...`（PHITS が PARMA から計算した各粒子のフラックス [/cm2/s]）と
+  一致するか見る。totfact = ±pi*c1**2 のとき一致すれば規格化は正しい。
+
+関連:
+- 地表計算では icenv=5（ブラックホールモード）を使う。大地を自分でモデル化するなら
+  地面反射中性子を線源から除かないと二重計上になる。
+- 大気圏内モード (icenv>0) では rigid を書かない。書かないと glat/glong から
+  カットオフリジディティが自動で決まる。rigid=0.0 と書くと極域相当になり過大評価。
+- PHITS web 版の実行時間制限は 300 秒（トークンなし）。超えると 502 でジョブごと落ちる。
+- タリーの title に "$ 日本語コメント" を付けると ANGEL の作図が壊れる。title は ASCII のみ。
+- 粒子名は muon+ / muon-（mu+ / mu- は "projectile name is wrong" エラー）。

@@ -26,6 +26,8 @@ KEK_summer/
 │   │   └── 測定_20260818_MCA.xlsx
 │   ├── template_測定記録.csv           ← 今年度測定の記入用テンプレ
 │   └── calc_mean_free_path.py          ← CSVからλ・Λを再計算する脚本
+├── 04_PHITS_sim/                       ← PHITS 計算
+│   └── linac_cosmic/                   ← linac に降り注ぐ宇宙線（今回追加）
 └── 05_施設図/                          ← KEK施設の図面 PDF
     ├── Campus_Map_J_2026_05.pdf
     ├── ATF.pdf
@@ -95,6 +97,18 @@ USB の Amptek MCA8000D スペクトルを `03_今年度用/測定_20260818/` �
 - 生 `.mca`: [`測定_20260818/raw/`](03_今年度用/測定_20260818/raw)
 
 エネルギー較正前の全チャンネル計数なので、昨年の熱中性子／MeV 窓の計数率とは直接比較しない。
+
+## linac の宇宙線シミュレーション（PHITS）
+
+`05_施設図/Linac.pdf` から入射器棟の断面を確定し、地表に降り注ぐ宇宙線（PARMA 線源）を
+PHITS で入射して各測定点のフラックスを絶対値 [1/cm²/s] で出す一式を
+[`04_PHITS_sim/linac_cosmic/`](04_PHITS_sim/linac_cosmic) に置いた。
+
+- 施設の構成と寸法の根拠: [`linac_構成と遮蔽.md`](04_PHITS_sim/linac_cosmic/linac_構成と遮蔽.md)
+- 使い方: [`README.md`](04_PHITS_sim/linac_cosmic/README.md) → `./run.sh` と `analyze.py`
+- **注意**: 「linac 1F」＝クライストロンギャラリー（地上）で測ったのなら、頭上の遮蔽は屋根 20–30 cm だけ。
+  1.5 m / 2.5 m のコンクリートは**床**（＝トンネル室の天井）にある。
+  `等価コンクリート_減衰.csv` が linac に与えている 150 cm はトンネル室内で測った場合の値。
 
 ## 今年度への使い方（最短）
 

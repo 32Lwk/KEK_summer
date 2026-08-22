@@ -1,0 +1,181 @@
+[ Title ]
+参照ケース: 建屋なしの平地に降り注ぐ宇宙線（KEK つくば, 標高 30 m）
+Reference case: cosmic-ray field over flat ground, same soil model as 02_linac
+linac ケースと線源・地層・検出器位置をそろえてあるので、比を取ると建屋の効果だけが残る
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =      500
+ maxbch   =       10
+ e-mode   =        2
+ irqmd    =        1
+ negs     =        2
+ mdbatima =     3000
+ maxbnk   =   100000
+ iMeVperU =        1
+ emin(12) =      1.0
+ emin(13) =      1.0
+
+$ 球は3枚: モデル球 c3 ＜ 線源球 c1 ＜ 世界球 c2（詳細は 02_linac/linac.inp の注記）
+set: c1[1600.]           $ 線源球の半径（[Surface] のどの面とも一致させない）
+set: c2[2200.]           $ 世界球の半径
+set: c3[1500.]           $ モデル球の半径
+
+[ Source ]
+  totfact = -pi*c1**2    $ 負値: 各粒子から等数サンプリング（[/cm2/s] 規格化は同じ）
+ infl:{source.inp}
+     proj = neutron
+ infl:{source.inp}
+     proj = muon+
+ infl:{source.inp}
+     proj = muon-
+ infl:{source.inp}
+     proj = photon
+
+[ Material ]
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+mat[3]
+     H  -0.0448
+     O  -0.6336
+    Si  -0.1386
+    Al  -0.0870
+    Fe  -0.0600
+    Ca  -0.0096
+    Mg  -0.0078
+     K  -0.0054
+    Na  -0.0048
+    Ti  -0.0078
+mat[4]
+     H  -0.0224
+     O  -0.5488
+    Si  -0.1848
+    Al  -0.1160
+    Fe  -0.0800
+    Ca  -0.0128
+    Mg  -0.0104
+     K  -0.0072
+    Na  -0.0064
+    Ti  -0.0104
+
+$ --- mat[5] 下総層群（組成は mat[4] と同じ、密度だけ違う）rho = 1.85 g/cm3 ------
+$     同じ物質番号を違う密度で使うと PHITS が別番号を自動採番するため、明示的に分ける
+mat[5]
+     H  -0.0224
+     O  -0.5488
+    Si  -0.1848
+    Al  -0.1160
+    Fe  -0.0800
+    Ca  -0.0128
+    Mg  -0.0104
+     K  -0.0072
+    Na  -0.0064
+    Ti  -0.0104
+
+[ Mat Name Color ]
+   mat     name       size  color
+     1     Air         1.0  yellowgreen
+     3     Loam        1.0  orangeyellow
+     4     Clay        1.0  mossgreen
+     5     Shimousa    1.0  mossgreen
+
+[ Surface ]
+  10   so   c3                                    $ モデル球（内側に大気・地層・建屋）
+  12   so   c2                                    $ 世界球（10 との間は真空。線源球 c1 はこの中）
+  20   pz   0.0                                   $ GL
+  21   pz   -300.0                                $ 関東ローム底（-3 m）
+  22   pz   -500.0                                $ 常総粘土底（-5 m）
+  42   rpp  -250.0 250.0  -900.0  900.0  -564.0  -250.0   $ linac トンネルと同形状の空洞
+  50   rpp  -200.0 200.0  -600.0  600.0    50.0   250.0   $ 地上検出器 GL+0.5-2.5 m
+  51   rpp  -200.0 200.0  -600.0  600.0  -530.0  -330.0   $ 空洞内検出器（同じ深さ）
+  52   rpp   500.0 900.0  -600.0  600.0    50.0   250.0   $ 地上検出器（横方向チェック）
+
+[ Cell ]
+  111    1 -1.205e-3  -50                 $ 地上（開空）検出器
+  220    1 -1.205e-3  -42  51             $ 空洞内空気
+  221    1 -1.205e-3  -51                 $ 空洞内検出器（覆土のみ 4.3 m 相当）
+  300    1 -1.205e-3  -52                 $ 地上（開空）検出器・横位置
+  310    1 -1.205e-3  -10   20  50  52    $ GL より上の大気
+  400    3 -1.35      -10  -20  21  42    $ 関東ローム    0 〜 -3 m
+  410    4 -1.65      -10  -21  22  42    $ 常総粘土     -3 〜 -5 m
+  420    5 -1.85      -10  -22      42    $ 下総層群     -5 m 以深
+  900    0             10 -12             $ 真空シェル（線源球 c1 はこの中。物質なし）
+  999   -1             12                 $ outer void
+
+[ Volume ]
+   reg          vol
+   111    9.600e+07
+   220    1.866e+08
+   221    9.600e+07
+   300    9.600e+07
+
+[ T-Track ]
+$ 参照点のスペクトル
+    title = Flux spectra, open sky reference [1/cm2/s]
+     mesh =  reg
+      reg =  111 221 300 220
+   e-type =    3          $ log メッシュ（1e-9〜1e+6 MeV を 5 bin/decade）
+       ne =   75
+     emin =  1.0e-9
+     emax =  1.0e+6
+     unit =    1
+     axis =  eng
+     file = spectrum_reg.out
+     part =  neutron photon ( muon+ muon- )
+   epsout =    1
+
+[ T-Track ]
+$ 深さ方向分布（覆土のみ）
+    title = Neutron flux vs depth, soil only
+     mesh =  xyz
+   x-type =    2
+       nx =    1
+     xmin = -250.0
+     xmax =  250.0
+   y-type =    2
+       ny =    1
+     ymin = -300.0
+     ymax =  300.0
+   z-type =    2
+       nz =   64
+     zmin = -1000.0
+     zmax =   600.0
+   e-type =    1
+       ne =    3
+            1.0e-9  1.0e-6  1.0e-1  1.0e+6
+     unit =    1
+     axis =    z
+     file = depth_profile.out
+     part =  neutron
+   epsout =    1
+
+[ T-Track ]
+$ 2次元分布（建屋なし）
+    title = Cosmic-ray neutron flux, xz section, no building
+     mesh =  xyz
+   x-type =    2
+       nx =  120
+     xmin = -1200.0
+     xmax =  1200.0
+   y-type =    2
+       ny =    1
+     ymin = -300.0
+     ymax =  300.0
+   z-type =    2
+       nz =  110
+     zmin = -1000.0
+     zmax =  1200.0
+   e-type =    2
+       ne =    1
+     emin =  1.0e-9
+     emax =  1.0e+6
+     unit =    1
+     axis =   xz
+     file = map_xz.out
+     part =  neutron
+    gshow =    1
+   epsout =    1
+
+[ End ]

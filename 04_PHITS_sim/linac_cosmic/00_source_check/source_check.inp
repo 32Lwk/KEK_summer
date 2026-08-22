@@ -1,0 +1,68 @@
+[ Title ]
+線源チェック: 真空球の中の宇宙線フラックス（絶対値の検算）
+Source check: cosmic-ray flux inside an empty sphere.
+物質を置いていないので、ここで出るフラックスが PARMA が与える「地表の宇宙線そのもの」。
+phits.out の <Source> = ... （PHITS が計算した各粒子のフラックス [/cm2/s]）と一致するはず。
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =     2000
+ maxbch   =        5
+ e-mode   =        2
+ irqmd    =        1
+ negs     =        2
+ mdbatima =     3000
+ maxbnk   =   100000
+ iMeVperU =        1
+ emin(12) =      1.0
+ emin(13) =      1.0
+
+set: c1[1500.]           $ 線源球の半径
+set: c2[2200.]           $ 世界球（c2 > sqrt(2)*c1。線源円板をすべて世界の中に入れる）
+
+[ Source ]
+  totfact = -pi*c1**2    $ [/cm2/s] 規格化・4粒子から等数サンプリング
+ infl:{source.inp}
+     proj = neutron
+ infl:{source.inp}
+     proj = muon+
+ infl:{source.inp}
+     proj = muon-
+ infl:{source.inp}
+     proj = photon
+
+[ Material ]
+$ セルは真空（mat=0）だが、[Material] セクション自体は必須なので空気を定義だけしておく
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+
+[ Surface ]
+  10   so   1000.0             $ タリー球（線源球の内側なら場は一様）
+  12   so   c2                 $ 世界球
+
+[ Cell ]
+  100    0            -10      $ 真空（タリー領域）
+  110    0             10 -12  $ 真空（線源球 c1 を含む）
+  999   -1             12      $ outer void
+
+[ Volume ]
+   reg          vol
+   100    4.18879e+09          $ (4/3)pi*1000^3
+
+[ T-Track ]
+    title = Cosmic-ray flux in vacuum (should equal the PARMA free field)
+     mesh =  reg
+      reg =  100
+   e-type =    3
+       ne =   75
+     emin =  1.0e-9
+     emax =  1.0e+6
+     unit =    1
+     axis =  eng
+     file = source_check.out
+     part =  neutron photon ( muon+ muon- )
+   epsout =    1
+
+[ End ]
