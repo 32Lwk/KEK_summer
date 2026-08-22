@@ -1,0 +1,4 @@
+検出器,epsilon_S_cm2,epsilon_S_std_cm2,epsilon_S_ROI_cm2,f_roi_over_total,epsilon_S_end,epsilon_S_side_norm,S_end_cm2,S_side_cm2,L_active_cm,r_in_cm,Q_n_s,R_half_cm,phi_over_Q,rate_mode,備考
+d1,89.44,4.071,48.89,0.5466,4.413,0.1806,20.3,495,31,2.54,2.26e+06,95,9.44e-06,total,d1: 30&80cm 非飽和平均。D2/d2: 400cm 単点。D1 飽和は除外。
+D2,400.5,0,178.6,0.4459,5.533,0.2371,72.4,1.69e+03,56,4.8,2.26e+06,95,9.44e-06,total,d1: 30&80cm 非飽和平均。D2/d2: 400cm 単点。D1 飽和は除外。
+d2,87.7,0,48.06,0.548,4.327,0.1771,20.3,495,31,2.54,2.26e+06,95,9.44e-06,total,d1: 30&80cm 非飽和平均。D2/d2: 400cm 単点。D1 飽和は除外。

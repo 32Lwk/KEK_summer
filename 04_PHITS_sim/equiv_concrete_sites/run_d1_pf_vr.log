@@ -1,0 +1,24 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787420124_fcl5umzd) ...
+Initialization is completed          on 2026/08/23 at 02h 35m 32s
+ Warning : Particle is split by         127 Check [Importance].
+ Warning : Particle is split by         127 Check [Importance].
+ Warning : Particle is split by         127 Check [Importance].
+ Warning : Particle is split by         127 Check [Importance].
+ Warning : Particle is split by         127 Check [Importance].
+ Warning : Particle is split by         127 Check [Importance].
+ This message is not shown anymore
+[phits-web] server time limit reached (3 min) — job killed
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          0000788AF50458D0  Unknown               Unknown  Unknown
+phits_lin          000000000050AB2F  Unknown               Unknown  Unknown
+phits_lin          0000000000743534  Unknown               Unknown  Unknown
+phits_lin          0000000000501A1A  Unknown               Unknown  Unknown
+phits_lin          00000000005536C2  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          0000788AF502A578  Unknown               Unknown  Unknown
+libc.so.6          0000788AF502A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown

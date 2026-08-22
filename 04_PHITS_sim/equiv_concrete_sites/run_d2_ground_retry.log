@@ -1,0 +1,63 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787418163_ninmownj) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 02:02:47 JST 2026
+Program is started                on 2026/08/23 at 02h 02m 47s
+Initialization is completed          on 2026/08/23 at 02h 02m 52s
+*** Lost particle ***
+batch & history number:                   1                   2
+initial & final cells :                   3                   3
+location (x,y,z)        : -1.89662731E+01 -1.27964779E+01  0.00000000E+00
+direction vector (u,v,w):  7.22399231E-01  4.79167942E-01  4.98535290E-01
+*** Lost particle ***
+batch & history number:                   1                   3
+initial & final cells :                   3                   3
+location (x,y,z)        : -1.50078557E+01  2.46590690E+01  0.00000000E+00
+direction vector (u,v,w):  7.94611773E-02 -4.61770883E-01  8.83432834E-01
+*** Lost particle ***
+batch & history number:                   1                   6
+initial & final cells :                   8                   8
+location (x,y,z)        : -5.00788278E+00 -1.08323080E+00  0.00000000E+00
+direction vector (u,v,w): -2.62193292E-01 -8.98382354E-01  3.52368874E-01
+*** Lost particle ***
+batch & history number:                   1                  13
+initial & final cells :                   3                   3
+location (x,y,z)        :  8.02631102E+00 -2.64059557E+00  2.50000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  15
+initial & final cells :                   3                   3
+location (x,y,z)        :  6.65427707E+00 -7.85911044E+00  2.50000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  26
+initial & final cells :                   3                   3
+location (x,y,z)        :  8.39739910E+00  7.81581438E+00  2.50000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  29
+initial & final cells :                   3                   3
+location (x,y,z)        :  1.50141339E+00 -8.74531319E+00  2.50000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  32
+initial & final cells :                   3                   3
+location (x,y,z)        : -1.10913296E+01  1.36573548E+00  2.50000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  35
+initial & final cells :                   3                   3
+location (x,y,z)        : -5.22311396E+00 -1.11825964E+01  2.50000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  36
+initial & final cells :                   3                   3
+location (x,y,z)        :  7.77599784E+00  4.41807642E+00  2.50000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+ Calculation is terminated!!!
+ number of lost particles exceeds nlost (=      10)
+ *** Program is stopped, stop number =   802
+[phits-web] PHITS finished normally in 9 s — 8 output file(s) on the server
+[phits-web] downloaded 7 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground

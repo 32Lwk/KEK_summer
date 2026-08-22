@@ -162,6 +162,11 @@ DETECTOR_SUBDIR: dict[str, str] = {
 }
 
 
+def detector_result_tag(key: str) -> str:
+    """CSV/図ファイル名用（macOS 大文字小文字非区別対策: small_d1 vs large_D1）。"""
+    return DETECTOR_SUBDIR[key].replace("/", "_")
+
+
 def detector_root(base: Path, key: str) -> Path:
     return base / DETECTOR_SUBDIR[key]
 
@@ -216,14 +221,19 @@ def detector_surfaces(spec: DetectorSpec, *, include_pmt: bool = True) -> str:
     return "\n".join(lines)
 
 
-def detector_cells(spec: DetectorSpec, *, include_pmt: bool = True) -> str:
-    rho = spec.rho_he3
+def detector_cells(
+    spec: DetectorSpec,
+    *,
+    include_pmt: bool = True,
+    rho_scale: float = 1.0,
+) -> str:
+    rho = spec.rho_he3 * rho_scale
     if include_pmt:
         lines = [
             f"  1   5  -{rho:.5f}   -11  -13  20 -15",
             "  2   6  -8.0        11 -12  20 -13",
             "  6   6  -8.0        11 -12  13  14 -15",
-            "  4   0               -14  13 -15",
+            "  4   1  -0.001205     -14  13 -15",
         ]
     else:
         # 地上開空: 信管分割なし（cell 6 での lost 802 回避）
@@ -238,7 +248,7 @@ def detector_cells(spec: DetectorSpec, *, include_pmt: bool = True) -> str:
             [
                 "  5   7  -0.95        17 -18  20 -19",
                 "  7   7  -0.95       -18  20  16 -19",
-                "  8   0               -18  12  20 -16",
+                "  8   1  -0.001205     -18  12  20 -16",
             ]
         )
     return "\n".join(lines)
@@ -250,7 +260,16 @@ def detector_outer_surface(spec: DetectorSpec) -> str:
     return "12"
 
 
-def detector_void_cell(tc: float, tl: float, tj: float, spec: DetectorSpec) -> str:
+def detector_void_cell(
+    tc: float,
+    tl: float,
+    tj: float,
+    spec: DetectorSpec,
+) -> str:
+    # 室内は空気 (m1)。真空だと遮蔽透過後の熱化・散乱が起きず Deposit が死ぬ。
+    if tc + tl + tj == 0 and spec.pe_style == "block":
+        return "  3   1  -0.001205     -50  20 -21\n"
+    outer = detector_outer_surface(spec)
     if tc + tl + tj == 0:
-        return "  3   0               -50  20 -21\n"
-    return "  3   0               -50  20 -21\n"
+        return f"  3   1  -0.001205     {outer}  -30  20 -21\n"
+    return "  3   1  -0.001205     -50  20 -21\n"

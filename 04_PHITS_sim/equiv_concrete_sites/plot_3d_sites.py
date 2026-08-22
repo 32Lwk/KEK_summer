@@ -20,7 +20,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 BASE = Path(__file__).resolve().parent
 
-from detector_specs import DETECTORS, DetectorSpec, detector_root  # noqa: E402
+from detector_specs import DETECTORS, DetectorSpec, detector_result_tag, detector_root  # noqa: E402
 
 _DET_ROOT = detector_root(BASE, "D1")
 _SPEC: DetectorSpec = DETECTORS["D1"]

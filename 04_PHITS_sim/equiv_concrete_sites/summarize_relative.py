@@ -14,6 +14,9 @@ from matplotlib import font_manager
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "03_今年度用"))
 import equiv_shielding as esh
 
+from build_ceiling_main import SHIELD_HE3_RHO_SCALE
+from detector_specs import DETECTORS, detector_result_tag, detector_root
+
 _FONT_CANDIDATES = [
     Path("/Library/Fonts/Arial Unicode.ttf"),
     Path("/System/Library/Fonts/Supplemental/AppleGothic.ttf"),
@@ -109,8 +112,6 @@ def theory_rel(teq_cm: float) -> float:
 def main() -> None:
     import argparse
 
-    from detector_specs import DETECTORS, detector_root
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--detector",
@@ -120,28 +121,28 @@ def main() -> None:
     )
     args = parser.parse_args()
     det_root = detector_root(BASE, args.detector)
-    spec = DETECTORS[args.detector]
+    tag = detector_result_tag(args.detector)
 
     out_csv = (
         REPO
         / "03_今年度用"
         / "測定_20260818"
         / "tables"
-        / f"PHITS_等価コンクリート_相対_{args.detector}.csv"
+        / f"PHITS_等価コンクリート_相対_{tag}.csv"
     )
     out_fig = (
         REPO
         / "03_今年度用"
         / "測定_20260818"
         / "figures"
-        / f"15_PHITS_等価コンクリート_比較_{args.detector}.png"
+        / f"15_PHITS_等価コンクリート_比較_{tag}.png"
     )
     out_fig_log = (
         REPO
         / "03_今年度用"
         / "測定_20260818"
         / "figures"
-        / f"15_PHITS_等価コンクリート_比較_{args.detector}_片対数.png"
+        / f"15_PHITS_等価コンクリート_比較_{tag}_片対数.png"
     )
 
     results = []
@@ -149,11 +150,13 @@ def main() -> None:
         d = det_root / site["dir"]
         de = parse_spectrum(d / "de.out")
         he = parse_spectrum(d / "neutron_he3.out")
+        # 遮蔽地点は He-3 密度を上げて計算しているので相対比較前に戻す
+        scale = 1.0 if site["dir"] == "00_ground" else SHIELD_HE3_RHO_SCALE
         results.append(
             {
                 **site,
-                "deposit": sum_y(de),
-                "deposit_peak": sum_peak(de),
+                "deposit": sum_y(de) / scale,
+                "deposit_peak": sum_peak(de) / scale,
                 "he3_flux": sum_y(he),
             }
         )

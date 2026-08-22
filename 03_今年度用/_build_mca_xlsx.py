@@ -2,7 +2,8 @@
 """今年度 MCA（Amptek MCA8000D）スペクトルを CSV と Excel に変換する。
 
 raw/*.mca と USB 上の未登録 .mca を自動検出する。エネルギー較正は未実施。
-ROI はスペクトルから自動抽出する（ファイル内 <<ROI>> は使わない）。
+ROI はシリアル別の共通窓（1715: 314–366, 2162: 350–408）+ ピーク外側帯 NET。
+ファイル内 <<ROI>> は使わない。
 """
 
 from __future__ import annotations
@@ -23,13 +24,13 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 from mca_common import (
+    analyze_roi,
     discover_raw_mca,
     discover_usb_mca,
-    find_roi,
+    infer_serial,
     make_id,
     make_label,
     parse_mca,
-    roi_net,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -51,42 +52,42 @@ KNOWN_META = {
     "20260818_1552_管理棟2階_D1.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "短時間。検出器 D1（SN 1715）。ch0はADCオーバーフロー。ROIは自動抽出。",
+        "メモ": "短時間。検出器 D1（SN 1715）。ch0はADCオーバーフロー。ROIは共通窓 314–366。",
     },
     "20260818_1730_linac_D1.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "linac。検出器 D1（SN 1715）。ch0はADCオーバーフロー。ROIは自動抽出。",
+        "メモ": "linac。検出器 D1（SN 1715）。ch0はADCオーバーフロー。ROIは共通窓。",
     },
     "20260819_0832_管理棟2階_D1.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "終夜。検出器 D1（SN 1715）。ROIは自動抽出。",
+        "メモ": "終夜。検出器 D1（SN 1715）。ROIは共通窓。",
     },
     "20260819_1344_管理棟1階_D1.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "検出器 D1（SN 1715）。ROIは自動抽出。",
+        "メモ": "検出器 D1（SN 1715）。ROIは共通窓。",
     },
     "20260819_1520_管理棟2階_d1.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "管理棟2階・約21 h。検出器 d1（SN 2162）。ポリエチレンの緩衝材なし。旧名の放射線棟2階は誤記。CPS差は d 検出器の応答。ch0なし。ROIは自動抽出。",
+        "メモ": "管理棟2階・約21 h。検出器 d1（SN 2162）。ポリエチレンの緩衝材なし。旧名の放射線棟2階は誤記。CPS差は d 検出器の応答。ch0なし。ROIは共通窓。",
     },
     "20260819_1530_地上_D1.mca": {
         "屋内_屋外": "屋外",
         "標高_m": 30,
-        "メモ": "地上。検出器 D1（SN 1715）。ROIは自動抽出。",
+        "メモ": "地上。検出器 D1（SN 1715）。ROIは共通窓。",
     },
     "20260819_1854_放射線棟BT_D1.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "放射線棟 BT。検出器 D1（SN 1715）。ROIは自動抽出。",
+        "メモ": "放射線棟 BT。検出器 D1（SN 1715）。ROIは共通窓。",
     },
     "20260819_1859_放射線棟BT_d2.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
-        "メモ": "放射線棟 BT。検出器 d2（SN 2162）。CPS差は d 検出器の応答。ROIは自動抽出。",
+        "メモ": "放射線棟 BT。検出器 d2（SN 2162）。CPS差は d 検出器の応答。ROIは共通窓。",
     },
 }
 
@@ -98,7 +99,7 @@ def infer_meta(filename: str) -> dict:
     return {
         "屋内_屋外": "屋外" if outdoor else "屋内",
         "標高_m": 30,
-        "メモ": "raw/ から自動検出。ROIは自動抽出。",
+        "メモ": "raw/ から自動検出。ROIはシリアル別共通窓。",
     }
 
 
@@ -128,8 +129,9 @@ def summarize(run: dict, meta: dict) -> dict:
         pass
     real = float(meta["REAL_TIME"])
     total = sum(counts)
-    roi_lo, roi_hi, roi_peak = find_roi(counts)
-    roi_sum, roi_bg, roi_net_n, roi_net_err = roi_net(counts, roi_lo, roi_hi)
+    roi = analyze_roi(counts, serial=infer_serial(run["filename"], meta.get("serial", "")))
+    roi_lo, roi_hi, roi_peak = roi.roi_lo, roi.roi_hi, roi.roi_peak
+    roi_sum, roi_bg, roi_net_n, roi_net_err = roi.gross, roi.bg, roi.net, roi.err
     ch0 = counts[0]
     ch1_20 = sum(counts[1:21])
     ch21_149 = sum(counts[21:150])
@@ -159,6 +161,9 @@ def summarize(run: dict, meta: dict) -> dict:
         "roi_hi": roi_hi,
         "roi_peak": roi_peak,
         "roi_range": f"{roi_lo}–{roi_hi}",
+        "roi_auto_lo": roi.roi_auto_lo,
+        "roi_auto_hi": roi.roi_auto_hi,
+        "roi_auto_range": f"{roi.roi_auto_lo}–{roi.roi_auto_hi}",
         "roi_counts": roi_sum,
         "roi_cps": roi_sum / live,
         "roi_bg_counts": roi_bg,
@@ -166,11 +171,20 @@ def summarize(run: dict, meta: dict) -> dict:
         "roi_net_counts": roi_net_n,
         "roi_net_cps": roi_net_n / live,
         "roi_net_cps_err": roi_net_err / live,
+        "roi_net_valid": int(roi.net_valid),
+        "roi_warning": roi.warning,
+        "bg_mode": roi.bg_mode,
+        "sb_lo": f"{roi.sb_lo_lo}–{roi.sb_lo_hi}",
+        "sb_hi": f"{roi.sb_hi_lo}–{roi.sb_hi_hi}",
+        "sb_lo_lo": roi.sb_lo_lo,
+        "sb_lo_hi": roi.sb_lo_hi,
+        "sb_hi_lo": roi.sb_hi_lo,
+        "sb_hi_hi": roi.sb_hi_hi,
         "ch451_511": ch451,
         "peak_ch": peak_ch,
         "peak_counts": counts[peak_ch],
         "装置": meta["device"],
-        "シリアル": meta["serial"],
+        "シリアル": infer_serial(run["filename"], meta.get("serial", "")),
         "ゲインGAIA": meta["gaia"],
         "ボード温度_C": meta["board_temp_C"],
         "slow_count": meta["slow_count"],
@@ -269,6 +283,8 @@ def write_tables(rows: list[dict]) -> None:
         "roi_lo",
         "roi_hi",
         "roi_peak",
+        "roi_auto_lo",
+        "roi_auto_hi",
         "roi_counts",
         "roi_cps",
         "roi_bg_counts",
@@ -276,6 +292,15 @@ def write_tables(rows: list[dict]) -> None:
         "roi_net_counts",
         "roi_net_cps",
         "roi_net_cps_err",
+        "roi_net_valid",
+        "roi_warning",
+        "bg_mode",
+        "sb_lo",
+        "sb_hi",
+        "sb_lo_lo",
+        "sb_lo_hi",
+        "sb_hi_lo",
+        "sb_hi_hi",
         "peak_ch",
         "装置",
         "シリアル",
@@ -293,6 +318,9 @@ def write_tables(rows: list[dict]) -> None:
         "live_s",
         "roi_lo",
         "roi_hi",
+        "roi_peak",
+        "roi_auto_lo",
+        "roi_auto_hi",
         "roi_counts",
         "roi_cps",
         "roi_bg_counts",
@@ -300,6 +328,11 @@ def write_tables(rows: list[dict]) -> None:
         "roi_net_counts",
         "roi_net_cps",
         "roi_net_cps_err",
+        "roi_net_valid",
+        "roi_warning",
+        "bg_mode",
+        "sb_lo",
+        "sb_hi",
     ]
     write_csv(TABLES / "ROI_NET_CPS.csv", net_fields, rows)
 
@@ -323,7 +356,7 @@ def write_tables(rows: list[dict]) -> None:
         ("ch0（オーバーフロー）", lambda r: r["counts"][0:1]),
         ("ch1–20", lambda r: r["counts"][1:21]),
         ("ch21–149", lambda r: r["counts"][21:150]),
-        ("自動ROI", lambda r: r["counts"][r["roi_lo"] : r["roi_hi"] + 1]),
+        ("共通ROI", lambda r: r["counts"][r["roi_lo"] : r["roi_hi"] + 1]),
         ("ch451–511", lambda r: r["counts"][451:]),
         ("全チャンネル", lambda r: r["counts"]),
         ("ch0除く", lambda r: r["counts"][1:]),
@@ -388,7 +421,7 @@ def build_xlsx(rows: list[dict]) -> Path:
     ws.merge_cells("A1:F1")
     ws["A2"] = (
         "Amptek MCA8000D。raw/*.mca と USB の未登録ファイルを自動検出。"
-        "エネルギー較正なし。ROI はスペクトルから自動抽出。"
+        "エネルギー較正なし。ROI は SN 別共通窓 + ピーク外側帯 NET（peak±16ch 外の側帯15ch）。"
     )
     ws["A2"].alignment = left
     ws.merge_cells("A2:F2")
@@ -404,8 +437,14 @@ def build_xlsx(rows: list[dict]) -> Path:
         ("総カウント", "データ数"),
         ("全体 計数率 [s⁻¹]", "計数率_s-1"),
         ("ch0除く 計数率 [s⁻¹]", "計数率_ch0除く_s-1"),
-        ("自動ROI", "roi_range"),
+        ("共通ROI", "roi_range"),
         ("ROI ピーク ch", "roi_peak"),
+        ("参考 自動ROI", "roi_auto_range"),
+        ("NET 有効", "roi_net_valid"),
+        ("ROI 警告", "roi_warning"),
+        ("背景モード", "bg_mode"),
+        ("左側帯", "sb_lo"),
+        ("右側帯", "sb_hi"),
         ("ROI gross [s⁻¹]", "roi_cps"),
         ("ROI NET [s⁻¹]", "roi_net_cps"),
         ("ROI NET 誤差 [s⁻¹]", "roi_net_cps_err"),
@@ -456,7 +495,7 @@ def build_xlsx(rows: list[dict]) -> Path:
     notes = [
         "raw/*.mca を列挙。USB に未登録の .mca があれば raw/ へコピーする。",
         "ch0 が総カウントの約半分。ADC オーバーフローとして解析では除外するのが安全。",
-        "ROI は低ch連続成分を除いた高ch側ピークから自動抽出（ファイルの <<ROI>> は使わない）。",
+        "ROI は SN 別共通窓 + ピーク外側帯 NET（端点台形ではない）。参考として自動ROIも記録。",
         "フラックス（φ）はエネルギー窓と効率 ε, S が未確定のため空欄。",
         "生データ: 03_今年度用/測定_20260818/raw/　表: tables/*.csv",
     ]
@@ -551,7 +590,7 @@ def build_xlsx(rows: list[dict]) -> Path:
         ("ch0（オーバーフロー）", lambda r: r["counts"][0:1]),
         ("ch1–20", lambda r: r["counts"][1:21]),
         ("ch21–149", lambda r: r["counts"][21:150]),
-        ("自動ROI", lambda r: r["counts"][r["roi_lo"] : r["roi_hi"] + 1]),
+        ("共通ROI", lambda r: r["counts"][r["roi_lo"] : r["roi_hi"] + 1]),
         ("ch451–511", lambda r: r["counts"][451:]),
         ("全チャンネル", lambda r: r["counts"]),
         ("ch0除く", lambda r: r["counts"][1:]),

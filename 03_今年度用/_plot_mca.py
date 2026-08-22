@@ -108,6 +108,11 @@ def load_spectrum() -> dict:
                 "roi_hi": hi,
                 "roi_peak": int(float(rec.get("roi_peak") or 0)),
                 "roi_net_cps": float(rec["roi_net_cps"]),
+                "roi_warning": rec.get("roi_warning") or "",
+                "sb_lo_lo": int(float(rec["sb_lo_lo"])) if rec.get("sb_lo_lo") not in (None, "") else 0,
+                "sb_lo_hi": int(float(rec["sb_lo_hi"])) if rec.get("sb_lo_hi") not in (None, "") else 0,
+                "sb_hi_lo": int(float(rec["sb_hi_lo"])) if rec.get("sb_hi_lo") not in (None, "") else 0,
+                "sb_hi_hi": int(float(rec["sb_hi_hi"])) if rec.get("sb_hi_hi") not in (None, "") else 0,
                 "clip": roi_peak_clip(cps, lo, hi, pad=max(CLIP_PAD, 0.1 * float(np.max(cps[lo : hi + 1]) if hi >= lo else 0))),
             }
         )
@@ -164,7 +169,17 @@ def save(
 
 
 def shade_roi(ax, lo: int, hi: int, label: str | None = None) -> None:
-    ax.axvspan(lo, hi, color="#F4C7C3", alpha=0.45, zorder=0, label=label or f"ROI {lo}–{hi}")
+    ax.axvspan(lo, hi, color="#F4C7C3", alpha=0.45, zorder=0, label=label or f"共通ROI {lo}–{hi}")
+
+
+def shade_sidebands(ax, s: dict) -> None:
+    """側帯を塗る（凡例には出さない）。"""
+    sb0 = (int(s.get("sb_lo_lo") or 0), int(s.get("sb_lo_hi") or 0))
+    sb1 = (int(s.get("sb_hi_lo") or 0), int(s.get("sb_hi_hi") or 0))
+    if sb0[1] >= sb0[0] > 0:
+        ax.axvspan(sb0[0], sb0[1], color="#9EC9E2", alpha=0.35, zorder=0)
+    if sb1[1] >= sb1[0] > 0 and sb1 != sb0:
+        ax.axvspan(sb1[0], sb1[1], color="#9EC9E2", alpha=0.35, zorder=0)
 
 
 def step_spectrum(ax, ch, c, color, label=None, clip=None, annotate=True) -> None:
@@ -336,6 +351,9 @@ def _one_site(d: dict, s: dict) -> None:
     clip = s["clip"]
     lo, hi = s["roi_lo"], s["roi_hi"]
     ctitle = clip_title(clip)
+    roi_title = f"共通ROI {lo}–{hi}"
+    if s.get("roi_warning"):
+        roi_title += f"  ⚠ {s['roi_warning']}"
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     ax.step(ch, c, where="mid", color=color, lw=1.4)
@@ -358,6 +376,7 @@ def _one_site(d: dict, s: dict) -> None:
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     ax.step(ch[m], c[m], where="mid", color=color, lw=1.4)
     shade_roi(ax, lo, hi)
+    shade_sidebands(ax, s)
     ax.set_xlim(1, 511)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
@@ -369,6 +388,7 @@ def _one_site(d: dict, s: dict) -> None:
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     step_spectrum(ax, ch[m], c[m], color, clip=clip)
     shade_roi(ax, lo, hi)
+    shade_sidebands(ax, s)
     ax.set_xlim(1, 511)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -401,6 +421,7 @@ def _one_site(d: dict, s: dict) -> None:
     ax.set_xlim(0, 511)
     ax.set_ylim(1e-5, 80)
     shade_roi(ax, lo, hi)
+    shade_sidebands(ax, s)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("対数")
@@ -414,7 +435,7 @@ def _one_site(d: dict, s: dict) -> None:
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"ROI {lo}–{hi}")
+    ax.set_title(roi_title)
     save(fig, "ROI", out)
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
@@ -423,7 +444,7 @@ def _one_site(d: dict, s: dict) -> None:
     ax.set_ylim(0, clip)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"ROI {ctitle}")
+    ax.set_title(f"{roi_title} {ctitle}")
     save(fig, "ROI_クリップ", out)
 
 
@@ -580,21 +601,20 @@ LAMBDA_SOIL_GCM2 = esh.LAMBDA_SOIL_GCM2
 LAMBDA_CM = esh.LAMBDA_CONCRETE_CM  # ≈39.2 cm（旧77 cmは誤り）
 LAMBDA_M = esh.LAMBDA_CONCRETE_M    # ≈0.392 m（旧0.77 mは誤り）
 
-# Book5 / ユーザー表の CPS。相対値は地上で規格化。
+# 側帯 NET CPS（ROI_NET_CPS.csv / LIVE_TIME）。相対は地上で規格化。
 USER_CPS = {
-    "地上": 0.52514597,
-    "linac": 0.06478913,
-    "BT": 0.11475671,
-    "KEKB": 0.0399324,
-    "PF": 0.25108616,
+    "地上": 0.4330406589816921,   # 20260819_1530_地上_D1
+    "linac": 0.06869596152646006,  # 20260818_1730_linac_D1
+    "BT": 0.08220067419578098,     # 20260819_1854_放射線棟BT_D1
+    "KEKB": 0.033573903438705525,  # 20260820_1939_KEKB_D1
+    "PF": 0.22349007899558587,     # 20260820_0807_PF_D1（peak 再中心）
 }
 
-# d2: 分子/分母（ユーザー指定）。PF・地上はなし。
-# BT 144/9541.27, KEKB 336/39042.15, linac 568/42626.85
+# d2 側帯 NET。地上・PF なし → 図では linac から地上を外挿。
 USER_CPS_D2 = {
-    "linac": 568 / 42626.85,
-    "BT": 144 / 9541.27,
-    "KEKB": 336 / 39042.15,
+    "linac": 0.01015583708347463,  # 20260821_080725_linac_d2
+    "BT": 0.01175692807995354,     # 20260819_1859_放射線棟BT_d2
+    "KEKB": 0.005748260171481053,  # 20260820_1939_KEKB_d2
 }
 
 
@@ -662,12 +682,12 @@ def _site_shielding(cps_map: dict[str, float]) -> list[dict]:
 
 
 def _site_shielding_d1() -> list[dict]:
-    """図11/12用（D1・Book5 CPS）。"""
+    """図11/12用（D1・側帯 NET CPS）。"""
     return _site_shielding(USER_CPS)
 
 
 def load_d2_cps() -> dict[str, float]:
-    """d2 のユーザー CPS（分子/分母）。PF・地上は含まない。"""
+    """d2 の側帯 NET CPS。PF・地上は含まない。"""
     return dict(USER_CPS_D2)
 
 

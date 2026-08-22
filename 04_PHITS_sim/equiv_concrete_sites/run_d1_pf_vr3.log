@@ -1,0 +1,27 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787420503_nggclg72) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 02:42:02 JST 2026
+Program is started                on 2026/08/23 at 02h 42m 02s
+Initialization is completed          on 2026/08/23 at 02h 42m 07s
+bat[       1] ncas =          10000. on 2026/08/23 at 02h 43m 10s
+bat[       2] ncas =          20000. on 2026/08/23 at 02h 43m 40s
+bat[       3] ncas =          30000. on 2026/08/23 at 02h 44m 10s
+bat[       4] ncas =          40000. on 2026/08/23 at 02h 44m 39s
+[phits-web] server time limit reached (3 min) — job killed
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          00007A5A9CA458D0  Unknown               Unknown  Unknown
+phits_lin          0000000000A30CD0  Unknown               Unknown  Unknown
+phits_lin          0000000000A0E6A2  Unknown               Unknown  Unknown
+phits_lin          0000000000A79EE5  Unknown               Unknown  Unknown
+phits_lin          0000000000417FF9  Unknown               Unknown  Unknown
+phits_lin          0000000000537A36  Unknown               Unknown  Unknown
+phits_lin          0000000000540670  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          00007A5A9CA2A578  Unknown               Unknown  Unknown
+libc.so.6          00007A5A9CA2A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown

@@ -1,0 +1,7 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787420447_rw4cmmd5) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 02:40:52 JST 2026
+Program is started                on 2026/08/23 at 02h 40m 52s

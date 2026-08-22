@@ -18,9 +18,6 @@ wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/ma
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/main.inp
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/main.inp
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/main.inp
-=== d1/00_ground (small/d1) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787408482_rnej6v57) ...
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/main.inp
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/main.inp
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/main.inp
@@ -42,486 +39,1580 @@ wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/main.inp
 wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/main.inp
 === d1/00_ground (small/d1) ===
+=== d1/00_ground (small/d1) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787409334_udgqhlbh) ...
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787413258_2abiz1kx) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787413258_2abiz1kx) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
 Executing with standard PHITS installation
 Command: $PHITSPATH/bin/phits.sh 'main.inp'
 bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:35:37 JST 2026
-Program is started                on 2026/08/22 at 23h 35m 37s
-Initialization is completed          on 2026/08/22 at 23h 35m 42s
-bat[       1] ncas =          20000. on 2026/08/22 at 23h 36m 14s
-bat[       2] ncas =          40000. on 2026/08/22 at 23h 36m 21s
-bat[       3] ncas =          60000. on 2026/08/22 at 23h 36m 28s
-bat[       4] ncas =          80000. on 2026/08/22 at 23h 36m 34s
-bat[       5] ncas =         100000. on 2026/08/22 at 23h 36m 41s
-bat[       6] ncas =         120000. on 2026/08/22 at 23h 36m 47s
-bat[       7] ncas =         140000. on 2026/08/22 at 23h 36m 54s
-bat[       8] ncas =         160000. on 2026/08/22 at 23h 37m 00s
-bat[       9] ncas =         180000. on 2026/08/22 at 23h 37m 07s
-bat[      10] ncas =         200000. on 2026/08/22 at 23h 37m 13s
-bat[      11] ncas =         220000. on 2026/08/22 at 23h 37m 20s
-bat[      12] ncas =         240000. on 2026/08/22 at 23h 37m 26s
-bat[      13] ncas =         260000. on 2026/08/22 at 23h 37m 32s
-bat[      14] ncas =         280000. on 2026/08/22 at 23h 37m 38s
-bat[      15] ncas =         300000. on 2026/08/22 at 23h 37m 45s
-bat[      16] ncas =         320000. on 2026/08/22 at 23h 37m 51s
-bat[      17] ncas =         340000. on 2026/08/22 at 23h 37m 58s
-bat[      18] ncas =         360000. on 2026/08/22 at 23h 38m 04s
-bat[      19] ncas =         380000. on 2026/08/22 at 23h 38m 10s
-bat[      20] ncas =         400000. on 2026/08/22 at 23h 38m 17s
-Program is finished               on 2026/08/22 at 23h 38m 17s
-[phits-web] PHITS finished normally in 164 s — 7 output file(s) on the server
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 00:41:01 JST 2026
+Sun Aug 23 00:41:01 JST 2026
+Program is started                on 2026/08/23 at 00h 41m 01s
+Program is started                on 2026/08/23 at 00h 41m 01s
+Initialization is completed          on 2026/08/23 at 00h 41m 06s
+Initialization is completed          on 2026/08/23 at 00h 41m 06s
+bat[       1] ncas =          20000. on 2026/08/23 at 00h 41m 21s
+bat[       1] ncas =          20000. on 2026/08/23 at 00h 41m 21s
+bat[       2] ncas =          40000. on 2026/08/23 at 00h 41m 28s
+bat[       2] ncas =          40000. on 2026/08/23 at 00h 41m 28s
+bat[       3] ncas =          60000. on 2026/08/23 at 00h 41m 53s
+bat[       3] ncas =          60000. on 2026/08/23 at 00h 41m 53s
+bat[       4] ncas =          80000. on 2026/08/23 at 00h 42m 00s
+bat[       4] ncas =          80000. on 2026/08/23 at 00h 42m 00s
+bat[       5] ncas =         100000. on 2026/08/23 at 00h 42m 06s
+bat[       5] ncas =         100000. on 2026/08/23 at 00h 42m 06s
+bat[       6] ncas =         120000. on 2026/08/23 at 00h 42m 13s
+bat[       6] ncas =         120000. on 2026/08/23 at 00h 42m 13s
+bat[       7] ncas =         140000. on 2026/08/23 at 00h 42m 20s
+bat[       7] ncas =         140000. on 2026/08/23 at 00h 42m 20s
+bat[       8] ncas =         160000. on 2026/08/23 at 00h 42m 26s
+bat[       8] ncas =         160000. on 2026/08/23 at 00h 42m 26s
+bat[       9] ncas =         180000. on 2026/08/23 at 00h 42m 32s
+bat[       9] ncas =         180000. on 2026/08/23 at 00h 42m 32s
+bat[      10] ncas =         200000. on 2026/08/23 at 00h 42m 39s
+bat[      10] ncas =         200000. on 2026/08/23 at 00h 42m 39s
+bat[      11] ncas =         220000. on 2026/08/23 at 00h 42m 46s
+bat[      11] ncas =         220000. on 2026/08/23 at 00h 42m 46s
+bat[      12] ncas =         240000. on 2026/08/23 at 00h 42m 52s
+bat[      12] ncas =         240000. on 2026/08/23 at 00h 42m 52s
+bat[      13] ncas =         260000. on 2026/08/23 at 00h 42m 59s
+bat[      13] ncas =         260000. on 2026/08/23 at 00h 42m 59s
+bat[      14] ncas =         280000. on 2026/08/23 at 00h 43m 05s
+bat[      14] ncas =         280000. on 2026/08/23 at 00h 43m 05s
+bat[      15] ncas =         300000. on 2026/08/23 at 00h 43m 12s
+bat[      15] ncas =         300000. on 2026/08/23 at 00h 43m 12s
+bat[      16] ncas =         320000. on 2026/08/23 at 00h 43m 18s
+bat[      16] ncas =         320000. on 2026/08/23 at 00h 43m 18s
+bat[      17] ncas =         340000. on 2026/08/23 at 00h 43m 25s
+bat[      17] ncas =         340000. on 2026/08/23 at 00h 43m 25s
+bat[      18] ncas =         360000. on 2026/08/23 at 00h 43m 31s
+bat[      18] ncas =         360000. on 2026/08/23 at 00h 43m 31s
+bat[      19] ncas =         380000. on 2026/08/23 at 00h 43m 38s
+bat[      19] ncas =         380000. on 2026/08/23 at 00h 43m 38s
+bat[      20] ncas =         400000. on 2026/08/23 at 00h 43m 44s
+bat[      20] ncas =         400000. on 2026/08/23 at 00h 43m 44s
+Program is finished               on 2026/08/23 at 00h 43m 44s
+Program is finished               on 2026/08/23 at 00h 43m 44s
+[phits-web] PHITS finished normally in 167 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 167 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground
 [phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground
 === d1/01_PF (small/d1) ===
+=== d1/01_PF (small/d1) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787409501_d41n9nbv) ...
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787413428_gxkl1gaq) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787413428_gxkl1gaq) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
 Executing with standard PHITS installation
 Command: $PHITSPATH/bin/phits.sh 'main.inp'
 bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:38:26 JST 2026
-Program is started                on 2026/08/22 at 23h 38m 26s
-Initialization is completed          on 2026/08/22 at 23h 38m 30s
-bat[       1] ncas =           8000. on 2026/08/22 at 23h 38m 50s
-bat[       2] ncas =          16000. on 2026/08/22 at 23h 39m 16s
-bat[       3] ncas =          24000. on 2026/08/22 at 23h 39m 25s
-bat[       4] ncas =          32000. on 2026/08/22 at 23h 39m 33s
-bat[       5] ncas =          40000. on 2026/08/22 at 23h 39m 41s
-bat[       6] ncas =          48000. on 2026/08/22 at 23h 39m 49s
-bat[       7] ncas =          56000. on 2026/08/22 at 23h 39m 57s
-bat[       8] ncas =          64000. on 2026/08/22 at 23h 40m 05s
-bat[       9] ncas =          72000. on 2026/08/22 at 23h 40m 12s
-bat[      10] ncas =          80000. on 2026/08/22 at 23h 40m 19s
-Program is finished               on 2026/08/22 at 23h 40m 19s
-[phits-web] PHITS finished normally in 118 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 00:43:52 JST 2026
+Sun Aug 23 00:43:52 JST 2026
+Program is started                on 2026/08/23 at 00h 43m 52s
+Program is started                on 2026/08/23 at 00h 43m 52s
+Initialization is completed          on 2026/08/23 at 00h 43m 57s
+Initialization is completed          on 2026/08/23 at 00h 43m 57s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 44m 42s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 44m 42s
+bat[       2] ncas =          30000. on 2026/08/23 at 00h 44m 58s
+bat[       2] ncas =          30000. on 2026/08/23 at 00h 44m 58s
+bat[       3] ncas =          45000. on 2026/08/23 at 00h 45m 13s
+bat[       3] ncas =          45000. on 2026/08/23 at 00h 45m 13s
+bat[       4] ncas =          60000. on 2026/08/23 at 00h 45m 28s
+bat[       4] ncas =          60000. on 2026/08/23 at 00h 45m 28s
+bat[       5] ncas =          75000. on 2026/08/23 at 00h 45m 42s
+bat[       5] ncas =          75000. on 2026/08/23 at 00h 45m 42s
+bat[       6] ncas =          90000. on 2026/08/23 at 00h 45m 55s
+bat[       6] ncas =          90000. on 2026/08/23 at 00h 45m 55s
+bat[       7] ncas =         105000. on 2026/08/23 at 00h 46m 09s
+bat[       7] ncas =         105000. on 2026/08/23 at 00h 46m 09s
+bat[       8] ncas =         120000. on 2026/08/23 at 00h 46m 23s
+bat[       8] ncas =         120000. on 2026/08/23 at 00h 46m 23s
+bat[       9] ncas =         135000. on 2026/08/23 at 00h 46m 37s
+bat[       9] ncas =         135000. on 2026/08/23 at 00h 46m 37s
+bat[      10] ncas =         150000. on 2026/08/23 at 00h 46m 51s
+bat[      10] ncas =         150000. on 2026/08/23 at 00h 46m 51s
+[phits-web] server time limit reached (3 min) — job killed
+[phits-web] server time limit reached (3 min) — job killed
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          00007A8AE12458D0  Unknown               Unknown  Unknown
+phits_lin          0000000001F2D2DA  Unknown               Unknown  Unknown
+phits_lin          000000000050ACAC  Unknown               Unknown  Unknown
+phits_lin          0000000000743534  Unknown               Unknown  Unknown
+phits_lin          0000000000501A1A  Unknown               Unknown  Unknown
+phits_lin          00000000005536C2  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          00007A8AE122A578  Unknown               Unknown  Unknown
+libc.so.6          00007A8AE122A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          00007A8AE12458D0  Unknown               Unknown  Unknown
+phits_lin          0000000001F2D2DA  Unknown               Unknown  Unknown
+phits_lin          000000000050ACAC  Unknown               Unknown  Unknown
+phits_lin          0000000000743534  Unknown               Unknown  Unknown
+phits_lin          0000000000501A1A  Unknown               Unknown  Unknown
+phits_lin          00000000005536C2  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          00007A8AE122A578  Unknown               Unknown  Unknown
+libc.so.6          00007A8AE122A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+FAILED: d1/01_PF
+FAILED: d1/01_PF
+=== d1/02_linac (small/d1) ===
 === d1/02_linac (small/d1) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787409624_kdheg2ls) ...
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787413732_o0ttg835) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787413732_o0ttg835) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
 Executing with standard PHITS installation
 Command: $PHITSPATH/bin/phits.sh 'main.inp'
 bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:40:28 JST 2026
-Program is started                on 2026/08/22 at 23h 40m 28s
-Initialization is completed          on 2026/08/22 at 23h 40m 33s
-bat[       1] ncas =           8000. on 2026/08/22 at 23h 41m 11s
-bat[       2] ncas =          16000. on 2026/08/22 at 23h 41m 20s
-bat[       3] ncas =          24000. on 2026/08/22 at 23h 41m 29s
-bat[       4] ncas =          32000. on 2026/08/22 at 23h 41m 38s
-bat[       5] ncas =          40000. on 2026/08/22 at 23h 41m 46s
-bat[       6] ncas =          48000. on 2026/08/22 at 23h 41m 55s
-bat[       7] ncas =          56000. on 2026/08/22 at 23h 42m 04s
-bat[       8] ncas =          64000. on 2026/08/22 at 23h 42m 12s
-bat[       9] ncas =          72000. on 2026/08/22 at 23h 42m 21s
-bat[      10] ncas =          80000. on 2026/08/22 at 23h 42m 29s
-Program is finished               on 2026/08/22 at 23h 42m 29s
-[phits-web] PHITS finished normally in 125 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 00:48:55 JST 2026
+Sun Aug 23 00:48:55 JST 2026
+Program is started                on 2026/08/23 at 00h 48m 55s
+Program is started                on 2026/08/23 at 00h 48m 55s
+Initialization is completed          on 2026/08/23 at 00h 49m 00s
+Initialization is completed          on 2026/08/23 at 00h 49m 00s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 49m 46s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 49m 46s
+bat[       2] ncas =          30000. on 2026/08/23 at 00h 50m 03s
+bat[       2] ncas =          30000. on 2026/08/23 at 00h 50m 03s
+bat[       3] ncas =          45000. on 2026/08/23 at 00h 50m 19s
+bat[       3] ncas =          45000. on 2026/08/23 at 00h 50m 19s
+bat[       4] ncas =          60000. on 2026/08/23 at 00h 50m 35s
+bat[       4] ncas =          60000. on 2026/08/23 at 00h 50m 35s
+bat[       5] ncas =          75000. on 2026/08/23 at 00h 50m 51s
+bat[       5] ncas =          75000. on 2026/08/23 at 00h 50m 51s
+bat[       6] ncas =          90000. on 2026/08/23 at 00h 51m 06s
+bat[       6] ncas =          90000. on 2026/08/23 at 00h 51m 06s
+bat[       7] ncas =         105000. on 2026/08/23 at 00h 51m 22s
+bat[       7] ncas =         105000. on 2026/08/23 at 00h 51m 22s
+bat[       8] ncas =         120000. on 2026/08/23 at 00h 51m 37s
+bat[       8] ncas =         120000. on 2026/08/23 at 00h 51m 37s
+bat[       9] ncas =         135000. on 2026/08/23 at 00h 51m 52s
+bat[       9] ncas =         135000. on 2026/08/23 at 00h 51m 52s
+[phits-web] server time limit reached (3 min) — job killed
+[phits-web] server time limit reached (3 min) — job killed
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          00007421770458D0  Unknown               Unknown  Unknown
+phits_lin          00000000004384C4  Unknown               Unknown  Unknown
+phits_lin          0000000000563F87  Unknown               Unknown  Unknown
+phits_lin          0000000000556F7D  Unknown               Unknown  Unknown
+phits_lin          00000000005536B1  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          000074217702A578  Unknown               Unknown  Unknown
+libc.so.6          000074217702A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          00007421770458D0  Unknown               Unknown  Unknown
+phits_lin          00000000004384C4  Unknown               Unknown  Unknown
+phits_lin          0000000000563F87  Unknown               Unknown  Unknown
+phits_lin          0000000000556F7D  Unknown               Unknown  Unknown
+phits_lin          00000000005536B1  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          000074217702A578  Unknown               Unknown  Unknown
+libc.so.6          000074217702A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+FAILED: d1/02_linac
+FAILED: d1/02_linac
+=== d1/03_BT (small/d1) ===
 === d1/03_BT (small/d1) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787409753_pqpw7je4) ...
-Executing with standard PHITS installation
-Command: $PHITSPATH/bin/phits.sh 'main.inp'
-bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:42:37 JST 2026
-Program is started                on 2026/08/22 at 23h 42m 37s
-Initialization is completed          on 2026/08/22 at 23h 42m 42s
-bat[       1] ncas =          10000. on 2026/08/22 at 23h 43m 07s
-bat[       2] ncas =          20000. on 2026/08/22 at 23h 43m 37s
-bat[       3] ncas =          30000. on 2026/08/22 at 23h 43m 49s
-bat[       4] ncas =          40000. on 2026/08/22 at 23h 44m 00s
-bat[       5] ncas =          50000. on 2026/08/22 at 23h 44m 12s
-bat[       6] ncas =          60000. on 2026/08/22 at 23h 44m 23s
-bat[       7] ncas =          70000. on 2026/08/22 at 23h 44m 35s
-bat[       8] ncas =          80000. on 2026/08/22 at 23h 44m 46s
-bat[       9] ncas =          90000. on 2026/08/22 at 23h 44m 57s
-bat[      10] ncas =         100000. on 2026/08/22 at 23h 45m 08s
-bat[      11] ncas =         110000. on 2026/08/22 at 23h 45m 19s
-bat[      12] ncas =         120000. on 2026/08/22 at 23h 45m 31s
-Program is finished               on 2026/08/22 at 23h 45m 31s
-[phits-web] PHITS finished normally in 177 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414035_60is5hsc) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414035_60is5hsc) ...
+Initialization is completed          on 2026/08/23 at 00h 54m 02s
+Initialization is completed          on 2026/08/23 at 00h 54m 02s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 54m 33s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 54m 33s
+bat[       2] ncas =          30000. on 2026/08/23 at 00h 55m 09s
+bat[       2] ncas =          30000. on 2026/08/23 at 00h 55m 09s
+bat[       3] ncas =          45000. on 2026/08/23 at 00h 55m 26s
+bat[       3] ncas =          45000. on 2026/08/23 at 00h 55m 26s
+bat[       4] ncas =          60000. on 2026/08/23 at 00h 55m 43s
+bat[       4] ncas =          60000. on 2026/08/23 at 00h 55m 43s
+bat[       5] ncas =          75000. on 2026/08/23 at 00h 56m 00s
+bat[       5] ncas =          75000. on 2026/08/23 at 00h 56m 00s
+bat[       6] ncas =          90000. on 2026/08/23 at 00h 56m 16s
+bat[       6] ncas =          90000. on 2026/08/23 at 00h 56m 16s
+bat[       7] ncas =         105000. on 2026/08/23 at 00h 56m 33s
+bat[       7] ncas =         105000. on 2026/08/23 at 00h 56m 33s
+bat[       8] ncas =         120000. on 2026/08/23 at 00h 56m 50s
+bat[       8] ncas =         120000. on 2026/08/23 at 00h 56m 50s
+[phits-web] server time limit reached (3 min) — job killed
+[phits-web] server time limit reached (3 min) — job killed
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          000073AD248458D0  Unknown               Unknown  Unknown
+phits_lin          00000000004FDC4E  Unknown               Unknown  Unknown
+phits_lin          00000000005407A1  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          000073AD2482A578  Unknown               Unknown  Unknown
+libc.so.6          000073AD2482A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          000073AD248458D0  Unknown               Unknown  Unknown
+phits_lin          00000000004FDC4E  Unknown               Unknown  Unknown
+phits_lin          00000000005407A1  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          000073AD2482A578  Unknown               Unknown  Unknown
+libc.so.6          000073AD2482A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+FAILED: d1/03_BT
+FAILED: d1/03_BT
+=== d1/04_KEKB (small/d1) ===
 === d1/04_KEKB (small/d1) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787409936_xgsahx3z) ...
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414337_fq3b8pro) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414337_fq3b8pro) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
 Executing with standard PHITS installation
 Command: $PHITSPATH/bin/phits.sh 'main.inp'
 bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:45:39 JST 2026
-Program is started                on 2026/08/22 at 23h 45m 39s
-Initialization is completed          on 2026/08/22 at 23h 45m 44s
-bat[       1] ncas =           8000. on 2026/08/22 at 23h 46m 06s
-bat[       2] ncas =          16000. on 2026/08/22 at 23h 46m 35s
-bat[       3] ncas =          24000. on 2026/08/22 at 23h 46m 45s
-bat[       4] ncas =          32000. on 2026/08/22 at 23h 46m 55s
-bat[       5] ncas =          40000. on 2026/08/22 at 23h 47m 05s
-bat[       6] ncas =          48000. on 2026/08/22 at 23h 47m 15s
-bat[       7] ncas =          56000. on 2026/08/22 at 23h 47m 24s
-bat[       8] ncas =          64000. on 2026/08/22 at 23h 47m 33s
-bat[       9] ncas =          72000. on 2026/08/22 at 23h 47m 43s
-bat[      10] ncas =          80000. on 2026/08/22 at 23h 47m 52s
-Program is finished               on 2026/08/22 at 23h 47m 52s
-[phits-web] PHITS finished normally in 137 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 00:59:01 JST 2026
+Sun Aug 23 00:59:01 JST 2026
+Program is started                on 2026/08/23 at 00h 59m 01s
+Program is started                on 2026/08/23 at 00h 59m 01s
+Initialization is completed          on 2026/08/23 at 00h 59m 06s
+Initialization is completed          on 2026/08/23 at 00h 59m 06s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 59m 56s
+bat[       1] ncas =          15000. on 2026/08/23 at 00h 59m 56s
+bat[       2] ncas =          30000. on 2026/08/23 at 01h 00m 15s
+bat[       2] ncas =          30000. on 2026/08/23 at 01h 00m 15s
+bat[       3] ncas =          45000. on 2026/08/23 at 01h 00m 34s
+bat[       3] ncas =          45000. on 2026/08/23 at 01h 00m 34s
+bat[       4] ncas =          60000. on 2026/08/23 at 01h 00m 51s
+bat[       4] ncas =          60000. on 2026/08/23 at 01h 00m 51s
+bat[       5] ncas =          75000. on 2026/08/23 at 01h 01m 09s
+bat[       5] ncas =          75000. on 2026/08/23 at 01h 01m 09s
+bat[       6] ncas =          90000. on 2026/08/23 at 01h 01m 26s
+bat[       6] ncas =          90000. on 2026/08/23 at 01h 01m 26s
+bat[       7] ncas =         105000. on 2026/08/23 at 01h 01m 44s
+bat[       7] ncas =         105000. on 2026/08/23 at 01h 01m 44s
+[phits-web] server time limit reached (3 min) — job killed
+[phits-web] server time limit reached (3 min) — job killed
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          000076B9314458D0  Unknown               Unknown  Unknown
+phits_lin          0000000001F2D896  Unknown               Unknown  Unknown
+phits_lin          000000000050EA0C  Unknown               Unknown  Unknown
+phits_lin          00000000009F28E5  Unknown               Unknown  Unknown
+phits_lin          000000000050D785  Unknown               Unknown  Unknown
+phits_lin          0000000000515E19  Unknown               Unknown  Unknown
+phits_lin          0000000000506814  Unknown               Unknown  Unknown
+phits_lin          00000000005536C2  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          000076B93142A578  Unknown               Unknown  Unknown
+libc.so.6          000076B93142A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          000076B9314458D0  Unknown               Unknown  Unknown
+phits_lin          0000000001F2D896  Unknown               Unknown  Unknown
+phits_lin          000000000050EA0C  Unknown               Unknown  Unknown
+phits_lin          00000000009F28E5  Unknown               Unknown  Unknown
+phits_lin          000000000050D785  Unknown               Unknown  Unknown
+phits_lin          0000000000515E19  Unknown               Unknown  Unknown
+phits_lin          0000000000506814  Unknown               Unknown  Unknown
+phits_lin          00000000005536C2  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          000076B93142A578  Unknown               Unknown  Unknown
+libc.so.6          000076B93142A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+[phits-web] ERROR: connection lost while waiting for the run (Remote end closed connection without response).
+  The job may still be running on the server. Retrieve the results later with:
+    python3 phits_web_run.py --download-only
+FAILED: d1/04_KEKB
+FAILED: d1/04_KEKB
+=== d2/00_ground (small/d2) ===
 === d2/00_ground (small/d2) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787410077_q19582nl) ...
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414641_3wwsomj5) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414641_3wwsomj5) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
 Executing with standard PHITS installation
 Command: $PHITSPATH/bin/phits.sh 'main.inp'
 bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:48:01 JST 2026
-Program is started                on 2026/08/22 at 23h 48m 01s
-Initialization is completed          on 2026/08/22 at 23h 48m 06s
-bat[       1] ncas =          20000. on 2026/08/22 at 23h 48m 39s
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:04:05 JST 2026
+Sun Aug 23 01:04:05 JST 2026
+Program is started                on 2026/08/23 at 01h 04m 05s
+Program is started                on 2026/08/23 at 01h 04m 05s
+Initialization is completed          on 2026/08/23 at 01h 04m 10s
+Initialization is completed          on 2026/08/23 at 01h 04m 10s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 04m 25s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 04m 25s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 04m 33s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 04m 33s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 04m 57s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 04m 57s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 05m 04s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 05m 04s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 05m 11s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 05m 11s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 05m 18s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 05m 18s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 05m 25s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 05m 25s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 05m 31s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 05m 31s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 05m 38s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 05m 38s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 05m 45s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 05m 45s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 05m 51s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 05m 51s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 05m 58s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 05m 58s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 06m 04s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 06m 04s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 06m 11s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 06m 11s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 06m 17s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 06m 17s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 06m 24s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 06m 24s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 06m 30s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 06m 30s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 06m 37s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 06m 37s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 06m 44s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 06m 44s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 06m 50s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 06m 50s
+Program is finished               on 2026/08/23 at 01h 06m 50s
+Program is finished               on 2026/08/23 at 01h 06m 50s
+[phits-web] PHITS finished normally in 169 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 169 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground
+=== d2/01_PF (small/d2) ===
+=== d2/01_PF (small/d2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414815_b1d31wqd) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787414815_b1d31wqd) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:06:59 JST 2026
+Sun Aug 23 01:06:59 JST 2026
+Program is started                on 2026/08/23 at 01h 06m 59s
+Program is started                on 2026/08/23 at 01h 06m 59s
+Initialization is completed          on 2026/08/23 at 01h 07m 03s
+Initialization is completed          on 2026/08/23 at 01h 07m 03s
+bat[       1] ncas =          15000. on 2026/08/23 at 01h 07m 48s
+bat[       1] ncas =          15000. on 2026/08/23 at 01h 07m 48s
+bat[       2] ncas =          30000. on 2026/08/23 at 01h 08m 04s
+bat[       2] ncas =          30000. on 2026/08/23 at 01h 08m 04s
+bat[       3] ncas =          45000. on 2026/08/23 at 01h 08m 19s
+bat[       3] ncas =          45000. on 2026/08/23 at 01h 08m 19s
+bat[       4] ncas =          60000. on 2026/08/23 at 01h 08m 34s
+bat[       4] ncas =          60000. on 2026/08/23 at 01h 08m 34s
+bat[       5] ncas =          75000. on 2026/08/23 at 01h 08m 48s
+bat[       5] ncas =          75000. on 2026/08/23 at 01h 08m 48s
+bat[       6] ncas =          90000. on 2026/08/23 at 01h 09m 02s
+bat[       6] ncas =          90000. on 2026/08/23 at 01h 09m 02s
+bat[       7] ncas =         105000. on 2026/08/23 at 01h 09m 16s
+bat[       7] ncas =         105000. on 2026/08/23 at 01h 09m 16s
+bat[       8] ncas =         120000. on 2026/08/23 at 01h 09m 30s
+bat[       8] ncas =         120000. on 2026/08/23 at 01h 09m 30s
+bat[       9] ncas =         135000. on 2026/08/23 at 01h 09m 43s
+bat[       9] ncas =         135000. on 2026/08/23 at 01h 09m 43s
+bat[      10] ncas =         150000. on 2026/08/23 at 01h 09m 57s
+bat[      10] ncas =         150000. on 2026/08/23 at 01h 09m 57s
+[phits-web] server time limit reached (3 min) — job killed
+[phits-web] server time limit reached (3 min) — job killed
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          0000751A3F2458D0  Unknown               Unknown  Unknown
+phits_lin          000000000050B50D  Unknown               Unknown  Unknown
+phits_lin          0000000000743534  Unknown               Unknown  Unknown
+phits_lin          0000000000501A1A  Unknown               Unknown  Unknown
+phits_lin          00000000005536C2  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          0000751A3F22A578  Unknown               Unknown  Unknown
+libc.so.6          0000751A3F22A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          0000751A3F2458D0  Unknown               Unknown  Unknown
+phits_lin          000000000050B50D  Unknown               Unknown  Unknown
+phits_lin          0000000000743534  Unknown               Unknown  Unknown
+phits_lin          0000000000501A1A  Unknown               Unknown  Unknown
+phits_lin          00000000005536C2  Unknown               Unknown  Unknown
+phits_lin          0000000000540306  Unknown               Unknown  Unknown
+phits_lin          0000000000413882  Unknown               Unknown  Unknown
+phits_lin          00000000004073DD  Unknown               Unknown  Unknown
+libc.so.6          0000751A3F22A578  Unknown               Unknown  Unknown
+libc.so.6          0000751A3F22A63B  __libc_start_main     Unknown  Unknown
+phits_lin          00000000004072F5  Unknown               Unknown  Unknown
+run_all_phits.sh: line 14: 70967 Terminated: 15          python3 "$RUNNER" main.inp "$SOURCE" --version phits336 --new-session 2>&1
+     70968 Done                    | tee -a "$LOG"
+FAILED: d2/01_PF
+FAILED: d2/01_PF
+=== d2/02_linac (small/d2) ===
+=== d2/02_linac (small/d2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415075_x2n35dnd) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415075_x2n35dnd) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:11:19 JST 2026
+Sun Aug 23 01:11:19 JST 2026
+Program is started                on 2026/08/23 at 01h 11m 19s
+Program is started                on 2026/08/23 at 01h 11m 19s
+=== RESTART Sun Aug 23 01:11:20 JST 2026 ===
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/main.inp
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/main.inp
+=== d1/00_ground (small/d1) ===
+=== d1/00_ground (small/d1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415080_2lvkmpl6) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415080_2lvkmpl6) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:11:23 JST 2026
+Sun Aug 23 01:11:23 JST 2026
+Program is started                on 2026/08/23 at 01h 11m 23s
+Program is started                on 2026/08/23 at 01h 11m 23s
+Initialization is completed          on 2026/08/23 at 01h 11m 28s
+Initialization is completed          on 2026/08/23 at 01h 11m 28s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 11m 43s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 11m 43s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 11m 51s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 11m 51s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 12m 16s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 12m 16s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 12m 23s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 12m 23s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 12m 30s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 12m 30s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 12m 37s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 12m 37s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 12m 44s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 12m 44s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 12m 51s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 12m 51s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 12m 57s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 12m 57s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 13m 04s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 13m 04s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 13m 11s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 13m 11s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 13m 18s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 13m 18s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 13m 25s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 13m 25s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 13m 31s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 13m 31s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 13m 38s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 13m 38s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 13m 44s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 13m 44s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 13m 51s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 13m 51s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 13m 58s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 13m 58s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 14m 05s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 14m 05s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 14m 12s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 14m 12s
+Program is finished               on 2026/08/23 at 01h 14m 12s
+Program is finished               on 2026/08/23 at 01h 14m 12s
+[phits-web] PHITS finished normally in 172 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 172 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground
+FAILED (bad exit): d1/00_ground
+FAILED (bad exit): d1/00_ground
+=== d1/01_PF (small/d1) ===
+=== d1/01_PF (small/d1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415256_z27rkz1v) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415256_z27rkz1v) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:14:20 JST 2026
+Sun Aug 23 01:14:20 JST 2026
+Program is started                on 2026/08/23 at 01h 14m 20s
+Program is started                on 2026/08/23 at 01h 14m 20s
+Initialization is completed          on 2026/08/23 at 01h 14m 25s
+Initialization is completed          on 2026/08/23 at 01h 14m 25s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 14m 47s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 14m 47s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 15m 15s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 15m 15s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 15m 25s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 15m 25s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 15m 35s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 15m 35s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 15m 46s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 15m 46s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 15m 55s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 15m 55s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 16m 05s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 16m 05s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 16m 14s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 16m 14s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 16m 23s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 16m 23s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 16m 33s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 16m 33s
+Program is finished               on 2026/08/23 at 01h 16m 33s
+Program is finished               on 2026/08/23 at 01h 16m 33s
+[phits-web] PHITS finished normally in 136 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 136 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF
+FAILED (bad exit): d1/01_PF
+FAILED (bad exit): d1/01_PF
+=== d1/02_linac (small/d1) ===
+=== d1/02_linac (small/d1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415396_8egkrjnu) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415396_8egkrjnu) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:16:39 JST 2026
+Sun Aug 23 01:16:39 JST 2026
+Program is started                on 2026/08/23 at 01h 16m 39s
+Program is started                on 2026/08/23 at 01h 16m 39s
+Initialization is completed          on 2026/08/23 at 01h 16m 44s
+Initialization is completed          on 2026/08/23 at 01h 16m 44s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 17m 24s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 17m 24s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 17m 36s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 17m 36s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 17m 46s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 17m 46s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 17m 57s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 17m 57s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 18m 08s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 18m 08s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 18m 19s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 18m 19s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 18m 30s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 18m 30s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 18m 40s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 18m 40s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 18m 50s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 18m 50s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 19m 00s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 19m 00s
+Program is finished               on 2026/08/23 at 01h 19m 00s
+Program is finished               on 2026/08/23 at 01h 19m 00s
+[phits-web] PHITS finished normally in 145 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 145 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac
+FAILED (bad exit): d1/02_linac
+FAILED (bad exit): d1/02_linac
+=== d1/03_BT (small/d1) ===
+=== d1/03_BT (small/d1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415545_0sxs8xbo) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415545_0sxs8xbo) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:19:09 JST 2026
+Sun Aug 23 01:19:09 JST 2026
+Program is started                on 2026/08/23 at 01h 19m 09s
+Program is started                on 2026/08/23 at 01h 19m 09s
+Initialization is completed          on 2026/08/23 at 01h 19m 14s
+Initialization is completed          on 2026/08/23 at 01h 19m 14s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 19m 38s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 19m 38s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 20m 09s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 20m 09s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 20m 21s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 20m 21s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 20m 32s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 20m 32s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 20m 44s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 20m 44s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 20m 55s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 20m 55s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 21m 06s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 21m 06s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 21m 17s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 21m 17s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 21m 28s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 21m 28s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 21m 40s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 21m 40s
+Program is finished               on 2026/08/23 at 01h 21m 40s
+Program is finished               on 2026/08/23 at 01h 21m 40s
+[phits-web] PHITS finished normally in 154 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 154 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT
+FAILED (bad exit): d1/03_BT
+FAILED (bad exit): d1/03_BT
+=== d1/04_KEKB (small/d1) ===
+=== d1/04_KEKB (small/d1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415703_rs9snt8q) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415703_rs9snt8q) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:21:47 JST 2026
+Sun Aug 23 01:21:47 JST 2026
+Program is started                on 2026/08/23 at 01h 21m 47s
+Program is started                on 2026/08/23 at 01h 21m 47s
+Initialization is completed          on 2026/08/23 at 01h 21m 52s
+Initialization is completed          on 2026/08/23 at 01h 21m 52s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 22m 35s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 22m 35s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 22m 49s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 22m 49s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 23m 01s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 23m 01s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 23m 13s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 23m 13s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 23m 26s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 23m 26s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 23m 37s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 23m 37s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 23m 49s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 23m 49s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 24m 01s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 24m 01s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 24m 12s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 24m 12s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 24m 24s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 24m 24s
+Program is finished               on 2026/08/23 at 01h 24m 24s
+Program is finished               on 2026/08/23 at 01h 24m 24s
+[phits-web] PHITS finished normally in 160 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 160 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB
+FAILED (bad exit): d1/04_KEKB
+FAILED (bad exit): d1/04_KEKB
+=== d2/00_ground (small/d2) ===
+=== d2/00_ground (small/d2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415869_4w7mr9ig) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787415869_4w7mr9ig) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:24:37 JST 2026
+Sun Aug 23 01:24:37 JST 2026
+Program is started                on 2026/08/23 at 01h 24m 37s
+Program is started                on 2026/08/23 at 01h 24m 37s
+Initialization is completed          on 2026/08/23 at 01h 24m 42s
+Initialization is completed          on 2026/08/23 at 01h 24m 42s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 24m 58s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 24m 58s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 25m 05s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 25m 05s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 25m 30s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 25m 30s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 25m 37s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 25m 37s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 25m 44s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 25m 44s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 25m 51s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 25m 51s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 25m 57s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 25m 57s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 26m 04s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 26m 04s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 26m 10s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 26m 10s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 26m 17s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 26m 17s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 26m 24s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 26m 24s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 26m 30s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 26m 30s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 26m 37s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 26m 37s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 26m 43s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 26m 43s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 26m 50s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 26m 50s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 26m 56s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 26m 56s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 27m 03s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 27m 03s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 27m 10s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 27m 10s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 27m 16s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 27m 16s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 27m 23s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 27m 23s
+Program is finished               on 2026/08/23 at 01h 27m 23s
+Program is finished               on 2026/08/23 at 01h 27m 23s
+[phits-web] PHITS finished normally in 174 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 174 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground
+FAILED (bad exit): d2/00_ground
+FAILED (bad exit): d2/00_ground
+=== d2/01_PF (small/d2) ===
+=== d2/01_PF (small/d2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416046_yoxqcr1s) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416046_yoxqcr1s) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:27:37 JST 2026
+Sun Aug 23 01:27:37 JST 2026
+Program is started                on 2026/08/23 at 01h 27m 37s
+Program is started                on 2026/08/23 at 01h 27m 37s
+Initialization is completed          on 2026/08/23 at 01h 27m 42s
+Initialization is completed          on 2026/08/23 at 01h 27m 42s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 28m 04s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 28m 04s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 28m 32s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 28m 32s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 28m 43s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 28m 43s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 28m 53s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 28m 53s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 29m 03s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 29m 03s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 29m 13s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 29m 13s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 29m 22s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 29m 22s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 29m 31s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 29m 31s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 29m 40s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 29m 40s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 29m 50s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 29m 50s
+Program is finished               on 2026/08/23 at 01h 29m 50s
+Program is finished               on 2026/08/23 at 01h 29m 50s
+[phits-web] PHITS finished normally in 143 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 143 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF
+FAILED (bad exit): d2/01_PF
+FAILED (bad exit): d2/01_PF
+=== d2/02_linac (small/d2) ===
+=== d2/02_linac (small/d2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416195_6d2pwgta) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416195_6d2pwgta) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:29:59 JST 2026
+Sun Aug 23 01:29:59 JST 2026
+Program is started                on 2026/08/23 at 01h 29m 59s
+Program is started                on 2026/08/23 at 01h 29m 59s
+Initialization is completed          on 2026/08/23 at 01h 30m 03s
+Initialization is completed          on 2026/08/23 at 01h 30m 03s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 30m 44s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 30m 44s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 30m 55s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 30m 55s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 31m 06s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 31m 06s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 31m 17s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 31m 17s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 31m 28s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 31m 28s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 31m 39s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 31m 39s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 31m 49s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 31m 49s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 32m 00s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 32m 00s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 32m 10s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 32m 10s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 32m 20s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 32m 20s
+Program is finished               on 2026/08/23 at 01h 32m 20s
+Program is finished               on 2026/08/23 at 01h 32m 20s
+[phits-web] PHITS finished normally in 145 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 145 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac
+FAILED (bad exit): d2/02_linac
+FAILED (bad exit): d2/02_linac
+=== d2/03_BT (small/d2) ===
+=== d2/03_BT (small/d2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416345_cic9k7ma) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416345_cic9k7ma) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:32:28 JST 2026
+Sun Aug 23 01:32:28 JST 2026
+Program is started                on 2026/08/23 at 01h 32m 28s
+Program is started                on 2026/08/23 at 01h 32m 28s
+Initialization is completed          on 2026/08/23 at 01h 32m 33s
+Initialization is completed          on 2026/08/23 at 01h 32m 33s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 32m 58s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 32m 58s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 33m 28s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 33m 28s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 33m 40s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 33m 40s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 33m 52s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 33m 52s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 34m 04s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 34m 04s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 34m 15s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 34m 15s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 34m 26s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 34m 26s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 34m 37s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 34m 37s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 34m 48s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 34m 48s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 35m 00s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 35m 00s
+Program is finished               on 2026/08/23 at 01h 35m 00s
+Program is finished               on 2026/08/23 at 01h 35m 00s
+[phits-web] PHITS finished normally in 155 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 155 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT
+FAILED (bad exit): d2/03_BT
+FAILED (bad exit): d2/03_BT
+=== d2/04_KEKB (small/d2) ===
+=== d2/04_KEKB (small/d2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416504_x8ya2zsh) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416504_x8ya2zsh) ...
+Initialization is completed          on 2026/08/23 at 01h 35m 12s
+Initialization is completed          on 2026/08/23 at 01h 35m 12s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 35m 55s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 35m 55s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 36m 09s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 36m 09s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 36m 21s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 36m 21s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 36m 34s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 36m 34s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 36m 46s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 36m 46s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 36m 57s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 36m 57s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 37m 09s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 37m 09s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 37m 21s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 37m 21s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 37m 32s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 37m 32s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 37m 44s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 37m 44s
+Program is finished               on 2026/08/23 at 01h 37m 44s
+Program is finished               on 2026/08/23 at 01h 37m 44s
+[phits-web] PHITS finished normally in 159 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 159 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB
+FAILED (bad exit): d2/04_KEKB
+FAILED (bad exit): d2/04_KEKB
+=== D1/00_ground (large/D1) ===
+=== D1/00_ground (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416669_oz5wj4u0) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416669_oz5wj4u0) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:37:53 JST 2026
+Sun Aug 23 01:37:53 JST 2026
+Program is started                on 2026/08/23 at 01h 37m 53s
+Program is started                on 2026/08/23 at 01h 37m 53s
+Initialization is completed          on 2026/08/23 at 01h 37m 57s
+Initialization is completed          on 2026/08/23 at 01h 37m 57s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 38m 13s
+bat[       1] ncas =          20000. on 2026/08/23 at 01h 38m 13s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 38m 20s
+bat[       2] ncas =          40000. on 2026/08/23 at 01h 38m 20s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 38m 45s
+bat[       3] ncas =          60000. on 2026/08/23 at 01h 38m 45s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 38m 52s
+bat[       4] ncas =          80000. on 2026/08/23 at 01h 38m 52s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 38m 58s
+bat[       5] ncas =         100000. on 2026/08/23 at 01h 38m 58s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 39m 05s
+bat[       6] ncas =         120000. on 2026/08/23 at 01h 39m 05s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 39m 12s
+bat[       7] ncas =         140000. on 2026/08/23 at 01h 39m 12s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 39m 18s
+bat[       8] ncas =         160000. on 2026/08/23 at 01h 39m 18s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 39m 25s
+bat[       9] ncas =         180000. on 2026/08/23 at 01h 39m 25s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 39m 32s
+bat[      10] ncas =         200000. on 2026/08/23 at 01h 39m 32s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 39m 38s
+bat[      11] ncas =         220000. on 2026/08/23 at 01h 39m 38s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 39m 45s
+bat[      12] ncas =         240000. on 2026/08/23 at 01h 39m 45s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 39m 51s
+bat[      13] ncas =         260000. on 2026/08/23 at 01h 39m 51s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 39m 57s
+bat[      14] ncas =         280000. on 2026/08/23 at 01h 39m 57s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 40m 04s
+bat[      15] ncas =         300000. on 2026/08/23 at 01h 40m 04s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 40m 10s
+bat[      16] ncas =         320000. on 2026/08/23 at 01h 40m 10s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 40m 17s
+bat[      17] ncas =         340000. on 2026/08/23 at 01h 40m 17s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 40m 24s
+bat[      18] ncas =         360000. on 2026/08/23 at 01h 40m 24s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 40m 30s
+bat[      19] ncas =         380000. on 2026/08/23 at 01h 40m 30s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 40m 36s
+bat[      20] ncas =         400000. on 2026/08/23 at 01h 40m 36s
+Program is finished               on 2026/08/23 at 01h 40m 36s
+Program is finished               on 2026/08/23 at 01h 40m 36s
+[phits-web] PHITS finished normally in 168 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 168 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground
+FAILED (bad exit): D1/00_ground
+FAILED (bad exit): D1/00_ground
+=== D1/01_PF (large/D1) ===
+=== D1/01_PF (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416841_fnabg29o) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416841_fnabg29o) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:40:45 JST 2026
+Sun Aug 23 01:40:45 JST 2026
+Program is started                on 2026/08/23 at 01h 40m 45s
+Program is started                on 2026/08/23 at 01h 40m 45s
+Initialization is completed          on 2026/08/23 at 01h 40m 50s
+Initialization is completed          on 2026/08/23 at 01h 40m 50s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 41m 12s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 41m 12s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 41m 40s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 41m 40s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 41m 50s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 41m 50s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 42m 00s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 42m 00s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 42m 11s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 42m 11s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 42m 20s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 42m 20s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 42m 30s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 42m 30s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 42m 39s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 42m 39s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 42m 48s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 42m 48s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 42m 58s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 42m 58s
+Program is finished               on 2026/08/23 at 01h 42m 58s
+Program is finished               on 2026/08/23 at 01h 42m 58s
+[phits-web] PHITS finished normally in 136 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 136 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF
+FAILED (bad exit): D1/01_PF
+FAILED (bad exit): D1/01_PF
+=== D1/02_linac (large/D1) ===
+=== D1/02_linac (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416981_fymu7j63) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787416981_fymu7j63) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:43:10 JST 2026
+Sun Aug 23 01:43:10 JST 2026
+Program is started                on 2026/08/23 at 01h 43m 10s
+Program is started                on 2026/08/23 at 01h 43m 10s
+Initialization is completed          on 2026/08/23 at 01h 43m 15s
+Initialization is completed          on 2026/08/23 at 01h 43m 15s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 43m 55s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 43m 55s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 44m 06s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 44m 06s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 44m 17s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 44m 17s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 44m 28s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 44m 28s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 44m 39s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 44m 39s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 44m 50s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 44m 50s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 45m 00s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 45m 00s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 45m 11s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 45m 11s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 45m 21s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 45m 21s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 45m 31s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 45m 31s
+Program is finished               on 2026/08/23 at 01h 45m 31s
+Program is finished               on 2026/08/23 at 01h 45m 31s
+[phits-web] PHITS finished normally in 147 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 147 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac
+FAILED (bad exit): D1/02_linac
+FAILED (bad exit): D1/02_linac
+=== D1/03_BT (large/D1) ===
+=== D1/03_BT (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417135_4stk5toy) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417135_4stk5toy) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:45:39 JST 2026
+Sun Aug 23 01:45:39 JST 2026
+Program is started                on 2026/08/23 at 01h 45m 39s
+Program is started                on 2026/08/23 at 01h 45m 39s
+Initialization is completed          on 2026/08/23 at 01h 45m 44s
+Initialization is completed          on 2026/08/23 at 01h 45m 44s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 46m 08s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 46m 08s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 46m 38s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 46m 38s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 46m 50s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 46m 50s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 47m 02s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 47m 02s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 47m 14s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 47m 14s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 47m 25s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 47m 25s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 47m 36s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 47m 36s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 47m 47s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 47m 47s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 47m 58s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 47m 58s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 48m 10s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 48m 10s
+Program is finished               on 2026/08/23 at 01h 48m 10s
+Program is finished               on 2026/08/23 at 01h 48m 10s
+[phits-web] PHITS finished normally in 155 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 155 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT
+FAILED (bad exit): D1/03_BT
+FAILED (bad exit): D1/03_BT
+=== D1/04_KEKB (large/D1) ===
+=== D1/04_KEKB (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417294_otx3aore) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417294_otx3aore) ...
+Initialization is completed          on 2026/08/23 at 01h 48m 21s
+Initialization is completed          on 2026/08/23 at 01h 48m 21s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 49m 04s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 49m 04s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 49m 18s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 49m 18s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 49m 30s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 49m 30s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 49m 42s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 49m 42s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 49m 55s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 49m 55s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 50m 06s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 50m 06s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 50m 18s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 50m 18s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 50m 30s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 50m 30s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 50m 41s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 50m 41s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 50m 53s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 50m 53s
+Program is finished               on 2026/08/23 at 01h 50m 53s
+Program is finished               on 2026/08/23 at 01h 50m 53s
+[phits-web] PHITS finished normally in 159 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 159 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB
+FAILED (bad exit): D1/04_KEKB
+FAILED (bad exit): D1/04_KEKB
+=== D2/00_ground (large/D2) ===
+=== D2/00_ground (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417457_onbbmgz6) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417457_onbbmgz6) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:51:01 JST 2026
+Sun Aug 23 01:51:01 JST 2026
+Program is started                on 2026/08/23 at 01h 51m 01s
+Program is started                on 2026/08/23 at 01h 51m 01s
+Initialization is completed          on 2026/08/23 at 01h 51m 06s
+Initialization is completed          on 2026/08/23 at 01h 51m 06s
 *** Lost particle ***
-batch & history number:                   2               15024
-initial & final cells :                  98                  98
-location (x,y,z)        :  4.00848585E+02  3.10299013E+02 -2.50072234E+01
-direction vector (u,v,w): -6.04638728E-01  6.18747308E-01 -5.01561340E-01
-bat[       2] ncas =          40000. on 2026/08/22 at 23h 48m 46s
-bat[       3] ncas =          60000. on 2026/08/22 at 23h 48m 52s
+batch & history number:                   1                   3
+initial & final cells :                   3                   3
+location (x,y,z)        : -1.03188460E+01  2.19431750E+01  0.00000000E+00
+direction vector (u,v,w):  5.45048315E-01 -7.98739597E-01  2.54828158E-01
 *** Lost particle ***
-batch & history number:                   4                7787
-initial & final cells :                  98                  98
-location (x,y,z)        : -4.01734487E+02  7.86063070E+01 -2.02662452E+01
-direction vector (u,v,w):  8.39792574E-01  5.41959440E-01  3.20686405E-02
-bat[       4] ncas =          80000. on 2026/08/22 at 23h 48m 59s
+batch & history number:                   1                   3
+initial & final cells :                   3                   3
+location (x,y,z)        : -1.03188460E+01  2.19431750E+01  0.00000000E+00
+direction vector (u,v,w):  5.45048315E-01 -7.98739597E-01  2.54828158E-01
 *** Lost particle ***
-batch & history number:                   5               13790
-initial & final cells :                  98                  98
-location (x,y,z)        : -2.85901000E+02  4.00240203E+02 -4.11399523E+01
-direction vector (u,v,w): -2.75521970E-01 -7.98670861E-01 -5.34988318E-01
+batch & history number:                   1                  10
+initial & final cells :                   3                   3
+location (x,y,z)        : -2.52260189E+01  2.13248297E+01  0.00000000E+00
+direction vector (u,v,w):  2.26690592E-01 -4.22206022E-01  8.77697813E-01
 *** Lost particle ***
-batch & history number:                   5               15196
-initial & final cells :                  98                  98
-location (x,y,z)        :  4.92611208E+01 -4.00250735E+02 -4.23298478E+01
-direction vector (u,v,w):  2.96244234E-01  8.72754047E-01  3.87994493E-01
+batch & history number:                   1                  10
+initial & final cells :                   3                   3
+location (x,y,z)        : -2.52260189E+01  2.13248297E+01  0.00000000E+00
+direction vector (u,v,w):  2.26690592E-01 -4.22206022E-01  8.77697813E-01
 *** Lost particle ***
-batch & history number:                   5               15943
+batch & history number:                   1                  12
 initial & final cells :                  98                  98
-location (x,y,z)        :  4.45428414E+01  4.00454999E+02 -3.10383760E+01
-direction vector (u,v,w): -2.33336211E-01 -6.30742993E-01 -7.40079381E-01
-bat[       5] ncas =         100000. on 2026/08/22 at 23h 49m 06s
+location (x,y,z)        : -6.12577587E+00 -1.04932630E+01 -2.08326730E-01
+direction vector (u,v,w):  5.16128748E-01 -6.00279267E-01  6.10963107E-01
 *** Lost particle ***
-batch & history number:                   6               18179
-initial & final cells :                  98                  98
-location (x,y,z)        : -3.88727067E+01  4.00080918E+02 -1.14040874E+01
-direction vector (u,v,w): -4.46677076E-01 -2.80508255E-01  8.49585022E-01
+batch & history number:                   1                  13
+initial & final cells :                   3                   3
+location (x,y,z)        :  8.02631102E+00 -2.64059557E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
 *** Lost particle ***
-batch & history number:                   6               19758
+batch & history number:                   1                  12
 initial & final cells :                  98                  98
-location (x,y,z)        : -4.00375904E+02  3.11348294E+01 -3.59688933E+01
-direction vector (u,v,w):  9.01813317E-01 -4.15510717E-03  4.32105863E-01
-bat[       6] ncas =         120000. on 2026/08/22 at 23h 49m 12s
-bat[       7] ncas =         140000. on 2026/08/22 at 23h 49m 19s
+location (x,y,z)        : -6.12577587E+00 -1.04932630E+01 -2.08326730E-01
+direction vector (u,v,w):  5.16128748E-01 -6.00279267E-01  6.10963107E-01
 *** Lost particle ***
-batch & history number:                   8                2409
-initial & final cells :                  98                  98
-location (x,y,z)        :  7.11850375E+01  4.00035773E+02 -9.84877915E+00
-direction vector (u,v,w): -1.07294859E-02 -9.82458371E-01 -1.86173112E-01
+batch & history number:                   1                  13
+initial & final cells :                   3                   3
+location (x,y,z)        :  8.02631102E+00 -2.64059557E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
 *** Lost particle ***
-batch & history number:                   8               11811
-initial & final cells :                  98                  98
-location (x,y,z)        : -3.12949509E+01 -4.00150942E+02 -3.22474099E+01
-direction vector (u,v,w): -2.61842773E-01  4.89308729E-01  8.31874588E-01
-bat[       8] ncas =         160000. on 2026/08/22 at 23h 49m 25s
+batch & history number:                   1                  15
+initial & final cells :                   3                   3
+location (x,y,z)        :  6.65427707E+00 -7.85911044E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
 *** Lost particle ***
-batch & history number:                   9               10972
+batch & history number:                   1                  15
+initial & final cells :                   3                   3
+location (x,y,z)        :  6.65427707E+00 -7.85911044E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  26
+initial & final cells :                   3                   3
+location (x,y,z)        :  8.39739910E+00  7.81581438E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  26
+initial & final cells :                   3                   3
+location (x,y,z)        :  8.39739910E+00  7.81581438E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  28
 initial & final cells :                  98                  98
-location (x,y,z)        :  2.22988439E+02 -4.01658701E+02 -2.83108879E+01
-direction vector (u,v,w):  2.43806289E-01  6.52807424E-01 -7.17217513E-01
+location (x,y,z)        : -1.33926227E+01 -5.73158664E+00 -2.00433590E+00
+direction vector (u,v,w):  5.29819236E-01  6.78047030E-01  5.09454417E-01
+*** Lost particle ***
+batch & history number:                   1                  28
+initial & final cells :                  98                  98
+location (x,y,z)        : -1.33926227E+01 -5.73158664E+00 -2.00433590E+00
+direction vector (u,v,w):  5.29819236E-01  6.78047030E-01  5.09454417E-01
+*** Lost particle ***
+batch & history number:                   1                  29
+initial & final cells :                   3                   3
+location (x,y,z)        :  1.50141339E+00 -8.74531319E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  29
+initial & final cells :                   3                   3
+location (x,y,z)        :  1.50141339E+00 -8.74531319E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  32
+initial & final cells :                   3                   3
+location (x,y,z)        : -1.10913296E+01  1.36573548E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
+*** Lost particle ***
+batch & history number:                   1                  33
+initial & final cells :                  98                  98
+location (x,y,z)        :  1.08501394E+01  3.84625394E+00 -3.33810337E+00
+direction vector (u,v,w):  3.20678275E-01 -5.98008223E-01  7.34541768E-01
  Calculation is terminated!!!
  number of lost particles exceeds nlost (=      10)
  *** Program is stopped, stop number =   802
-[phits-web] PHITS finished normally in 91 s — 12 output file(s) on the server
-[phits-web] downloaded 11 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground
-=== d2/01_PF (small/d2) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787410176_kavx49gh) ...
-Executing with standard PHITS installation
-Command: $PHITSPATH/bin/phits.sh 'main.inp'
-bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:49:40 JST 2026
-Program is started                on 2026/08/22 at 23h 49m 40s
-Initialization is completed          on 2026/08/22 at 23h 49m 45s
-bat[       1] ncas =           8000. on 2026/08/22 at 23h 50m 05s
-bat[       2] ncas =          16000. on 2026/08/22 at 23h 50m 31s
-bat[       3] ncas =          24000. on 2026/08/22 at 23h 50m 39s
-bat[       4] ncas =          32000. on 2026/08/22 at 23h 50m 47s
-bat[       5] ncas =          40000. on 2026/08/22 at 23h 50m 55s
-bat[       6] ncas =          48000. on 2026/08/22 at 23h 51m 04s
-bat[       7] ncas =          56000. on 2026/08/22 at 23h 51m 11s
-bat[       8] ncas =          64000. on 2026/08/22 at 23h 51m 19s
-bat[       9] ncas =          72000. on 2026/08/22 at 23h 51m 27s
-bat[      10] ncas =          80000. on 2026/08/22 at 23h 51m 34s
-Program is finished               on 2026/08/22 at 23h 51m 34s
-[phits-web] PHITS finished normally in 118 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF
-=== d2/02_linac (small/d2) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787410298_90dsck9y) ...
-Executing with standard PHITS installation
-Command: $PHITSPATH/bin/phits.sh 'main.inp'
-bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:51:41 JST 2026
-Program is started                on 2026/08/22 at 23h 51m 41s
-Initialization is completed          on 2026/08/22 at 23h 51m 46s
-bat[       1] ncas =           8000. on 2026/08/22 at 23h 52m 24s
-bat[       2] ncas =          16000. on 2026/08/22 at 23h 52m 33s
-bat[       3] ncas =          24000. on 2026/08/22 at 23h 52m 42s
-bat[       4] ncas =          32000. on 2026/08/22 at 23h 52m 51s
-bat[       5] ncas =          40000. on 2026/08/22 at 23h 52m 59s
-bat[       6] ncas =          48000. on 2026/08/22 at 23h 53m 08s
-bat[       7] ncas =          56000. on 2026/08/22 at 23h 53m 16s
-bat[       8] ncas =          64000. on 2026/08/22 at 23h 53m 25s
-bat[       9] ncas =          72000. on 2026/08/22 at 23h 53m 34s
-bat[      10] ncas =          80000. on 2026/08/22 at 23h 53m 42s
-Program is finished               on 2026/08/22 at 23h 53m 42s
-[phits-web] PHITS finished normally in 125 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac
-=== d2/03_BT (small/d2) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787410427_qzou4sq9) ...
-Initialization is completed          on 2026/08/22 at 23h 53m 55s
-bat[       1] ncas =          10000. on 2026/08/22 at 23h 54m 20s
-bat[       2] ncas =          20000. on 2026/08/22 at 23h 54m 50s
-bat[       3] ncas =          30000. on 2026/08/22 at 23h 55m 02s
-bat[       4] ncas =          40000. on 2026/08/22 at 23h 55m 14s
-bat[       5] ncas =          50000. on 2026/08/22 at 23h 55m 26s
-bat[       6] ncas =          60000. on 2026/08/22 at 23h 55m 37s
-bat[       7] ncas =          70000. on 2026/08/22 at 23h 55m 48s
-bat[       8] ncas =          80000. on 2026/08/22 at 23h 55m 59s
-bat[       9] ncas =          90000. on 2026/08/22 at 23h 56m 10s
-bat[      10] ncas =         100000. on 2026/08/22 at 23h 56m 22s
-bat[      11] ncas =         110000. on 2026/08/22 at 23h 56m 33s
-bat[      12] ncas =         120000. on 2026/08/22 at 23h 56m 44s
-Program is finished               on 2026/08/22 at 23h 56m 44s
-[phits-web] PHITS finished normally in 177 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT
-=== d2/04_KEKB (small/d2) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787410609_lgm9y3bq) ...
-Executing with standard PHITS installation
-Command: $PHITSPATH/bin/phits.sh 'main.inp'
-bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:56:53 JST 2026
-Program is started                on 2026/08/22 at 23h 56m 53s
-Initialization is completed          on 2026/08/22 at 23h 56m 58s
-bat[       1] ncas =           8000. on 2026/08/22 at 23h 57m 21s
-bat[       2] ncas =          16000. on 2026/08/22 at 23h 57m 49s
-bat[       3] ncas =          24000. on 2026/08/22 at 23h 58m 00s
-bat[       4] ncas =          32000. on 2026/08/22 at 23h 58m 09s
-bat[       5] ncas =          40000. on 2026/08/22 at 23h 58m 20s
-bat[       6] ncas =          48000. on 2026/08/22 at 23h 58m 29s
-bat[       7] ncas =          56000. on 2026/08/22 at 23h 58m 39s
-bat[       8] ncas =          64000. on 2026/08/22 at 23h 58m 48s
-bat[       9] ncas =          72000. on 2026/08/22 at 23h 58m 58s
-bat[      10] ncas =          80000. on 2026/08/22 at 23h 59m 07s
-Program is finished               on 2026/08/22 at 23h 59m 07s
-[phits-web] PHITS finished normally in 138 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB
-=== D1/00_ground (large/D1) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787410752_pebhfq2n) ...
-Executing with standard PHITS installation
-Command: $PHITSPATH/bin/phits.sh 'main.inp'
-bash: /root/.bashrc: Permission denied
-Sat Aug 22 23:59:16 JST 2026
-Program is started                on 2026/08/22 at 23h 59m 16s
-Initialization is completed          on 2026/08/22 at 23h 59m 21s
-bat[       1] ncas =          20000. on 2026/08/22 at 23h 59m 53s
-bat[       2] ncas =          40000. on 2026/08/23 at 00h 00m 00s
-bat[       3] ncas =          60000. on 2026/08/23 at 00h 00m 07s
-bat[       4] ncas =          80000. on 2026/08/23 at 00h 00m 14s
-bat[       5] ncas =         100000. on 2026/08/23 at 00h 00m 20s
-bat[       6] ncas =         120000. on 2026/08/23 at 00h 00m 26s
-bat[       7] ncas =         140000. on 2026/08/23 at 00h 00m 33s
-bat[       8] ncas =         160000. on 2026/08/23 at 00h 00m 40s
-bat[       9] ncas =         180000. on 2026/08/23 at 00h 00m 46s
-bat[      10] ncas =         200000. on 2026/08/23 at 00h 00m 52s
-bat[      11] ncas =         220000. on 2026/08/23 at 00h 00m 59s
-bat[      12] ncas =         240000. on 2026/08/23 at 00h 01m 05s
-bat[      13] ncas =         260000. on 2026/08/23 at 00h 01m 12s
-bat[      14] ncas =         280000. on 2026/08/23 at 00h 01m 18s
-bat[      15] ncas =         300000. on 2026/08/23 at 00h 01m 24s
-bat[      16] ncas =         320000. on 2026/08/23 at 00h 01m 30s
-bat[      17] ncas =         340000. on 2026/08/23 at 00h 01m 37s
-bat[      18] ncas =         360000. on 2026/08/23 at 00h 01m 43s
-bat[      19] ncas =         380000. on 2026/08/23 at 00h 01m 50s
-bat[      20] ncas =         400000. on 2026/08/23 at 00h 01m 56s
-Program is finished               on 2026/08/23 at 00h 01m 56s
-[phits-web] PHITS finished normally in 164 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground
-=== D1/01_PF (large/D1) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787410921_ysyp7voy) ...
-Initialization is completed          on 2026/08/23 at 00h 02m 08s
-bat[       1] ncas =           8000. on 2026/08/23 at 00h 02m 28s
-bat[       2] ncas =          16000. on 2026/08/23 at 00h 02m 53s
-bat[       3] ncas =          24000. on 2026/08/23 at 00h 03m 02s
-bat[       4] ncas =          32000. on 2026/08/23 at 00h 03m 10s
-bat[       5] ncas =          40000. on 2026/08/23 at 00h 03m 18s
-bat[       6] ncas =          48000. on 2026/08/23 at 00h 03m 26s
-bat[       7] ncas =          56000. on 2026/08/23 at 00h 03m 34s
-bat[       8] ncas =          64000. on 2026/08/23 at 00h 03m 42s
-bat[       9] ncas =          72000. on 2026/08/23 at 00h 03m 49s
-bat[      10] ncas =          80000. on 2026/08/23 at 00h 03m 57s
-Program is finished               on 2026/08/23 at 00h 03m 57s
-[phits-web] PHITS finished normally in 117 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF
-=== D1/02_linac (large/D1) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787411042_vdjufhak) ...
-Executing with standard PHITS installation
-Command: $PHITSPATH/bin/phits.sh 'main.inp'
-bash: /root/.bashrc: Permission denied
-Sun Aug 23 00:04:04 JST 2026
-Program is started                on 2026/08/23 at 00h 04m 04s
-Initialization is completed          on 2026/08/23 at 00h 04m 09s
-bat[       1] ncas =           8000. on 2026/08/23 at 00h 04m 47s
-bat[       2] ncas =          16000. on 2026/08/23 at 00h 04m 56s
-bat[       3] ncas =          24000. on 2026/08/23 at 00h 05m 05s
-bat[       4] ncas =          32000. on 2026/08/23 at 00h 05m 14s
-bat[       5] ncas =          40000. on 2026/08/23 at 00h 05m 22s
-bat[       6] ncas =          48000. on 2026/08/23 at 00h 05m 31s
-bat[       7] ncas =          56000. on 2026/08/23 at 00h 05m 40s
-bat[       8] ncas =          64000. on 2026/08/23 at 00h 05m 49s
-bat[       9] ncas =          72000. on 2026/08/23 at 00h 05m 57s
-bat[      10] ncas =          80000. on 2026/08/23 at 00h 06m 05s
-Program is finished               on 2026/08/23 at 00h 06m 05s
-[phits-web] PHITS finished normally in 124 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac
-=== D1/03_BT (large/D1) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787411170_2ytkdw8a) ...
-bash: /root/.bashrc: Permission denied
-Sun Aug 23 00:06:12 JST 2026
-Program is started                on 2026/08/23 at 00h 06m 12s
-Initialization is completed          on 2026/08/23 at 00h 06m 17s
-bat[       1] ncas =          10000. on 2026/08/23 at 00h 06m 42s
-bat[       2] ncas =          20000. on 2026/08/23 at 00h 07m 12s
-bat[       3] ncas =          30000. on 2026/08/23 at 00h 07m 24s
-bat[       4] ncas =          40000. on 2026/08/23 at 00h 07m 35s
-bat[       5] ncas =          50000. on 2026/08/23 at 00h 07m 47s
-bat[       6] ncas =          60000. on 2026/08/23 at 00h 07m 58s
-bat[       7] ncas =          70000. on 2026/08/23 at 00h 08m 09s
-bat[       8] ncas =          80000. on 2026/08/23 at 00h 08m 20s
-bat[       9] ncas =          90000. on 2026/08/23 at 00h 08m 31s
-bat[      10] ncas =         100000. on 2026/08/23 at 00h 08m 43s
-bat[      11] ncas =         110000. on 2026/08/23 at 00h 08m 54s
-bat[      12] ncas =         120000. on 2026/08/23 at 00h 09m 05s
-Program is finished               on 2026/08/23 at 00h 09m 05s
-[phits-web] PHITS finished normally in 176 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT
-=== D1/04_KEKB (large/D1) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787411350_f64nwfii) ...
-Executing with standard PHITS installation
-Command: $PHITSPATH/bin/phits.sh 'main.inp'
-bash: /root/.bashrc: Permission denied
-Sun Aug 23 00:09:14 JST 2026
-Program is started                on 2026/08/23 at 00h 09m 14s
-Initialization is completed          on 2026/08/23 at 00h 09m 19s
-bat[       1] ncas =           8000. on 2026/08/23 at 00h 09m 42s
-bat[       2] ncas =          16000. on 2026/08/23 at 00h 10m 11s
-bat[       3] ncas =          24000. on 2026/08/23 at 00h 10m 21s
-bat[       4] ncas =          32000. on 2026/08/23 at 00h 10m 31s
-bat[       5] ncas =          40000. on 2026/08/23 at 00h 10m 41s
-bat[       6] ncas =          48000. on 2026/08/23 at 00h 10m 51s
-bat[       7] ncas =          56000. on 2026/08/23 at 00h 11m 00s
-bat[       8] ncas =          64000. on 2026/08/23 at 00h 11m 09s
-bat[       9] ncas =          72000. on 2026/08/23 at 00h 11m 19s
-bat[      10] ncas =          80000. on 2026/08/23 at 00h 11m 28s
-Program is finished               on 2026/08/23 at 00h 11m 28s
-[phits-web] PHITS finished normally in 138 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB
-=== D2/00_ground (large/D2) ===
-[phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787411492_lii42j52) ...
-Initialization is completed          on 2026/08/23 at 00h 11m 39s
-bat[       1] ncas =          20000. on 2026/08/23 at 00h 12m 11s
-bat[       2] ncas =          40000. on 2026/08/23 at 00h 12m 18s
-bat[       3] ncas =          60000. on 2026/08/23 at 00h 12m 25s
 *** Lost particle ***
-batch & history number:                   4                2681
-initial & final cells :                  98                  98
-location (x,y,z)        : -2.19906326E+02 -4.02528430E+02 -2.23297766E+01
-direction vector (u,v,w):  1.59820004E-01  2.84072204E-01  9.45389099E-01
-bat[       4] ncas =          80000. on 2026/08/23 at 00h 12m 32s
-bat[       5] ncas =         100000. on 2026/08/23 at 00h 12m 38s
-bat[       6] ncas =         120000. on 2026/08/23 at 00h 12m 45s
-bat[       7] ncas =         140000. on 2026/08/23 at 00h 12m 51s
+batch & history number:                   1                  32
+initial & final cells :                   3                   3
+location (x,y,z)        : -1.10913296E+01  1.36573548E+00  3.00000000E+02
+direction vector (u,v,w):  0.00000000E+00  0.00000000E+00 -1.00000000E+00
 *** Lost particle ***
-batch & history number:                   8                1258
+batch & history number:                   1                  33
 initial & final cells :                  98                  98
-location (x,y,z)        :  1.26870551E+02 -4.01911466E+02 -1.97373612E+01
-direction vector (u,v,w): -2.72314584E-01  9.06688251E-01 -3.22119826E-01
-bat[       8] ncas =         160000. on 2026/08/23 at 00h 12m 58s
-bat[       9] ncas =         180000. on 2026/08/23 at 00h 13m 04s
-bat[      10] ncas =         200000. on 2026/08/23 at 00h 13m 11s
-bat[      11] ncas =         220000. on 2026/08/23 at 00h 13m 17s
-bat[      12] ncas =         240000. on 2026/08/23 at 00h 13m 24s
-*** Lost particle ***
-batch & history number:                  13                9059
-initial & final cells :                  98                  98
-location (x,y,z)        :  4.04021028E+02 -9.52480991E+01 -2.90031362E+01
-direction vector (u,v,w): -7.56207845E-01 -3.56550856E-01 -5.48653973E-01
-bat[      13] ncas =         260000. on 2026/08/23 at 00h 13m 30s
-bat[      14] ncas =         280000. on 2026/08/23 at 00h 13m 36s
-bat[      15] ncas =         300000. on 2026/08/23 at 00h 13m 42s
-bat[      16] ncas =         320000. on 2026/08/23 at 00h 13m 49s
-bat[      17] ncas =         340000. on 2026/08/23 at 00h 13m 55s
-bat[      18] ncas =         360000. on 2026/08/23 at 00h 14m 02s
-bat[      19] ncas =         380000. on 2026/08/23 at 00h 14m 08s
-bat[      20] ncas =         400000. on 2026/08/23 at 00h 14m 14s
-Program is finished               on 2026/08/23 at 00h 14m 14s
-[phits-web] PHITS finished normally in 163 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground
+location (x,y,z)        :  1.08501394E+01  3.84625394E+00 -3.33810337E+00
+direction vector (u,v,w):  3.20678275E-01 -5.98008223E-01  7.34541768E-01
+ Calculation is terminated!!!
+ number of lost particles exceeds nlost (=      10)
+ *** Program is stopped, stop number =   802
+[phits-web] PHITS finished normally in 9 s — 8 output file(s) on the server
+[phits-web] PHITS finished normally in 9 s — 8 output file(s) on the server
+[phits-web] downloaded 7 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground
+[phits-web] downloaded 7 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground
+FAILED (bad exit): D2/00_ground
+FAILED (bad exit): D2/00_ground
+=== D2/01_PF (large/D2) ===
 === D2/01_PF (large/D2) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787411659_6dyr5c23) ...
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417473_nxiwdurb) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417473_nxiwdurb) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
 Executing with standard PHITS installation
 Command: $PHITSPATH/bin/phits.sh 'main.inp'
 bash: /root/.bashrc: Permission denied
-Sun Aug 23 00:14:22 JST 2026
-Program is started                on 2026/08/23 at 00h 14m 22s
-Initialization is completed          on 2026/08/23 at 00h 14m 27s
-bat[       1] ncas =           8000. on 2026/08/23 at 00h 14m 47s
-bat[       2] ncas =          16000. on 2026/08/23 at 00h 15m 13s
-bat[       3] ncas =          24000. on 2026/08/23 at 00h 15m 21s
-bat[       4] ncas =          32000. on 2026/08/23 at 00h 15m 29s
-bat[       5] ncas =          40000. on 2026/08/23 at 00h 15m 37s
-bat[       6] ncas =          48000. on 2026/08/23 at 00h 15m 46s
-bat[       7] ncas =          56000. on 2026/08/23 at 00h 15m 53s
-bat[       8] ncas =          64000. on 2026/08/23 at 00h 16m 01s
-bat[       9] ncas =          72000. on 2026/08/23 at 00h 16m 09s
-bat[      10] ncas =          80000. on 2026/08/23 at 00h 16m 16s
-Program is finished               on 2026/08/23 at 00h 16m 16s
-[phits-web] PHITS finished normally in 118 s — 7 output file(s) on the server
+Sun Aug 23 01:51:17 JST 2026
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:51:17 JST 2026
+Program is started                on 2026/08/23 at 01h 51m 17s
+Program is started                on 2026/08/23 at 01h 51m 17s
+Initialization is completed          on 2026/08/23 at 01h 51m 21s
+Initialization is completed          on 2026/08/23 at 01h 51m 21s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 51m 44s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 51m 44s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 52m 12s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 52m 12s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 52m 22s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 52m 22s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 52m 32s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 52m 32s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 52m 42s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 52m 42s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 52m 52s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 52m 52s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 53m 01s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 53m 01s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 53m 11s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 53m 11s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 53m 20s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 53m 20s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 53m 29s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 53m 29s
+Program is finished               on 2026/08/23 at 01h 53m 29s
+Program is finished               on 2026/08/23 at 01h 53m 29s
+[phits-web] PHITS finished normally in 137 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 137 s — 7 output file(s) on the server
 [phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF
+FAILED (bad exit): D2/01_PF
+FAILED (bad exit): D2/01_PF
+=== D2/02_linac (large/D2) ===
 === D2/02_linac (large/D2) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787411781_be8m2st9) ...
-Initialization is completed          on 2026/08/23 at 00h 16m 29s
-bat[       1] ncas =           8000. on 2026/08/23 at 00h 17m 07s
-bat[       2] ncas =          16000. on 2026/08/23 at 00h 17m 16s
-bat[       3] ncas =          24000. on 2026/08/23 at 00h 17m 25s
-bat[       4] ncas =          32000. on 2026/08/23 at 00h 17m 34s
-bat[       5] ncas =          40000. on 2026/08/23 at 00h 17m 42s
-bat[       6] ncas =          48000. on 2026/08/23 at 00h 17m 51s
-bat[       7] ncas =          56000. on 2026/08/23 at 00h 18m 00s
-bat[       8] ncas =          64000. on 2026/08/23 at 00h 18m 09s
-bat[       9] ncas =          72000. on 2026/08/23 at 00h 18m 17s
-bat[      10] ncas =          80000. on 2026/08/23 at 00h 18m 25s
-Program is finished               on 2026/08/23 at 00h 18m 25s
-[phits-web] PHITS finished normally in 124 s — 7 output file(s) on the server
-[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac
-=== D2/03_BT (large/D2) ===
 [phits-web] uploaded 1 auxiliary file(s)
-[phits-web] running main.inp on https://phits.kek.jp (session cli_1787411910_hgkh91px) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417614_hdjlu7fb) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417614_hdjlu7fb) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
 Executing with standard PHITS installation
 Command: $PHITSPATH/bin/phits.sh 'main.inp'
 bash: /root/.bashrc: Permission denied
-Sun Aug 23 00:18:33 JST 2026
-Program is started                on 2026/08/23 at 00h 18m 33s
-Initialization is completed          on 2026/08/23 at 00h 18m 38s
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:53:38 JST 2026
+Sun Aug 23 01:53:38 JST 2026
+Program is started                on 2026/08/23 at 01h 53m 38s
+Program is started                on 2026/08/23 at 01h 53m 38s
+Initialization is completed          on 2026/08/23 at 01h 53m 43s
+Initialization is completed          on 2026/08/23 at 01h 53m 43s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 54m 24s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 54m 24s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 54m 35s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 54m 35s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 54m 46s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 54m 46s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 54m 57s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 54m 57s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 55m 08s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 55m 08s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 55m 19s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 55m 19s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 55m 29s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 55m 29s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 55m 40s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 55m 40s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 55m 50s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 55m 50s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 56m 00s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 56m 00s
+Program is finished               on 2026/08/23 at 01h 56m 00s
+Program is finished               on 2026/08/23 at 01h 56m 00s
+[phits-web] PHITS finished normally in 146 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 146 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac
+FAILED (bad exit): D2/02_linac
+FAILED (bad exit): D2/02_linac
+=== D2/03_BT (large/D2) ===
+=== D2/03_BT (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417765_apgb3pg7) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417765_apgb3pg7) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:56:09 JST 2026
+Sun Aug 23 01:56:09 JST 2026
+Program is started                on 2026/08/23 at 01h 56m 09s
+Program is started                on 2026/08/23 at 01h 56m 09s
+Initialization is completed          on 2026/08/23 at 01h 56m 13s
+Initialization is completed          on 2026/08/23 at 01h 56m 13s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 56m 39s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 56m 39s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 57m 09s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 57m 09s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 57m 22s
+bat[       3] ncas =          30000. on 2026/08/23 at 01h 57m 22s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 57m 33s
+bat[       4] ncas =          40000. on 2026/08/23 at 01h 57m 33s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 57m 45s
+bat[       5] ncas =          50000. on 2026/08/23 at 01h 57m 45s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 57m 56s
+bat[       6] ncas =          60000. on 2026/08/23 at 01h 57m 56s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 58m 08s
+bat[       7] ncas =          70000. on 2026/08/23 at 01h 58m 08s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 58m 19s
+bat[       8] ncas =          80000. on 2026/08/23 at 01h 58m 19s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 58m 30s
+bat[       9] ncas =          90000. on 2026/08/23 at 01h 58m 30s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 58m 41s
+bat[      10] ncas =         100000. on 2026/08/23 at 01h 58m 41s
+Program is finished               on 2026/08/23 at 01h 58m 41s
+Program is finished               on 2026/08/23 at 01h 58m 41s
+[phits-web] PHITS finished normally in 156 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 156 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT
+FAILED (bad exit): D2/03_BT
+FAILED (bad exit): D2/03_BT
+=== D2/04_KEKB (large/D2) ===
+=== D2/04_KEKB (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417925_1qu1za2p) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787417925_1qu1za2p) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 01:58:48 JST 2026
+Sun Aug 23 01:58:48 JST 2026
+Program is started                on 2026/08/23 at 01h 58m 48s
+Program is started                on 2026/08/23 at 01h 58m 48s
+Initialization is completed          on 2026/08/23 at 01h 58m 53s
+Initialization is completed          on 2026/08/23 at 01h 58m 53s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 59m 35s
+bat[       1] ncas =          10000. on 2026/08/23 at 01h 59m 35s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 59m 49s
+bat[       2] ncas =          20000. on 2026/08/23 at 01h 59m 49s
+bat[       3] ncas =          30000. on 2026/08/23 at 02h 00m 02s
+bat[       3] ncas =          30000. on 2026/08/23 at 02h 00m 02s
+bat[       4] ncas =          40000. on 2026/08/23 at 02h 00m 14s
+bat[       4] ncas =          40000. on 2026/08/23 at 02h 00m 14s
+bat[       5] ncas =          50000. on 2026/08/23 at 02h 00m 27s
+bat[       5] ncas =          50000. on 2026/08/23 at 02h 00m 27s
+bat[       6] ncas =          60000. on 2026/08/23 at 02h 00m 38s
+bat[       6] ncas =          60000. on 2026/08/23 at 02h 00m 38s
+bat[       7] ncas =          70000. on 2026/08/23 at 02h 00m 50s
+bat[       7] ncas =          70000. on 2026/08/23 at 02h 00m 50s
+bat[       8] ncas =          80000. on 2026/08/23 at 02h 01m 02s
+bat[       8] ncas =          80000. on 2026/08/23 at 02h 01m 02s
+bat[       9] ncas =          90000. on 2026/08/23 at 02h 01m 14s
+bat[       9] ncas =          90000. on 2026/08/23 at 02h 01m 14s
+bat[      10] ncas =         100000. on 2026/08/23 at 02h 01m 25s
+bat[      10] ncas =         100000. on 2026/08/23 at 02h 01m 25s
+Program is finished               on 2026/08/23 at 02h 01m 25s
+Program is finished               on 2026/08/23 at 02h 01m 25s
+[phits-web] PHITS finished normally in 161 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 161 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB
+FAILED (bad exit): D2/04_KEKB
+FAILED (bad exit): D2/04_KEKB
+run_all_phits.sh: line 49: o: command not found
+run_all_phits.sh: line 50: syntax error near unexpected token `fi'
+run_all_phits.sh: line 50: `    fi'

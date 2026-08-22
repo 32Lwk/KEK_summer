@@ -1,0 +1,16 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787421807_2dgixs4o) ...
+Initialization is completed          on 2026/08/23 at 03h 03m 34s
+bat[       1] ncas =          10000. on 2026/08/23 at 03h 03m 57s
+bat[       2] ncas =          20000. on 2026/08/23 at 03h 04m 28s
+bat[       3] ncas =          30000. on 2026/08/23 at 03h 04m 38s
+bat[       4] ncas =          40000. on 2026/08/23 at 03h 04m 48s
+bat[       5] ncas =          50000. on 2026/08/23 at 03h 04m 59s
+bat[       6] ncas =          60000. on 2026/08/23 at 03h 05m 09s
+bat[       7] ncas =          70000. on 2026/08/23 at 03h 05m 19s
+bat[       8] ncas =          80000. on 2026/08/23 at 03h 05m 28s
+bat[       9] ncas =          90000. on 2026/08/23 at 03h 05m 38s
+bat[      10] ncas =         100000. on 2026/08/23 at 03h 05m 47s
+Program is finished               on 2026/08/23 at 03h 05m 47s
+[phits-web] PHITS finished normally in 141 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF

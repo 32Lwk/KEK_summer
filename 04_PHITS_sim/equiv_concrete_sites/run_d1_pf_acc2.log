@@ -1,0 +1,33 @@
+=== run 1/5 ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787426590_hxqp5fd9) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 04:23:14 JST 2026
+Program is started                on 2026/08/23 at 04h 23m 14s
+
+ ***** Error Message from Input File *****
+
+ main.inp          13 :
+ error = Unknown parameter
+
+-------------------------------------------------------------------------------
+ job termination date : 2026/08/23
+                 time :   04:23:14
+
+ END 
+Program is finished               on 2026/08/23 at 04h 23m 14s
+[phits-web] PHITS reported an ERROR after 3 s (see the message above and phits.out)
+[phits-web] downloaded 0 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF
+[phits-web] check phits.out for the PHITS error message
+Traceback (most recent call last):
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/accumulate_runs.py", line 177, in <module>
+    main()
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/accumulate_runs.py", line 149, in main
+    run_once(workdir, i)
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/accumulate_runs.py", line 129, in run_once
+    subprocess.run(cmd, cwd=workdir, check=True)
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_4/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/homebrew/opt/python@3.12/bin/python3.12', '/Users/yuto/KEK_summer/phits-agent-kit/phits_web_run.py', 'main.inp', '/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/source_ceiling.inp', '--version', 'phits336', '--new-session']' returned non-zero exit status 2.

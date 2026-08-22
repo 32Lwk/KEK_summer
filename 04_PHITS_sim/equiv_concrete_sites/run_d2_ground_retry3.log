@@ -1,0 +1,46 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787418218_qj411uy7) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 02:03:42 JST 2026
+Program is started                on 2026/08/23 at 02h 03m 42s
+Initialization is completed          on 2026/08/23 at 02h 03m 47s
+bat[       1] ncas =          20000. on 2026/08/23 at 02h 04m 20s
+bat[       2] ncas =          40000. on 2026/08/23 at 02h 04m 27s
+bat[       3] ncas =          60000. on 2026/08/23 at 02h 04m 33s
+*** Lost particle ***
+batch & history number:                   4                2681
+initial & final cells :                  98                  98
+location (x,y,z)        : -2.19906326E+02 -4.02528430E+02 -2.23297766E+01
+direction vector (u,v,w):  1.59820004E-01  2.84072204E-01  9.45389099E-01
+bat[       4] ncas =          80000. on 2026/08/23 at 02h 04m 40s
+bat[       5] ncas =         100000. on 2026/08/23 at 02h 04m 46s
+bat[       6] ncas =         120000. on 2026/08/23 at 02h 04m 53s
+bat[       7] ncas =         140000. on 2026/08/23 at 02h 05m 00s
+*** Lost particle ***
+batch & history number:                   8                1258
+initial & final cells :                  98                  98
+location (x,y,z)        :  1.26870551E+02 -4.01911466E+02 -1.97373612E+01
+direction vector (u,v,w): -2.72314584E-01  9.06688251E-01 -3.22119826E-01
+bat[       8] ncas =         160000. on 2026/08/23 at 02h 05m 06s
+bat[       9] ncas =         180000. on 2026/08/23 at 02h 05m 12s
+bat[      10] ncas =         200000. on 2026/08/23 at 02h 05m 19s
+bat[      11] ncas =         220000. on 2026/08/23 at 02h 05m 25s
+bat[      12] ncas =         240000. on 2026/08/23 at 02h 05m 32s
+*** Lost particle ***
+batch & history number:                  13                9059
+initial & final cells :                  98                  98
+location (x,y,z)        :  4.04021028E+02 -9.52480991E+01 -2.90031362E+01
+direction vector (u,v,w): -7.56207845E-01 -3.56550856E-01 -5.48653973E-01
+bat[      13] ncas =         260000. on 2026/08/23 at 02h 05m 38s
+bat[      14] ncas =         280000. on 2026/08/23 at 02h 05m 44s
+bat[      15] ncas =         300000. on 2026/08/23 at 02h 05m 51s
+bat[      16] ncas =         320000. on 2026/08/23 at 02h 05m 57s
+bat[      17] ncas =         340000. on 2026/08/23 at 02h 06m 04s
+bat[      18] ncas =         360000. on 2026/08/23 at 02h 06m 10s
+bat[      19] ncas =         380000. on 2026/08/23 at 02h 06m 16s
+bat[      20] ncas =         400000. on 2026/08/23 at 02h 06m 23s
+Program is finished               on 2026/08/23 at 02h 06m 23s
+[phits-web] PHITS finished normally in 164 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground
