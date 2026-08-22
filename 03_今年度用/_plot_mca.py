@@ -585,12 +585,12 @@ USER_CPS = {
     "PF": 0.25108616,
 }
 
-# d2（SN 2162 系）の raw MCA。地上は未測定。
-D2_MCA = {
-    "PF": "20260820_0807_PF_d2.mca",
-    "linac": "20260821_080725_linac_d2.mca",
-    "BT": "20260819_1859_放射線棟BT_d2.mca",
-    "KEKB": "20260820_1939_KEKB_d2.mca",
+# d2: 分子/分母（ユーザー指定）。PF・地上はなし。
+# BT 144/9541.27, KEKB 336/39042.15, linac 568/42626.85
+USER_CPS_D2 = {
+    "linac": 568 / 42626.85,
+    "BT": 144 / 9541.27,
+    "KEKB": 336 / 39042.15,
 }
 
 
@@ -660,21 +660,8 @@ def _site_shielding_d1() -> list[dict]:
 
 
 def load_d2_cps() -> dict[str, float]:
-    """d2 MCA の自動 ROI gross / REAL_TIME（Book5 と同型の 分子/分母）。
-
-    地上は raw に無いため含まない。相対規格化は PF を基準にする。
-    """
-    from mca_common import find_roi, parse_mca
-
-    raw = DATA / "raw"
-    out: dict[str, float] = {}
-    for label, name in D2_MCA.items():
-        meta = parse_mca(raw / name)
-        counts = np.asarray(meta["counts"], dtype=float)
-        real = float(meta["REAL_TIME"])
-        lo, hi, _ = find_roi(counts)
-        out[label] = float(counts[lo : hi + 1].sum() / real)
-    return out
+    """d2 のユーザー CPS（分子/分母）。PF・地上は含まない。"""
+    return dict(USER_CPS_D2)
 
 
 def _site_shielding_composition() -> list[dict]:
@@ -705,12 +692,14 @@ def fig_all_sites_equiv_concrete(
     name_suffix: str = "",
     csv_name: str = "等価コンクリート_減衰.csv",
     measure_label: str | None = None,
+    detector: str = "D1",
 ) -> None:
     """層厚換算 X + CPS。理論 A0·exp(-x/0.77)。
 
     absolute=False: 相対（ref_label=1）、図11
     absolute=True:  実測 CPS [1/s]、図12
     logy=True: 片対数（Y対数）。図11/12の片対数版を別ファイルに保存。
+    detector: 凡例に出す検出器名（D1 / d2）。
     """
     from matplotlib.ticker import LogLocator, MultipleLocator
 
@@ -722,16 +711,16 @@ def fig_all_sites_equiv_concrete(
     ref_site = next(s for s in sites if s["label"] == ref_label)
     x_ref = _equiv_concrete_cm_from_x(ref_site["X"])
     theory_at_ref = float(np.asarray(_theory_rel(x_ref, 1.0)).reshape(-1)[0])
-    # 基準が地上(x=0)ならそのまま。それ以外は理論減衰で x=0 へ外挿した A0 を使う
+    # 基準が地上(x=0)ならそのまま。それ以外は理論減衰で x=0 へ外挿した A0 を使う。
+    # 表示（軸・凡例）は図11/12と同じく常に「地上」。
     if ref_label == "地上" or x_ref <= 0:
         cps0 = cps_ref
-        rel_tag = "地上"
     else:
         cps0 = cps_ref / theory_at_ref if theory_at_ref > 0 else cps_ref
-        rel_tag = "外挿地上"
+    rel_tag = "地上"
     a0 = cps0 if absolute else 1.0
     lam_air = 1475.0 * 100.0
-    rel_key = f"相対_{rel_tag}1"
+    rel_key = "相対_地上1"
 
     rows = []
     points = []
@@ -805,9 +794,9 @@ def fig_all_sites_equiv_concrete(
 
     if measure_label is None:
         measure_label = (
-            "測定（実測CPS）"
+            f"測定 {detector}（実測CPS）"
             if absolute
-            else f"測定（ユーザーCPS・{rel_tag}=1）"
+            else f"測定 {detector}（{rel_tag}=1）"
         )
     ax.plot(
         [p["x"] for p in points],
@@ -879,17 +868,12 @@ def fig_all_sites_equiv_concrete(
         ax.grid(True, which="minor", axis="y", alpha=0.12, linestyle=":")
         ax.grid(True, which="minor", axis="x", alpha=0.18, linestyle=":")
     else:
-        # 地上点がある通常図は A0 まで見せる。d2 等で地上が無い場合はデータ付近を拡大
-        has_ground = any(p["label"] == "地上" for p in points)
-        if absolute and not has_ground:
-            y_top = y_data_max * 1.25
-        else:
-            y_top = max(y_data_max, a0) * 1.12
+        # 図11/12 と同じく A0（地上相当）まで見せる
+        y_top = max(y_data_max, a0) * 1.12
         ax.set_ylim(0, y_top)
         if absolute:
-            major = 0.05 if y_top > 0.25 else 0.02
-            ax.yaxis.set_major_locator(MultipleLocator(major))
-            ax.yaxis.set_minor_locator(MultipleLocator(major / 5))
+            ax.yaxis.set_major_locator(MultipleLocator(0.05))
+            ax.yaxis.set_minor_locator(MultipleLocator(0.01))
         else:
             ax.yaxis.set_major_locator(MultipleLocator(0.1))
             ax.yaxis.set_minor_locator(MultipleLocator(0.02))
@@ -936,20 +920,16 @@ def fig_all_sites_equiv_concrete_cps_semilog(d: dict | None = None) -> None:
 def fig_all_sites_equiv_concrete_d2(
     absolute: bool = False, logy: bool = False
 ) -> None:
-    """d2 検出器版の図11/12。地上未測定のため PF から地上 CPS を外挿して規格化。"""
+    """d2 検出器版の図11/12。地上・PF なしのため linac から地上 CPS を外挿。"""
     cps = load_d2_cps()
     fig_all_sites_equiv_concrete(
         absolute=absolute,
         logy=logy,
         cps_map=cps,
-        ref_label="PF",
+        ref_label="linac",
         name_suffix="_d2",
         csv_name="等価コンクリート_減衰_d2.csv",
-        measure_label=(
-            "測定（d2・実測CPS）"
-            if absolute
-            else "測定（d2・外挿地上=1）"
-        ),
+        detector="d2",
     )
 
 
@@ -1053,7 +1033,7 @@ def fig_all_sites_equiv_concrete_composition(
         color=RED,
         ms=9,
         zorder=3,
-        label="測定（実測CPS）" if absolute else "測定（ユーザーCPS・地上=1）",
+        label="測定（実測CPS）" if absolute else "測定（地上=1）",
     )
 
     offsets = {
