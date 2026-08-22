@@ -92,6 +92,10 @@ COMPOSITION_CONCRETE_NIST = {
     "Fe": 0.0064,
 }
 COMPOSITION_KANTO_LOAM = {
+    # 火山灰質粘性土（関東ローム）の代表値。
+    # 筑波台地・KEK 向け。Si やや低め、Al/Fe やや高め（風化火山灰質）。
+    # 出典の位置づけ: 地質層序は宇野沢ほか1988・坂田ほか2018/2024、
+    # 元素比は教材土(O50/Si27/Al7/Fe4)と沖積論文52(8)の傾向を踏まえた推定。
     "O": 0.52,
     "Si": 0.22,
     "Al": 0.12,
@@ -102,6 +106,48 @@ COMPOSITION_KANTO_LOAM = {
     "Na": 0.006,
     "K": 0.007,
     "Ti": 0.006,
+}
+
+# 常総粘土（凝灰質粘土）— ロームより Al/Fe↑ Si↓（粘土鉱物多め）
+COMPOSITION_JOSO_CLAY = {
+    "O": 0.50,
+    "Si": 0.18,
+    "Al": 0.14,
+    "Fe": 0.08,
+    "H": 0.015,
+    "Ca": 0.006,
+    "Mg": 0.012,
+    "Na": 0.005,
+    "K": 0.008,
+    "Ti": 0.006,
+}
+
+# 下総層群（砂〜シルト質細砂）— Si やや高め
+COMPOSITION_SHIMOSA_SAND = {
+    "O": 0.48,
+    "Si": 0.32,
+    "Al": 0.06,
+    "Fe": 0.05,
+    "H": 0.012,
+    "Ca": 0.008,
+    "Mg": 0.008,
+    "Na": 0.004,
+    "K": 0.005,
+    "Ti": 0.004,
+}
+
+# 埋土（完新世・造成地浅部）— 旭 B1 の 0.35–5.55 m 相当
+COMPOSITION_FILL_SOIL = {
+    "O": 0.50,
+    "Si": 0.25,
+    "Al": 0.09,
+    "Fe": 0.05,
+    "H": 0.018,
+    "Ca": 0.008,
+    "Mg": 0.008,
+    "Na": 0.005,
+    "K": 0.006,
+    "Ti": 0.004,
 }
 
 
@@ -129,10 +175,30 @@ CONCRETE_SLIDE = Material("コンクリート（教材組成）", 2.30, COMPOSIT
 CONCRETE_KEK = Material("コンクリート（KEK ρ=2.35）", 2.35, COMPOSITION_CONCRETE_SLIDE, "ρ=2.35")
 CONCRETE_NIST = Material("コンクリート（NIST Ordinary）", 2.30, COMPOSITION_CONCRETE_NIST, "NIST NBS 04")
 SOIL_SLIDE = Material("土（教材組成）", 1.90, COMPOSITION_SOIL_SLIDE, "教材代表土")
-LOAM = Material("関東ローム", 1.35, COMPOSITION_KANTO_LOAM, "筑波台地表層")
-JOSO = Material("常総粘土", 1.65, COMPOSITION_KANTO_LOAM, "凝灰質粘土")
-SHIMOSA = Material("下総層群（砂）", 1.85, COMPOSITION_SOIL_SLIDE, "更新世砂層")
-FILL = Material("埋土", 1.55, COMPOSITION_SOIL_SLIDE, "旭ボーリング浅部")
+LOAM = Material(
+    "関東ローム",
+    1.35,
+    COMPOSITION_KANTO_LOAM,
+    "筑波台地表層・火山灰質粘性土（代表組成）",
+)
+JOSO = Material(
+    "常総粘土",
+    1.65,
+    COMPOSITION_JOSO_CLAY,
+    "凝灰質粘土（Al/Fe↑ Si↓）",
+)
+SHIMOSA = Material(
+    "下総層群（砂）",
+    1.85,
+    COMPOSITION_SHIMOSA_SAND,
+    "更新世砂〜シルト質細砂",
+)
+FILL = Material(
+    "埋土",
+    1.55,
+    COMPOSITION_FILL_SOIL,
+    "完新世埋土（旭 B1 浅部）",
+)
 PAVEMENT = Material("舗装", 2.20, COMPOSITION_CONCRETE_SLIDE, "AS+砕石")
 
 
@@ -194,7 +260,10 @@ PROFILE_TEXTBOOK = SoilProfile(
 
 PROFILE_TSUKUBA = SoilProfile(
     name="tsukuba",
-    note="筑波台地自然地盤: ローム3.5 m → 常総2.0 m → 下総",
+    note=(
+        "筑波台地・自然地盤（KEK 向け推奨）: ローム 3.5 m → 常総 2.0 m → 下総。"
+        "層厚・ρ は区域代表。構内ボーリングがあれば差し替え。"
+    ),
     layers=[
         SoilLayer("関東ローム", 3.5, LOAM),
         SoilLayer("常総粘土", 2.0, JOSO),
@@ -204,7 +273,10 @@ PROFILE_TSUKUBA = SoilProfile(
 
 PROFILE_ASAHI = SoilProfile(
     name="asahi",
-    note="国総研・つくば市旭 B1: 埋土5.55 m → 凝灰質粘土2.15 m → 下総",
+    note=(
+        "国総研・つくば市旭 B1（2021, KuniJiban）: 舗装 0.35 m + 埋土 5.20 m + "
+        "凝灰質粘土 2.15 m → 下総。造成地モデル（自然ロームではない）。"
+    ),
     layers=[
         SoilLayer("舗装・砕石", 0.35, PAVEMENT),
         SoilLayer("埋土", 5.20, FILL),
@@ -450,6 +522,65 @@ def write_reference_tables(out_dir: Path | None = None) -> list[Path]:
             )
     written.append(p2)
 
+    p2b = out_dir / "土壌_組成と減衰長.csv"
+    soil_mats = [LOAM, JOSO, SHIMOSA, FILL, SOIL_SLIDE, PAVEMENT]
+    with p2b.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(
+            f,
+            fieldnames=["name", "rho", "lambda_gcm2", "lambda_cm", "composition", "note"],
+        )
+        w.writeheader()
+        for m in soil_mats:
+            total = sum(m.composition.values())
+            comp = ", ".join(
+                f"{k}:{v/total*100:.1f}%"
+                for k, v in sorted(m.composition.items(), key=lambda kv: -kv[1])
+            )
+            w.writerow(
+                {
+                    "name": m.name,
+                    "rho": f"{m.rho_g_cm3:.2f}",
+                    "lambda_gcm2": f"{m.lambda_gcm2:.2f}",
+                    "lambda_cm": f"{m.lambda_cm:.2f}",
+                    "composition": comp,
+                    "note": m.note,
+                }
+            )
+    written.append(p2b)
+
+    p2c = out_dir / "土壌_文献とプロファイル.csv"
+    lit_rows = [
+        {
+            "topic": "関東ローム組成",
+            "source": "教材土 + 筑波台地層序",
+            "url": "https://www.jstage.jst.go.jp/article/bullgsj/52/8/52_347/_pdf/-char/ja",
+            "note": "52(8)は沖積中心。ロームは火山灰質の代表値として別途推定",
+        },
+        {
+            "topic": "常総粘土組成",
+            "source": "凝灰質粘土（Al/Fe↑ Si↓）",
+            "url": "",
+            "note": "ロームと分離。密度1.65は地質予測・旭B1",
+        },
+        {
+            "topic": "層序・密度",
+            "source": "KuniJiban つくば市旭 B1",
+            "url": "https://www.kunijiban.pwri.go.jp/viewer/",
+            "note": "組成ではなく層厚・ρ の根拠。asahi プロファイル",
+        },
+        {
+            "topic": "筑波台地層序",
+            "source": "宇野沢ほか1988、坂田ほか2018/2024",
+            "url": "",
+            "note": "tsukuba: ローム3.5m→常総2.0m→下総",
+        },
+    ]
+    with p2c.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["topic", "source", "url", "note"])
+        w.writeheader()
+        w.writerows(lit_rows)
+    written.append(p2c)
+
     depths = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 10]
     for pname in ("tsukuba", "asahi", "textbook"):
         p = out_dir / f"深さ_等価コンクリート_{pname}.csv"
@@ -484,6 +615,9 @@ def write_reference_tables(out_dir: Path | None = None) -> list[Path]:
         w.writerow(["lambda_concrete_m", f"{detail['lambda_m']:.4f}", "m", "旧0.77 m は誤り"])
         w.writerow(["rho_concrete", "2.30", "g/cm3", "教材・申請の設計密度"])
         w.writerow(["lambda_soil_gcm2", f"{SOIL_SLIDE.lambda_gcm2:.2f}", "g/cm2", "教材土組成"])
+        w.writerow(["lambda_loam_gcm2", f"{LOAM.lambda_gcm2:.2f}", "g/cm2", LOAM.note])
+        w.writerow(["lambda_joso_gcm2", f"{JOSO.lambda_gcm2:.2f}", "g/cm2", JOSO.note])
+        w.writerow(["lambda_shimosa_gcm2", f"{SHIMOSA.lambda_gcm2:.2f}", "g/cm2", SHIMOSA.note])
         w.writerow(["default_soil_profile", DEFAULT_PROFILE, "-", PROFILE_TSUKUBA.note])
         w.writerow(["composition_concrete", detail["composition"], "-", "教材スライド3"])
     written.append(p5)
@@ -548,6 +682,12 @@ def main() -> None:
                 f"  {p['element']:2s}  {p['weight_pct']:5.1f}%  "
                 f"A={p['A']:6.1f}  σ={p['sigma_mb']:6.1f} mb  "
                 f"Λ_i={p['lambda_i_gcm2']:6.1f}  w/Λ={p['w_over_lambda']:.5f}"
+            )
+        print("\n=== 土壌 Λ（層別組成） ===")
+        for m in (LOAM, JOSO, SHIMOSA, FILL, SOIL_SLIDE):
+            print(
+                f"  {m.name}: ρ={m.rho_g_cm3}  Λ={m.lambda_gcm2:.2f} g/cm²  "
+                f"λ={m.lambda_cm:.1f} cm"
             )
         paths = write_reference_tables()
         print("\nCSV:")

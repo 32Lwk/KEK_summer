@@ -4,5 +4,8 @@ lambda_concrete_cm,39.18,cm,"Λ/ρ, ρ=2.3"
 lambda_concrete_m,0.3918,m,旧0.77 m は誤り
 rho_concrete,2.30,g/cm3,教材・申請の設計密度
 lambda_soil_gcm2,88.83,g/cm2,教材土組成
-default_soil_profile,tsukuba,-,筑波台地自然地盤: ローム3.5 m → 常総2.0 m → 下総
+lambda_loam_gcm2,90.78,g/cm2,筑波台地表層・火山灰質粘性土（代表組成）
+lambda_joso_gcm2,90.81,g/cm2,凝灰質粘土（Al/Fe↑ Si↓）
+lambda_shimosa_gcm2,91.15,g/cm2,更新世砂〜シルト質細砂
+default_soil_profile,tsukuba,-,筑波台地・自然地盤（KEK 向け推奨）: ローム 3.5 m → 常総 2.0 m → 下総。層厚・ρ は区域代表。構内ボーリングがあれば差し替え。
 composition_concrete,"O:55.8%, Si:35.8%, Ca:4.2%, Al:3.2%, H:1.1%",-,教材スライド3
