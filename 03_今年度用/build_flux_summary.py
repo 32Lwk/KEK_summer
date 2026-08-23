@@ -2,8 +2,7 @@
 """検出器ごとのフラックスまとめ表を作る。
 
 方針（確定）:
-  - 絶対 φ [n/cm²/s] は d1（黒鉛パイル）および D1（現場転送較正）
-  - D2 / d2 は同一検出器内の地点相対（基準=地上、なければ管理棟2階）
+  - 絶対 φ [n/cm²/s] は d1（黒鉛パイル）、D1（D1/d1 転送）、d2/D2（地上 d2/D1・D2/D1 転送）
   - 熱中性子管理棟・ゲイン調整は除外
 """
 
@@ -23,6 +22,8 @@ OUT_WIDE = TABLES / "フラックス_検出器別相対.csv"
 EPS_S_ROI_DEFAULTS = {
     "d1": 50.22,  # cm²（黒鉛パイル）
     "D1": 210.9,  # cm²（管理棟2階 D1/d1 転送）
+    "d2": 26.17,  # cm²（地上 d2/D1 転送）
+    "D2": 120.2,  # cm²（地上 D2/D1 転送・calc_D2_efficiency_transfer.py）
 }
 
 SITES_ORDER = [
@@ -80,7 +81,7 @@ def load_eps_roi() -> dict[str, float]:
         for r in csv.DictReader(EFF.open(encoding="utf-8")):
             det = (r.get("検出器") or "").strip()
             v = (r.get("epsilon_S_ROI_cm2") or "").strip()
-            if det in out and v:
+            if det in ("d1", "D1", "d2", "D2") and v:
                 out[det] = float(v)
     return out
 
@@ -165,7 +166,11 @@ def main() -> None:
             e = eps_roi[det]
             phi_abs = f"{roi / e:.6g}"
             phi_err = f"{roi_err / e:.6g}"
-            tag = "パイル" if det == "d1" else "転送"
+            tag = (
+                "パイル"
+                if det == "d1"
+                else ("D1/d1転送" if det == "D1" else ("d2/D1転送" if det == "d2" else "D2/D1転送"))
+            )
             notes.append(f"絶対φ=ROI/(εS_ROI={e:.4g} cm²,{tag})")
         else:
             phi_abs = ""
@@ -205,7 +210,9 @@ def main() -> None:
         by_det_site.setdefault(row["検出器"], {})[row["地点"]] = row
 
     ref_note = "; ".join(f"{d}基準={ref_site[d]}" for d in ("d1", "D1", "d2", "D2") if d in ref_site)
-    ref_note += "; " + "; ".join(f"{d} εS_ROI={eps_roi[d]:.4g} cm²" for d in ("d1", "D1") if d in eps_roi)
+    ref_note += "; " + "; ".join(
+        f"{d} εS_ROI={eps_roi[d]:.4g} cm²" for d in ("d1", "D1", "d2", "D2") if d in eps_roi
+    )
 
     wide_rows: list[dict] = []
     for site in SITES_ORDER:
@@ -244,7 +251,9 @@ def main() -> None:
     print("フラックス地点まとめ")
     print(
         f"  d1 ε×S_ROI = {eps_roi['d1']:.4g} cm²（パイル） / "
-        f"D1 ε×S_ROI = {eps_roi['D1']:.4g} cm²（転送）"
+        f"D1 ε×S_ROI = {eps_roi['D1']:.4g} cm²（D1/d1転送） / "
+        f"d2 ε×S_ROI = {eps_roi.get('d2', float('nan')):.4g} cm²（d2/D1転送） / "
+        f"D2 ε×S_ROI = {eps_roi.get('D2', float('nan')):.4g} cm²（D2/D1転送）"
     )
     print(f"  相対基準: {ref_site}")
     print("=" * 72)

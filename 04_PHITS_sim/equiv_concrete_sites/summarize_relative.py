@@ -120,6 +120,7 @@ def main() -> None:
         help="結果を読む検出器（d1/d2=小径, D1/D2=大径。default: D1）",
     )
     args = parser.parse_args()
+    spec = DETECTORS[args.detector]
     det_root = detector_root(BASE, args.detector)
     tag = detector_result_tag(args.detector)
 

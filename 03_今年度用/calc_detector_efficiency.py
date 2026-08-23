@@ -304,16 +304,22 @@ def main() -> None:
         print("\n[D1] 30/80 cm は飽和 → パイル直接較正不可")
         print("     → calc_D1_efficiency_transfer.py（管理棟2階 D1/d1 転送）を使用")
 
-    # 既存の転送較正 D1 行を保持（本スクリプト再実行で消さない）
+    # 既存の転送較正 D1 / d2 / D2 行を保持（本スクリプト再実行で消さない）
     d1_transfer: dict[str, str] | None = None
+    d2_transfer: dict[str, str] | None = None
+    D2_transfer: dict[str, str] | None = None
     eff_existing = TABLES / "検出器効率_熱中性子校正版.csv"
     if eff_existing.exists():
         for r in csv.DictReader(eff_existing.open(encoding="utf-8")):
-            if r.get("検出器") == "D1" and (r.get("epsilon_S_ROI_cm2") or "").strip():
+            det = r.get("検出器")
+            if det == "D1" and (r.get("epsilon_S_ROI_cm2") or "").strip():
                 d1_transfer = r
-                break
+            if det == "d2" and (r.get("epsilon_S_ROI_cm2") or "").strip():
+                d2_transfer = r
+            if det == "D2" and (r.get("epsilon_S_ROI_cm2") or "").strip():
+                D2_transfer = r
 
-    # --- 現場フラックス（d1 パイル + D1 転送）---
+    # --- 現場フラックス（d1 パイル + D1/d2/D2 転送）---
     record_csv = TABLES / "測定記録.csv"
     rows_out = []
     with record_csv.open(encoding="utf-8") as f:
@@ -334,15 +340,18 @@ def main() -> None:
         elif det == "D1" and d1_transfer:
             eps_roi = float(d1_transfer["epsilon_S_ROI_cm2"])
             note = "D1 転送較正（管理棟2階 D1/d1×d1εS）; パイル30/80は飽和不使用"
+        elif det == "d2" and d2_transfer:
+            eps_roi = float(d2_transfer["epsilon_S_ROI_cm2"])
+            note = "d2 転送較正（地上 d2/D1×D1εS）; 400cm PE確認は不使用"
+        elif det == "D2" and D2_transfer:
+            eps_roi = float(D2_transfer["epsilon_S_ROI_cm2"])
+            note = "D2 転送較正（地上 D2/D1×D1εS）; 400cm PE確認は不使用"
         elif det in ("D1", "D2", "d2"):
             note = (
                 "絶対効率未確定・相対比較のみ"
                 + ("（D1: calc_D1_efficiency_transfer.py を実行）" if det == "D1" else "")
-                + (
-                    "（400cm=線源距離・黒鉛なし・PE効果確認。絶対φは出さない）"
-                    if det in ("D2", "d2")
-                    else ""
-                )
+                + ("（d2: calc_d2_efficiency_transfer.py を実行）" if det == "d2" else "")
+                + ("（D2: calc_D2_efficiency_transfer.py を実行）" if det == "D2" else "")
             )
 
         if eps_roi and eps_roi > 0:
@@ -414,15 +423,39 @@ def main() -> None:
             d1_note_written = True
         else:
             d1_note_written = False
+        if d2_transfer:
+            row = {k: d2_transfer.get(k, "") for k in fields}
+            row["検出器"] = "d2"
+            row["Q_n_s"] = f"{args.q:.6g}"
+            row["R_half_cm"] = f"{args.r_half:g}"
+            row["phi_over_Q"] = f"{PHI_OVER_Q:.6g}"
+            w.writerow(row)
+            d2_note_written = True
+        else:
+            d2_note_written = False
+        if D2_transfer:
+            row = {k: D2_transfer.get(k, "") for k in fields}
+            row["検出器"] = "D2"
+            row["Q_n_s"] = f"{args.q:.6g}"
+            row["R_half_cm"] = f"{args.r_half:g}"
+            row["phi_over_Q"] = f"{PHI_OVER_Q:.6g}"
+            w.writerow(row)
+            D2_note_written = True
+        else:
+            D2_note_written = False
         for det, note in (
             (
                 "D1",
                 "未較正: 30/80cm 飽和 → calc_D1_efficiency_transfer.py を実行",
             ),
-            ("D2", "未較正: 線源距離400cm・黒鉛なし（PE効果確認）。熱φ公式不可。絶対φは出さない"),
-            ("d2", "未較正: 線源距離400cm・黒鉛なし（PE効果確認）。熱φ公式不可。絶対φは出さない"),
+            ("D2", "未較正: 地上 D2/D1 転送 → calc_D2_efficiency_transfer.py を実行"),
+            ("d2", "未較正: 地上 d2/D1 転送 → calc_d2_efficiency_transfer.py を実行"),
         ):
             if det == "D1" and d1_note_written:
+                continue
+            if det == "d2" and d2_note_written:
+                continue
+            if det == "D2" and D2_note_written:
                 continue
             w.writerow(
                 {

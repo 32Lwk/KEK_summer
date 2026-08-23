@@ -16,8 +16,10 @@ import numpy as np
 
 from mca_common import (
     HE3_MARK_KEV,
+    HE3_WALL_LO_KEV,
     detector_fs_suffix,
     equiv_decay_csv_name,
+    he3_wall_channels,
     peak_clip as roi_peak_clip,
     resolve_he3_energy_cal,
 )
@@ -30,10 +32,13 @@ TABLES = DATA / "tables"
 FIG = DATA / "figures"
 
 BLUE, RED, GREEN, GRAY = "#1F77B4", "#D62728", "#2CA02C", "#666666"
+WALL_SHADE = "#C8E6C9"
 PALETTE = [BLUE, RED, GREEN, "#9467BD", "#8C564B", "#E377C2", "#17BECF"]
 YLABEL = "計数率 [1/s / ch]"
 YLABEL_SUM = "計数率 [1/s]"
 CLIP_PAD = 0.002
+HE3_X_PAD_LO = 12
+HE3_X_PAD_HI = 32
 # 対数軸では 0 を描けない。NaN にすると step が切れるので、
 # 半カウント相当（0.5/live）を床として連続線にする。
 LOG_Y_FLOOR = 1e-5
@@ -98,6 +103,45 @@ def union_roi(series: list[dict]) -> tuple[int, int]:
     return min(s["roi_lo"] for s in series), max(s["roi_hi"] for s in series)
 
 
+def union_wall(series: list[dict]) -> tuple[int, int] | None:
+    walls = [
+        (int(s["wall_lo"]), int(s["wall_hi"]))
+        for s in series
+        if s.get("wall_lo") is not None and s.get("wall_hi") is not None
+    ]
+    if not walls:
+        return None
+    return min(w[0] for w in walls), max(w[1] for w in walls)
+
+
+def he3_plot_xlim(wlo: int, whi: int) -> tuple[int, int]:
+    return max(1, wlo - HE3_X_PAD_LO), min(511, whi + HE3_X_PAD_HI)
+
+
+def union_he3_xlim(series: list[dict]) -> tuple[int, int]:
+    wall = union_wall(series)
+    if wall is None:
+        return 1, 511
+    return he3_plot_xlim(*wall)
+
+
+def wall_clip_for(cps: np.ndarray, wlo: int, whi: int) -> float:
+    seg = cps[wlo : whi + 1]
+    peak = float(np.max(seg)) if len(seg) else 0.0
+    return roi_peak_clip(cps, wlo, whi, pad=max(CLIP_PAD, 0.12 * peak))
+
+
+def shade_wall_window(ax, wlo: int, whi: int, label: str | None = None) -> None:
+    ax.axvspan(
+        wlo,
+        whi,
+        color=WALL_SHADE,
+        alpha=0.38,
+        zorder=0,
+        label=label or f"wall {HE3_WALL_LO_KEV:.0f}–764 keV ({wlo}–{whi})",
+    )
+
+
 def load_spectrum() -> dict:
     with (TABLES / "測定記録.csv").open(encoding="utf-8") as f:
         recs = list(csv.DictReader(f))
@@ -113,11 +157,26 @@ def load_spectrum() -> dict:
         hours = live / 3600.0
         tlab = f"{hours:.1f} h" if live >= 3600 else f"{live/60:.1f} min"
         lo, hi = int(float(rec["roi_lo"])), int(float(rec["roi_hi"]))
+        roi_peak = int(float(rec.get("roi_peak") or 0))
+        serial = str(rec.get("シリアル") or "")
+        place = rec["場所"]
+        wall = he3_wall_channels(serial, roi_peak, place)
+        if wall is not None:
+            wlo, whi = wall
+            clip = wall_clip_for(cps, wlo, whi)
+        else:
+            wlo, whi = None, None
+            clip = roi_peak_clip(
+                cps,
+                lo,
+                hi,
+                pad=max(CLIP_PAD, 0.1 * float(np.max(cps[lo : hi + 1]) if hi >= lo else 0)),
+            )
         series.append(
             {
                 "id": sid,
-                "場所": rec["場所"],
-                "シリアル": str(rec.get("シリアル") or ""),
+                "場所": place,
+                "シリアル": serial,
                 "c": cps,
                 "e": np.sqrt(np.maximum(c, 0.0)) / live,
                 "live": live,
@@ -125,14 +184,16 @@ def load_spectrum() -> dict:
                 "color": color_for(sid, i),
                 "roi_lo": lo,
                 "roi_hi": hi,
-                "roi_peak": int(float(rec.get("roi_peak") or 0)),
+                "roi_peak": roi_peak,
+                "wall_lo": wlo,
+                "wall_hi": whi,
                 "roi_net_cps": float(rec["roi_net_cps"]),
                 "roi_warning": rec.get("roi_warning") or "",
                 "sb_lo_lo": int(float(rec["sb_lo_lo"])) if rec.get("sb_lo_lo") not in (None, "") else 0,
                 "sb_lo_hi": int(float(rec["sb_lo_hi"])) if rec.get("sb_lo_hi") not in (None, "") else 0,
                 "sb_hi_lo": int(float(rec["sb_hi_lo"])) if rec.get("sb_hi_lo") not in (None, "") else 0,
                 "sb_hi_hi": int(float(rec["sb_hi_hi"])) if rec.get("sb_hi_hi") not in (None, "") else 0,
-                "clip": roi_peak_clip(cps, lo, hi, pad=max(CLIP_PAD, 0.1 * float(np.max(cps[lo : hi + 1]) if hi >= lo else 0))),
+                "clip": clip,
             }
         )
     return {"ch": ch, "series": series}
@@ -292,30 +353,39 @@ def step_spectrum(ax, ch, c, color, label=None, clip=None, annotate=True) -> Non
 
 def fig_full_linear(d: dict) -> None:
     lo, hi = union_roi(d["series"])
+    he3_xlim = union_he3_xlim(d["series"])
+    wall = union_wall(d["series"])
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d)
-    ax.set_xlim(0, 511)
+    if wall is not None:
+        shade_wall_window(ax, *wall)
+    ax.set_xlim(*he3_xlim)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title("全ch 線形")
+    ax.set_title("全ch 線形（³He 窓）")
     place_legend(ax, fontsize=8, ncol=2)
     save(fig, "06_全ch_線形")
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d, clip=overlay_clip(d))
-    ax.set_xlim(0, 511)
+    if wall is not None:
+        shade_wall_window(ax, *wall)
+    shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
+    ax.set_xlim(*he3_xlim)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"全ch {clip_title(overlay_clip(d))}")
+    ax.set_title(f"全ch {clip_title(overlay_clip(d))}（³He 窓）")
     place_legend(ax, fontsize=8, ncol=2)
     save(fig, "06b_全ch_線形_クリップ")
 
     m = d["ch"] >= 1
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d, mask=m)
-    shade_roi(ax, lo, hi)
-    ax.set_xlim(1, 511)
+    if wall is not None:
+        shade_wall_window(ax, *wall)
+    shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
+    ax.set_xlim(*he3_xlim)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -325,8 +395,10 @@ def fig_full_linear(d: dict) -> None:
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d, mask=m, clip=overlay_clip(d))
-    shade_roi(ax, lo, hi)
-    ax.set_xlim(1, 511)
+    if wall is not None:
+        shade_wall_window(ax, *wall)
+    shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
+    ax.set_xlim(*he3_xlim)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"全ch {clip_title(overlay_clip(d))}（ch0除く）")
@@ -431,6 +503,30 @@ def fig_ratio(d: dict) -> None:
     save(fig, "05_比_低ch")
 
 
+def _decorate_he3_window(
+    ax,
+    s: dict,
+    *,
+    show_wall: bool = True,
+    show_peak: bool = True,
+    show_sideband: bool = True,
+    show_energy_marks: bool = False,
+) -> tuple[int, int]:
+    wlo, whi = s.get("wall_lo"), s.get("wall_hi")
+    lo, hi = s["roi_lo"], s["roi_hi"]
+    if show_wall and wlo is not None and whi is not None:
+        shade_wall_window(ax, int(wlo), int(whi))
+    if show_peak:
+        shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
+    if show_sideband:
+        shade_sidebands(ax, s)
+    if show_energy_marks:
+        mark_he3_energies(ax, s)
+    if wlo is not None and whi is not None:
+        return he3_plot_xlim(int(wlo), int(whi))
+    return 1, 511
+
+
 def _one_site(d: dict, s: dict) -> None:
     out = FIG / "地点別" / folder_name(s["場所"])
     out.mkdir(parents=True, exist_ok=True)
@@ -438,6 +534,8 @@ def _one_site(d: dict, s: dict) -> None:
     color = s["color"]
     clip = s["clip"]
     lo, hi = s["roi_lo"], s["roi_hi"]
+    wlo, whi = s.get("wall_lo"), s.get("wall_hi")
+    he3_xlim = he3_plot_xlim(int(wlo), int(whi)) if wlo is not None and whi is not None else (1, 511)
     ctitle = clip_title(clip)
     roi_title = f"共通ROI {lo}–{hi}"
     if s.get("roi_warning"):
@@ -445,27 +543,30 @@ def _one_site(d: dict, s: dict) -> None:
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     ax.step(ch, c, where="mid", color=color, lw=1.4)
-    ax.set_xlim(0, 511)
+    _decorate_he3_window(ax, s, show_sideband=False, show_energy_marks=False)
+    ax.set_xlim(*he3_xlim)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title("全ch 線形")
+    ax.set_title("全ch 線形（³He 窓）")
+    place_legend(ax)
     save(fig, "全ch_線形", out)
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     step_spectrum(ax, ch, c, color, clip=clip)
-    ax.set_xlim(0, 511)
+    _decorate_he3_window(ax, s, show_sideband=False, show_energy_marks=True)
+    ax.set_xlim(*he3_xlim)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"全ch {ctitle}")
+    ax.set_title(f"全ch {ctitle}（³He 窓）")
+    place_legend(ax)
     save(fig, "全ch_線形_クリップ", out)
 
     m = ch >= 1
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     ax.step(ch[m], c[m], where="mid", color=color, lw=1.4)
-    shade_roi(ax, lo, hi)
-    shade_sidebands(ax, s)
-    ax.set_xlim(1, 511)
+    _decorate_he3_window(ax, s)
+    ax.set_xlim(*he3_xlim)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -475,10 +576,8 @@ def _one_site(d: dict, s: dict) -> None:
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     step_spectrum(ax, ch[m], c[m], color, clip=clip)
-    shade_roi(ax, lo, hi)
-    shade_sidebands(ax, s)
-    mark_he3_energies(ax, s)
-    ax.set_xlim(1, 511)
+    _decorate_he3_window(ax, s, show_energy_marks=True)
+    ax.set_xlim(*he3_xlim)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"全ch {ctitle}（ch0除く）")
@@ -506,14 +605,12 @@ def _one_site(d: dict, s: dict) -> None:
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     ax.step(ch, cps_for_log(c, live=s.get("live")), where="mid", color=color, lw=1.3)
     ax.set_yscale("log")
-    ax.set_xlim(0, 511)
+    _decorate_he3_window(ax, s, show_energy_marks=True)
+    ax.set_xlim(*he3_xlim)
     ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
-    shade_roi(ax, lo, hi)
-    shade_sidebands(ax, s)
-    mark_he3_energies(ax, s)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title("対数")
+    ax.set_title("対数（³He 窓）")
     place_legend(ax)
     save(fig, "全ch_対数", out)
 
@@ -689,8 +786,10 @@ LOAM_MAX_CM = esh.LOAM_MAX_CM
 LAMBDA_CONCRETE_GCM2 = esh.LAMBDA_CONCRETE_GCM2
 LAMBDA_SOIL_GCM2 = esh.LAMBDA_SOIL_GCM2
 LAMBDA_IRON_GCM2 = esh.LAMBDA_IRON_GCM2
-LAMBDA_CM = esh.LAMBDA_CONCRETE_CM  # ≈39.2 cm（旧77 cmは誤り）
+LAMBDA_CM = esh.LAMBDA_CONCRETE_CM  # ≈39.2 cm（教材組成）
 LAMBDA_M = esh.LAMBDA_CONCRETE_M    # ≈0.392 m（旧0.77 mは誤り）
+LAMBDA_CM_LOGY = 60.0  # 経験近似 λ_c [cm]（線形・片対数とも理論曲線に併記）
+THEORY_LAMBDA_CM_LIST = (LAMBDA_CM, LAMBDA_CM_LOGY)
 
 # 図11/12系の余白（凡例は左下・注釈用に上余白を確保）
 EQUIV_FIGSIZE = (8.8, 6.0)
@@ -709,7 +808,7 @@ def _equiv_legend(ax, fontsize: float = 9, *, logy: bool = False) -> None:
     )
 
 # 施設地点比較に使う場所ラベル（等価コンクリート図の横軸）
-FACILITY_SITES = ("地上", "PF", "linac", "BT", "KEKB", "linacIRON")
+FACILITY_SITES = ("地上", "PF", "linac", "Linac3", "BT", "KEKB", "linacIRON")
 
 # 検出器別のマーカー／色（4パターン比較用）
 DETECTOR_STYLE = {
@@ -743,9 +842,11 @@ def _facility_site_from_place(place: str) -> str | None:
         return None
     if "管理棟" in place or "kanri" in place.lower():
         return None
-    # linacIRON は linac より先に判定（名前が linac を含むため）
+    # linacIRON / Linac3 は linac より先に判定（名前が linac を含むため）
     if "linacIRON" in place or "linaciron" in place.lower():
         return "linacIRON"
+    if "linac3" in place.lower():
+        return "Linac3"
     if "地上" in place or "ground" in place.lower():
         return "地上"
     if re.search(r"(^|[_＿])PF($|[_＿])", place) or place.endswith("_PF") or "_PF_" in place:
@@ -791,13 +892,13 @@ def load_facility_cps_by_detector(
             score = (0 if warn else 1, live)
             key = (det, site)
             prev = best.get(key)
-            if prev is None or score > (prev[0], prev[1]):
-                best[key] = (score[0], live, cps, cps_err, place)
+            if prev is None or score > (prev[0], prev[1], prev[2]):
+                best[key] = (score[0], score[1], live, cps, cps_err, place)
 
     out: dict[str, dict[str, float]] = {k: {} for k in ("D1", "D2", "d1", "d2")}
     errs: dict[str, dict[str, float]] = {k: {} for k in out}
     sources: dict[str, dict[str, str]] = {k: {} for k in out}
-    for (det, site), (_, _, cps, cps_err, place) in best.items():
+    for (det, site), (_, _, _, cps, cps_err, place) in best.items():
         out[det][site] = cps
         errs[det][site] = cps_err
         sources[det][site] = place
@@ -954,9 +1055,129 @@ def _equiv_from_layers(
     )
 
 
-def _theory_rel(x_eq_cm, a0: float = 1.0):
+def _theory_rel(x_eq_cm, a0: float = 1.0, *, lambda_cm: float | None = None):
     """A = A0 * exp(-x/λ_c)。x・λ_c とも等価コンクリート [cm]。"""
-    return esh.theory_attenuation(x_eq_cm, a0=a0)
+    lam = LAMBDA_CM if lambda_cm is None else float(lambda_cm)
+    x = np.asarray(x_eq_cm, dtype=float)
+    return a0 * np.exp(-x / lam)
+
+
+def _plot_theory_curves(ax, x_c, a0: float, *, absolute: bool = False) -> list:
+    """教材 λ≈39.2 cm と経験近似 λ=60 cm の理論曲線を両方描く。
+
+    戻り値は各曲線の y 配列（ylim 計算用）。
+    """
+    # (λ_cm, color, linestyle, linewidth)
+    styles = (
+        (LAMBDA_CM, GRAY, "-", 2.0),
+        (LAMBDA_CM_LOGY, "#5D6D7E", "--", 1.8),
+    )
+    a0_txt = f"{a0:.4f}" if absolute else "1"
+    ys = []
+    for lam, color, ls, lw in styles:
+        y = _theory_rel(x_c, a0, lambda_cm=lam)
+        ys.append(y)
+        ax.plot(
+            x_c,
+            y,
+            color=color,
+            ls=ls,
+            lw=lw,
+            label=(
+                rf"$A_0\,e^{{-x/\lambda_c}}$"
+                rf"  （$\lambda_c={lam:.1f}\,\mathrm{{cm}}$, $A_0={a0_txt}$）"
+            ),
+        )
+    return ys
+
+
+def _equiv_label_offset(
+    label: str,
+    *,
+    logy: bool = False,
+    errorbar: bool = False,
+) -> tuple[int, int, str, str]:
+    """等価コンクリート図の地点ラベル位置（offset points, ha, va）。
+
+    linac(150)・BT(190)・Linac3(300) が近いため、
+    BT/PF/KEKB は点の左、linac/Linac3 は点の右で上下を分ける。
+    """
+    if errorbar:
+        if logy:
+            table = {
+                "地上": (18, 8, "left", "bottom"),
+                "PF": (10, 14, "left", "bottom"),
+                "linac": (14, 14, "left", "bottom"),
+                "Linac3": (14, -20, "left", "top"),
+                "BT": (-14, 14, "right", "bottom"),
+                "KEKB": (-14, 12, "right", "bottom"),
+                "linacIRON": (-12, -22, "right", "top"),
+            }
+        else:
+            table = {
+                "地上": (12, 10, "left", "bottom"),
+                "PF": (-12, 14, "right", "bottom"),
+                "linac": (14, 8, "left", "bottom"),
+                "Linac3": (14, 8, "left", "bottom"),
+                "BT": (-12, 10, "right", "bottom"),
+                "KEKB": (-12, 8, "right", "bottom"),
+                "linacIRON": (10, -18, "left", "top"),
+            }
+    elif logy:
+        table = {
+            "地上": (18, 8, "left", "bottom"),
+            "PF": (10, 14, "left", "bottom"),
+            "linac": (14, 14, "left", "bottom"),
+            "Linac3": (14, -20, "left", "top"),
+            "BT": (-14, 14, "right", "bottom"),
+            "KEKB": (-14, 12, "right", "bottom"),
+            "linacIRON": (-12, -22, "right", "top"),
+        }
+    else:
+        table = {
+            "地上": (12, 10, "left", "bottom"),
+            "PF": (-12, 14, "right", "bottom"),
+            "linac": (14, 8, "left", "bottom"),
+            "Linac3": (14, 8, "left", "bottom"),
+            "BT": (-12, 10, "right", "bottom"),
+            "KEKB": (-14, 10, "right", "bottom"),
+            "linacIRON": (10, -28, "left", "top"),
+        }
+    return table.get(label, (8, 8, "left", "bottom"))
+
+
+def _annotate_equiv_points(
+    ax,
+    points: list[dict],
+    *,
+    logy: bool = False,
+    absolute: bool = False,
+    errorbar: bool = False,
+) -> None:
+    """図11–14/16 の地点ラベルを重なりにくい位置へ配置。"""
+    for p in points:
+        dx, dy, ha, va = _equiv_label_offset(
+            p["label"], logy=logy, errorbar=errorbar
+        )
+        if errorbar:
+            if absolute:
+                txt = f'{p["label"]}  {p["cps"]:.4f}±{p["cps_err"]:.4f}'
+            else:
+                txt = f'{p["label"]}  {p["y_rel"]:.3f}±{p["y_err"]:.3f}'
+        elif absolute:
+            txt = f'{p["label"]}  {p["cps"]:.4f}\n（相対 {p["y_rel"]:.3f}）'
+        else:
+            txt = f'{p["label"]}  相対{p["y_rel"]:.3f}\n（実測CPS {p["cps"]:.4f}）'
+        ax.annotate(
+            txt,
+            (p["x"], p["y"]),
+            textcoords="offset points",
+            xytext=(dx, dy),
+            fontsize=8,
+            ha=ha,
+            va=va,
+            linespacing=1.15,
+        )
 
 
 def _site_layers() -> list[dict]:
@@ -965,6 +1186,13 @@ def _site_layers() -> list[dict]:
         {"label": "地上", "concrete_cm": 0.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": "基準（屋外）"},
         {"label": "PF", "concrete_cm": 105.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": ""},
         {"label": "linac", "concrete_cm": 150.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": ""},
+        {
+            "label": "Linac3",
+            "concrete_cm": 300.0,
+            "soil_cm": 0.0,
+            "iron_cm": 0.0,
+            "note": "ATF 加速管区間（コンクリート 300 cm のみ）",
+        },
         {
             "label": "BT",
             "concrete_cm": 60.0,
@@ -1171,7 +1399,6 @@ def fig_all_sites_equiv_concrete(
     x_air = np.linspace(-20, 0, 200)
     x_c = np.linspace(0, x_max, 900)
     y_air_level = a0
-    y_theory = _theory_rel(x_c, a0)
 
     fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
     fig.subplots_adjust(**EQUIV_SUBPLOT)
@@ -1184,17 +1411,7 @@ def fig_all_sites_equiv_concrete(
             lw=1.6,
             label=r"空気  $\lambda=1475$ m",
         )
-    ax.plot(
-        x_c,
-        y_theory,
-        color=GRAY,
-        lw=2.0,
-        label=(
-            rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0={a0:.4f}$）"
-            if absolute
-            else rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）"
-        ),
-    )
+    theory_ys = _plot_theory_curves(ax, x_c, a0, absolute=absolute)
     if not logy:
         ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
 
@@ -1214,39 +1431,7 @@ def fig_all_sites_equiv_concrete(
         label=measure_label,
     )
 
-    if logy:
-        offsets = {
-            "地上": (10, -22),
-            "PF": (8, 8),
-            "linac": (8, -28),
-            "BT": (8, 8),
-            "KEKB": (-8, 10),
-            "linacIRON": (8, -22),
-        }
-    else:
-        offsets = {
-            "地上": (8, -28),
-            "PF": (8, 6),
-            "linac": (8, -28),
-            "BT": (8, 6),
-            "KEKB": (-10, 6),
-            "linacIRON": (8, -28),
-        }
-    for p in points:
-        dx, dy = offsets.get(p["label"], (8, 8))
-        if absolute:
-            txt = f'{p["label"]}  {p["cps"]:.4f}\n（相対 {p["y_rel"]:.3f}）'
-        else:
-            txt = f'{p["label"]}  相対{p["y_rel"]:.3f}\n（実測CPS {p["cps"]:.4f}）'
-        ax.annotate(
-            txt,
-            (p["x"], p["y"]),
-            textcoords="offset points",
-            xytext=(dx, dy),
-            fontsize=8,
-            ha="left" if dx >= 0 else "right",
-            linespacing=1.15,
-        )
+    _annotate_equiv_points(ax, points, logy=logy, absolute=absolute)
 
     # 片対数は x<0 の空気領域を省き、左側の空きをなくす
     ax.set_xlim(0 if logy else -20, x_max)
@@ -1260,9 +1445,9 @@ def fig_all_sites_equiv_concrete(
         out_name = f"{out_name}{name_suffix}"
 
     y_data_max = max(p["y"] for p in points)
-    y_th_max = float(np.max(y_theory))
     y_data_min = min(p["y"] for p in points)
-    y_th_min = float(np.min(y_theory[y_theory > 0]))
+    y_th_max = max(float(np.max(y)) for y in theory_ys)
+    y_th_min = min(float(np.min(y[y > 0])) for y in theory_ys)
 
     if logy:
         out_name = f"{out_name}_片対数"
@@ -1299,14 +1484,16 @@ def fig_all_sites_equiv_concrete(
     if not absolute and not logy:
         print(f"equiv table: {out_csv}")
     print(
-        f"  理論 A0·exp(-x/λ_c)  λ_c={LAMBDA_CM:.2f} cm  A0={a0:.6f}  "
-        f"absolute={absolute}  logy={logy}  ref={ref_label}→{rel_tag}"
+        f"  理論 A0·exp(-x/λ_c)  λ_c={LAMBDA_CM:.2f} & {LAMBDA_CM_LOGY:.1f} cm  "
+        f"A0={a0:.6f}  absolute={absolute}  logy={logy}  ref={ref_label}→{rel_tag}"
     )
     for p in points:
-        th = float(np.asarray(_theory_rel(p["x"], a0)).reshape(-1)[0])
+        th39 = float(np.asarray(_theory_rel(p["x"], a0, lambda_cm=LAMBDA_CM)).reshape(-1)[0])
+        th60 = float(np.asarray(_theory_rel(p["x"], a0, lambda_cm=LAMBDA_CM_LOGY)).reshape(-1)[0])
         print(
             f"  {p['label']}: x={p['x']:.1f} cm  "
-            f"{'CPS' if absolute else '相対'}={p['y']:.4f}  理論={th:.4f}"
+            f"{'CPS' if absolute else '相対'}={p['y']:.4f}  "
+            f"理論39={th39:.4f}  理論60={th60:.4f}"
         )
 
 
@@ -1486,7 +1673,6 @@ def fig_all_sites_equiv_concrete_errorbars(
     x_left = -20.0
     x_air = np.linspace(x_left, 0, 200)
     x_c = np.linspace(0, x_max, 900)
-    y_theory = _theory_rel(x_c, a0)
 
     fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
     fig.subplots_adjust(**EQUIV_SUBPLOT)
@@ -1499,17 +1685,7 @@ def fig_all_sites_equiv_concrete_errorbars(
             lw=1.6,
             label=r"空気  $\lambda=1475$ m",
         )
-    ax.plot(
-        x_c,
-        y_theory,
-        color=GRAY,
-        lw=2.0,
-        label=(
-            rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0={a0:.4f}$）"
-            if absolute
-            else rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）"
-        ),
-    )
+    theory_ys = _plot_theory_curves(ax, x_c, a0, absolute=absolute)
     if not logy:
         ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
 
@@ -1538,9 +1714,9 @@ def fig_all_sites_equiv_concrete_errorbars(
         out_name = f"{out_name}{name_suffix}"
 
     y_data_max = max(p["y"] + p["y_err"] for p in points)
-    y_th_max = float(np.max(y_theory))
+    y_th_max = max(float(np.max(y)) for y in theory_ys)
     y_data_min = min(max(p["y"] - p["y_err"], 1e-12) for p in points)
-    y_th_min = float(np.min(y_theory[y_theory > 0]))
+    y_th_min = min(float(np.min(y[y > 0])) for y in theory_ys)
 
     # 片対数でも左余白を残し、地上点が枠に乗らないようにする
     ax.set_xlim(x_left, x_max)
@@ -1556,14 +1732,6 @@ def fig_all_sites_equiv_concrete_errorbars(
         ax.grid(True, which="major", alpha=0.35, linestyle="--")
         ax.grid(True, which="minor", axis="y", alpha=0.12, linestyle=":")
         ax.grid(True, which="minor", axis="x", alpha=0.18, linestyle=":")
-        offsets = {
-            "地上": (12, -16),
-            "PF": (8, 8),
-            "linac": (8, -20),
-            "BT": (-12, 10),
-            "KEKB": (-10, 10),
-            "linacIRON": (8, -18),
-        }
     else:
         y_top = max(y_data_max, a0) * EQUIV_Y_PAD_LINEAR
         ax.set_ylim(0, y_top)
@@ -1575,31 +1743,10 @@ def fig_all_sites_equiv_concrete_errorbars(
             ax.yaxis.set_minor_locator(MultipleLocator(0.02))
         ax.grid(True, which="major", alpha=0.35, linestyle="--")
         ax.grid(True, which="minor", alpha=0.18, linestyle=":")
-        offsets = {
-            "地上": (10, -18),
-            "PF": (8, 6),
-            "linac": (8, -20),
-            "BT": (-10, 8),
-            "KEKB": (-10, 6),
-            "linacIRON": (8, -18),
-        }
 
-    # 図11と同じ短い注釈（引出線なし・1行）
-    for p in points:
-        dx, dy = offsets.get(p["label"], (8, 8))
-        if absolute:
-            txt = f'{p["label"]}  {p["cps"]:.4f}±{p["cps_err"]:.4f}'
-        else:
-            txt = f'{p["label"]}  {p["y_rel"]:.3f}±{p["y_err"]:.3f}'
-        ax.annotate(
-            txt,
-            (p["x"], p["y"]),
-            textcoords="offset points",
-            xytext=(dx, dy),
-            fontsize=8,
-            ha="left" if dx >= 0 else "right",
-            va="center",
-        )
+    _annotate_equiv_points(
+        ax, points, logy=logy, absolute=absolute, errorbar=True
+    )
 
     ax.xaxis.set_major_locator(MultipleLocator(50))
     ax.xaxis.set_minor_locator(MultipleLocator(10))
@@ -1689,17 +1836,10 @@ def fig_all_sites_equiv_concrete_detectors_compare(logy: bool = False) -> None:
             )
     x_max = max(x_max, 1.0) * 1.04
     x_c = np.linspace(0, x_max, 900)
-    y_theory = _theory_rel(x_c, 1.0)
 
     fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
     fig.subplots_adjust(**EQUIV_SUBPLOT)
-    ax.plot(
-        x_c,
-        y_theory,
-        color=GRAY,
-        lw=2.0,
-        label=rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）",
-    )
+    _plot_theory_curves(ax, x_c, 1.0, absolute=False)
     ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
 
     for det in plotted:
@@ -1826,17 +1966,7 @@ def fig_all_sites_equiv_concrete_composition(
         lw=1.6,
         label=r"空気  $\lambda=1475$ m",
     )
-    ax.plot(
-        x_c,
-        _theory_rel(x_c, a0),
-        color=GRAY,
-        lw=2.0,
-        label=(
-            rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0={a0:.4f}$）"
-            if absolute
-            else rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）"
-        ),
-    )
+    _plot_theory_curves(ax, x_c, a0, absolute=absolute)
     ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
 
     ax.plot(
@@ -1849,28 +1979,7 @@ def fig_all_sites_equiv_concrete_composition(
         label="測定（実測CPS）" if absolute else "測定（地上=1）",
     )
 
-    offsets = {
-        "地上": (8, -28),
-        "PF": (8, 6),
-        "linac": (8, -28),
-        "BT": (8, 6),
-        "KEKB": (-10, 6),
-    }
-    for p in points:
-        dx, dy = offsets.get(p["label"], (8, 8))
-        if absolute:
-            txt = f'{p["label"]}  {p["cps"]:.4f}\n（相対 {p["y_rel"]:.3f}）'
-        else:
-            txt = f'{p["label"]}  相対{p["y_rel"]:.3f}\n（実測CPS {p["cps"]:.4f}）'
-        ax.annotate(
-            txt,
-            (p["x"], p["y"]),
-            textcoords="offset points",
-            xytext=(dx, dy),
-            fontsize=8,
-            ha="left" if dx >= 0 else "right",
-            linespacing=1.15,
-        )
+    _annotate_equiv_points(ax, points, logy=False, absolute=absolute)
 
     ax.set_xlim(-20, x_max)
     if absolute:
@@ -1918,6 +2027,507 @@ def fig_all_sites_equiv_concrete_composition_cps(d: dict | None = None) -> None:
     """組成補正・実測 CPS 版（図14）。"""
     fig_all_sites_equiv_concrete_composition(d, absolute=True)
 
+
+# ---------------------------------------------------------------------------
+# 図17/18: 中性子フラックス（φ = ROI / εS_ROI）
+# ---------------------------------------------------------------------------
+FLUX_SUMMARY_CSV = TABLES / "フラックス_地点まとめ.csv"
+
+# フラックス表の地点名 → 遮蔽層プロファイル（_site_layers の label）
+FLUX_SITE_LAYER: dict[str, str] = {
+    "地上": "地上",
+    "PF": "PF",
+    "linac": "Linac3",
+    "linac_IRON": "linacIRON",
+    "放射線棟BT": "BT",
+    "KEKB": "KEKB",
+}
+FLUX_INDOOR_SITES = frozenset({"管理棟2階", "管理棟1階"})
+
+# フラックス図の地点ラベル位置（offset points, ha, va）
+FLUX_LABEL_OFFSET: dict[str, dict[str, tuple[int, int, str, str]]] = {
+    "linear": {
+        "地上": (-22, -10, "right", "top"),
+        "管理棟2階": (18, 26, "left", "bottom"),
+        "管理棟1階": (18, -22, "left", "top"),
+        "PF": (-14, 12, "right", "bottom"),
+        "Linac3": (14, -16, "left", "top"),
+        "BT": (-14, 10, "right", "bottom"),
+        "KEKB": (-14, 8, "right", "bottom"),
+        "linacIRON": (14, -18, "left", "top"),
+    },
+    "logy": {
+        "地上": (-20, 6, "right", "center"),
+        "管理棟2階": (18, -26, "left", "top"),
+        "管理棟1階": (18, 18, "left", "bottom"),
+        "PF": (12, 14, "left", "bottom"),
+        "Linac3": (14, -18, "left", "top"),
+        "BT": (-14, 12, "right", "bottom"),
+        "KEKB": (-14, 10, "right", "bottom"),
+        "linacIRON": (-14, -20, "right", "top"),
+    },
+    "errorbar": {
+        "地上": (-22, -12, "right", "top"),
+        "管理棟2階": (18, 28, "left", "bottom"),
+        "管理棟1階": (18, -24, "left", "top"),
+        "PF": (-14, 14, "right", "bottom"),
+        "Linac3": (14, -18, "left", "top"),
+        "BT": (-14, 12, "right", "bottom"),
+        "KEKB": (-14, 10, "right", "bottom"),
+        "linacIRON": (14, -20, "left", "top"),
+    },
+    "errorbar_logy": {
+        "地上": (-20, 8, "right", "center"),
+        "管理棟2階": (18, -28, "left", "top"),
+        "管理棟1階": (18, 20, "left", "bottom"),
+        "PF": (12, 14, "left", "bottom"),
+        "Linac3": (14, -20, "left", "top"),
+        "BT": (-14, 14, "right", "bottom"),
+        "KEKB": (-14, 12, "right", "bottom"),
+        "linacIRON": (-14, -22, "right", "top"),
+    },
+}
+
+
+def _flux_label_offset(
+    label: str,
+    *,
+    logy: bool = False,
+    errorbar: bool = False,
+) -> tuple[int, int, str, str]:
+    if errorbar and logy:
+        key = "errorbar_logy"
+    elif errorbar:
+        key = "errorbar"
+    elif logy:
+        key = "logy"
+    else:
+        key = "linear"
+    table = FLUX_LABEL_OFFSET[key]
+    return table.get(label, (10, 10, "left", "bottom"))
+
+
+def load_flux_summary() -> dict[str, list[dict]]:
+    """フラックス_地点まとめ.csv を検出器別に読む。"""
+    out: dict[str, list[dict]] = {k: [] for k in ("D1", "D2", "d1", "d2")}
+    if not FLUX_SUMMARY_CSV.exists():
+        return out
+    with FLUX_SUMMARY_CSV.open(encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            det = (row.get("検出器") or "").strip()
+            if det not in out:
+                continue
+            out[det].append(row)
+    return out
+
+
+def _flux_layer_for_site(site: str) -> dict | None:
+    """フラックス表の地点から遮蔽層 dict を返す。屋内管理棟は x=0。"""
+    if site in FLUX_INDOOR_SITES:
+        return {
+            "label": site,
+            "concrete_cm": 0.0,
+            "soil_cm": 0.0,
+            "iron_cm": 0.0,
+            "note": "屋内（標高30 m・遮蔽なし）",
+        }
+    layer_label = FLUX_SITE_LAYER.get(site)
+    if layer_label is None:
+        return None
+    for base in _site_layers():
+        if base["label"] == layer_label:
+            return dict(base)
+    return None
+
+
+def _flux_x_eq(site: str) -> tuple[float, str]:
+    """等価コンクリート厚 [cm] とプロット用ラベルを返す。"""
+    layer = _flux_layer_for_site(site)
+    if layer is None:
+        return 0.0, site
+    x = _mass_thickness(
+        layer["concrete_cm"], layer["soil_cm"], layer.get("iron_cm", 0.0)
+    )
+    plot_label = layer["label"] if site not in FLUX_INDOOR_SITES else site
+    return _equiv_concrete_cm_from_x(x), plot_label
+
+
+def _flux_phi0_ground(flux: dict[str, list[dict]] | None = None) -> float:
+    """全図共通の基準 φ（D1 地上）。"""
+    data = flux if flux is not None else load_flux_summary()
+    for row in data.get("D1", []):
+        if (row.get("地点") or "").strip() == "地上":
+            v = (row.get("絶対phi_n_cm2_s") or "").strip()
+            if v:
+                return float(v)
+    raise KeyError("D1 地上の絶対 φ がありません")
+
+
+def _flux_ref_site(detector: str) -> str:
+    """検出器ごとの較正整合確認用の基準地点。"""
+    return {"d1": "管理棟2階"}.get(detector, "地上")
+
+
+def _format_flux_label(p: dict, *, absolute: bool) -> str:
+    """地点ラベル + 数値。"""
+    lab = p["label"]
+    y = p["y"]
+    if absolute:
+        return f"{lab}\nφ={y:.2e}"
+    return f"{lab}\n{y:.3f}"
+
+
+def _build_flux_points_ground_norm(
+    detector: str,
+    *,
+    flux: dict[str, list[dict]] | None = None,
+) -> list[dict]:
+    """絶対 φ を D1 地上で正規化した点（4検出器比較用）。"""
+    data = flux if flux is not None else load_flux_summary()
+    try:
+        phi0 = _flux_phi0_ground(data)
+    except KeyError:
+        return []
+    points: list[dict] = []
+    for row in data.get(detector, []):
+        phi_s = (row.get("絶対phi_n_cm2_s") or "").strip()
+        if not phi_s:
+            continue
+        phi = float(phi_s)
+        phi_err = float((row.get("絶対phi_err") or "0").strip() or 0)
+        site = (row.get("地点") or "").strip()
+        x_eq, plot_label = _flux_x_eq(site)
+        layer = _flux_layer_for_site(site)
+        sys = (
+            _teq_systematic_err_cm(
+                layer["concrete_cm"],
+                layer["soil_cm"],
+                layer.get("iron_cm", 0.0),
+            )
+            if layer is not None
+            else {"dteq_cm": 0.0}
+        )
+        points.append(
+            {
+                "site": site,
+                "label": plot_label,
+                "x": x_eq,
+                "y": phi / phi0,
+                "y_err": phi_err / phi0,
+                "x_err": float(sys.get("dteq_cm", 0.0)),
+                "phi": phi,
+            }
+        )
+    return points
+
+
+def _parse_flux_row(row: dict) -> tuple[float, float] | None:
+    """(phi または相対, err) を float で返す。空なら None。"""
+    for key, err_key in (
+        ("絶対phi_n_cm2_s", "絶対phi_err"),
+        ("相対フラックス", "相対フラックス_err"),
+    ):
+        v = (row.get(key) or "").strip()
+        if not v:
+            continue
+        try:
+            val = float(v)
+            err = float((row.get(err_key) or "0").strip() or 0)
+        except ValueError:
+            continue
+        return val, err
+    return None
+
+
+def _build_flux_points(
+    detector: str,
+    *,
+    absolute: bool,
+    flux: dict[str, list[dict]] | None = None,
+) -> list[dict]:
+    """検出器のフラックス測定点（等価コンクリート厚付き）。"""
+    data = flux if flux is not None else load_flux_summary()
+    points: list[dict] = []
+    for row in data.get(detector, []):
+        site = (row.get("地点") or "").strip()
+        parsed = _parse_flux_row(row)
+        if parsed is None:
+            continue
+        val, err = parsed
+        if not absolute and (row.get("相対フラックス") or "").strip() == "":
+            continue
+        if absolute and (row.get("絶対phi_n_cm2_s") or "").strip() == "":
+            continue
+        x_eq, plot_label = _flux_x_eq(site)
+        layer = _flux_layer_for_site(site)
+        sys = (
+            _teq_systematic_err_cm(
+                layer["concrete_cm"],
+                layer["soil_cm"],
+                layer.get("iron_cm", 0.0),
+            )
+            if layer is not None
+            else {"dteq_cm": 0.0}
+        )
+        points.append(
+            {
+                "site": site,
+                "label": plot_label,
+                "x": x_eq,
+                "y": val if absolute else float((row.get("相対フラックス") or val)),
+                "y_err": err if absolute else float((row.get("相対フラックス_err") or err)),
+                "x_err": float(sys.get("dteq_cm", 0.0)),
+                "ref_site": (row.get("相対_基準地点") or "").strip(),
+            }
+        )
+    return points
+
+
+def _annotate_flux_points(
+    ax,
+    points: list[dict],
+    *,
+    logy: bool = False,
+    absolute: bool = False,
+    errorbar: bool = False,
+) -> None:
+    """フラックス図の地点注釈（地点名 + 数値）。"""
+    for p in points:
+        lab = p["label"]
+        dx, dy, ha, va = _flux_label_offset(lab, logy=logy, errorbar=errorbar)
+        txt = _format_flux_label(p, absolute=absolute)
+        ax.annotate(
+            txt,
+            (p["x"], p["y"]),
+            xytext=(dx, dy),
+            textcoords="offset points",
+            fontsize=8,
+            ha=ha,
+            va=va,
+            color="#222222",
+            linespacing=1.12,
+            zorder=5,
+            clip_on=False,
+        )
+
+
+def fig_all_sites_flux_absolute(
+    *,
+    logy: bool = False,
+    errorbar: bool = False,
+    detector: str = "D1",
+) -> None:
+    """図17: 絶対中性子フラックス φ [n/cm²/s] vs 等価コンクリート厚。"""
+    from matplotlib.ticker import LogLocator, MultipleLocator, ScalarFormatter
+
+    flux = load_flux_summary()
+    points = _build_flux_points(detector, absolute=True, flux=flux)
+    if not points:
+        print(f"skip flux absolute {detector}: データなし")
+        return
+    try:
+        phi0 = _flux_phi0_ground(flux)
+    except KeyError:
+        print(f"skip flux absolute {detector}: D1 地上 φ なし")
+        return
+    ref_site = _flux_ref_site(detector)
+    if not any(p["site"] == ref_site for p in points):
+        print(f"skip flux absolute {detector}: 基準地点 {ref_site} なし")
+        return
+
+    x_max = max(p["x"] + p.get("x_err", 0.0) for p in points) * 1.04
+    x_left = -20.0
+    x_air = np.linspace(x_left, 0, 200)
+    x_c = np.linspace(0, max(x_max, 1.0), 900)
+    lam_air = 1475.0 * 100.0
+
+    fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
+    fig.subplots_adjust(**EQUIV_SUBPLOT)
+
+    if not logy:
+        ax.plot(
+            x_air,
+            phi0 * np.exp(x_air / lam_air),
+            color=BLUE,
+            lw=1.6,
+            label=r"空気  $\lambda=1475$ m",
+        )
+    theory_ys = _plot_theory_curves(ax, x_c, phi0, absolute=True)
+    if not logy:
+        ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
+
+    style = DETECTOR_STYLE.get(detector, {"color": RED, "marker": "o", "ms": 9, "label": detector})
+    plot_kw = dict(
+        marker=style["marker"],
+        color=style["color"],
+        ms=style["ms"],
+        zorder=3,
+        label=f"測定 {style['label']}（φ = ROI/εS）",
+    )
+    xs = [p["x"] for p in points]
+    ys = [p["y"] for p in points]
+    if errorbar:
+        ax.errorbar(
+            xs,
+            ys,
+            xerr=[p["x_err"] for p in points],
+            yerr=[p["y_err"] for p in points],
+            fmt=style["marker"],
+            color=style["color"],
+            ms=style["ms"],
+            linestyle="none",
+            capsize=3,
+            elinewidth=1.0,
+            zorder=3,
+            label=plot_kw["label"],
+        )
+    else:
+        ax.plot(xs, ys, linestyle="none", **plot_kw)
+
+    # 参考検出器（較正整合の確認）
+    REF_OVERLAY = {
+        "D1": ("d1", "パイル較正・参考"),
+        "D2": ("D1", "D1較正・参考"),
+        "d1": ("D1", "D1較正・参考"),
+        "d2": ("D1", "D1較正・参考"),
+    }
+    ref_det, ref_note = REF_OVERLAY.get(detector, (None, ""))
+    if ref_det:
+        ref_pts = _build_flux_points(ref_det, absolute=True, flux=flux)
+        ref_pts = [p for p in ref_pts if p["site"] in {q["site"] for q in points}]
+        if ref_pts:
+            st = DETECTOR_STYLE[ref_det]
+            ax.plot(
+                [p["x"] for p in ref_pts],
+                [p["y"] for p in ref_pts],
+                linestyle="none",
+                marker=st["marker"],
+                color=st["color"],
+                ms=st["ms"] - 1,
+                zorder=4,
+                label=f"{st['label']}（{ref_note}）",
+            )
+
+    _annotate_flux_points(ax, points, logy=logy, absolute=True, errorbar=errorbar)
+
+    ax.set_xlim(0 if logy else x_left, x_max)
+    ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
+    ax.set_ylabel(r"中性子フラックス $\phi$ [n/cm$^2$/s]")
+    out_name = f"17_全地点_フラックス_絶対_{detector}"
+    if errorbar:
+        out_name += "_誤差棒"
+    if logy:
+        out_name += "_片対数"
+
+    y_data_max = max(p["y"] for p in points)
+    y_data_min = min(p["y"] for p in points)
+    y_th_max = max(float(np.max(y)) for y in theory_ys)
+    y_th_min = min(float(np.min(y[y > 0])) for y in theory_ys)
+    y_top_ref = max(y_data_max, phi0)
+    if any(p["site"] in FLUX_INDOOR_SITES for p in points):
+        y_top_ref = max(y_top_ref, max(p["y"] for p in points if p["site"] in FLUX_INDOOR_SITES))
+
+    if logy:
+        y_min = min(y_data_min, y_th_min) * 0.5
+        y_max = max(y_data_max, y_th_max, phi0, y_top_ref) * EQUIV_Y_PAD_LOGY
+        ax.set_yscale("log")
+        ax.set_ylim(y_min, y_max)
+        ax.yaxis.set_major_locator(LogLocator(base=10.0))
+        ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+    else:
+        ax.set_ylim(0, y_top_ref * 1.38)
+        ax.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+        ax.ticklabel_format(axis="y", style="sci", scilimits=(-2, -2))
+        ax.yaxis.set_major_locator(MultipleLocator(0.0005))
+        ax.yaxis.set_minor_locator(MultipleLocator(0.0001))
+
+    ax.xaxis.set_major_locator(MultipleLocator(50))
+    ax.xaxis.set_minor_locator(MultipleLocator(10))
+    ax.grid(True, which="major", alpha=0.35, linestyle="--")
+    ax.grid(True, which="minor", alpha=0.18, linestyle=":")
+    _equiv_legend(ax, fontsize=8, logy=logy)
+    save(fig, out_name, bbox_inches="none")
+    print(f"figure: {out_name}.png  φ₀(地上)={phi0:.4g} n/cm²/s")
+
+
+def fig_all_sites_flux_relative_compare(*, logy: bool = False) -> None:
+    """図18: 4検出器の相対フラックス（D1 地上 = 1）を同一軸に重ねる。
+
+    d1 は地上測定が無いため、絶対 φ を D1 地上で正規化して比較する。
+    """
+    from matplotlib.ticker import LogLocator, MultipleLocator
+
+    flux = load_flux_summary()
+    plotted: list[str] = []
+    for det in ("D1", "D2", "d1", "d2"):
+        pts = _build_flux_points_ground_norm(det, flux=flux)
+        if len(pts) < 2:
+            print(f"flux compare skip {det}: 地点不足（{len(pts)}点）")
+            continue
+        plotted.append(det)
+
+    if len(plotted) < 2:
+        print(f"flux compare skip: 重ねる検出器不足 ({plotted})")
+        return
+
+    x_max = 0.0
+    for det in plotted:
+        for p in _build_flux_points_ground_norm(det, flux=flux):
+            x_max = max(x_max, p["x"] + p.get("x_err", 0.0))
+    x_max = max(x_max, 1.0) * 1.04
+    x_c = np.linspace(0, x_max, 900)
+
+    fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
+    fig.subplots_adjust(**EQUIV_SUBPLOT)
+    _plot_theory_curves(ax, x_c, 1.0, absolute=False)
+    ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
+
+    for det in plotted:
+        pts = _build_flux_points_ground_norm(det, flux=flux)
+        st = DETECTOR_STYLE[det]
+        ax.plot(
+            [p["x"] for p in pts],
+            [p["y"] for p in pts],
+            linestyle="none",
+            marker=st["marker"],
+            color=st["color"],
+            ms=st["ms"],
+            zorder=3,
+            label=st["label"],
+        )
+
+    ax.set_xlim(0 if logy else -20, x_max)
+    ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
+    ax.set_ylabel("相対フラックス（D1 地上 = 1）")
+    out_name = "18_全地点_フラックス_相対_検出器比較"
+    if logy:
+        out_name += "_片対数"
+        ax.set_yscale("log")
+        ax.set_ylim(1e-6, EQUIV_Y_PAD_LOGY)
+        ax.yaxis.set_major_locator(LogLocator(base=10.0))
+        ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+    else:
+        ax.set_ylim(0, EQUIV_Y_PAD_LINEAR)
+        ax.yaxis.set_major_locator(MultipleLocator(0.1))
+        ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+    ax.xaxis.set_major_locator(MultipleLocator(50))
+    ax.xaxis.set_minor_locator(MultipleLocator(10))
+    ax.grid(True, which="major", alpha=0.35, linestyle="--")
+    ax.grid(True, which="minor", alpha=0.18, linestyle=":")
+    _equiv_legend(ax, fontsize=8, logy=logy)
+    save(fig, out_name, bbox_inches="none")
+    print(f"figure: {out_name}.png  detectors={plotted}")
+
+
+def fig_all_sites_flux_all() -> None:
+    """図17/18 一式（D1 / D2 / d1 / d2）。"""
+    for det in ("D1", "D2", "d1", "d2"):
+        fig_all_sites_flux_absolute(logy=False, detector=det)
+        fig_all_sites_flux_absolute(logy=True, detector=det)
+        fig_all_sites_flux_absolute(logy=False, errorbar=True, detector=det)
+        fig_all_sites_flux_absolute(logy=True, errorbar=True, detector=det)
+    fig_all_sites_flux_relative_compare(logy=False)
+    fig_all_sites_flux_relative_compare(logy=True)
 
 
 def cleanup_unsafe_detector_artifacts() -> None:
@@ -2015,6 +2625,7 @@ def main() -> None:
     cleanup_unsafe_detector_artifacts()
     fig_all_sites_equiv_concrete_composition(d)
     fig_all_sites_equiv_concrete_composition_cps(d)
+    fig_all_sites_flux_all()
     valid = set()
     for s in d["series"]:
         _one_site(d, s)

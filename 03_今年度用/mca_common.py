@@ -337,6 +337,26 @@ def energy_window_channels(
     return lo, hi
 
 
+def he3_wall_channels(
+    serial: str,
+    roi_peak: int,
+    place: str = "",
+    n: int = 512,
+) -> tuple[int, int] | None:
+    """壁効果連続帯 196–764 keV の ch 範囲（プロット・クリップ用）。"""
+    cal = resolve_he3_energy_cal(str(serial or ""), int(roi_peak or 0), str(place or ""))
+    if cal is None or cal.peak_ch <= 0:
+        return None
+    peak = cal.peak_ch
+    lo_e, hi_e = energy_window_channels(peak, n)
+    lo = lo_e
+    hi = max(hi_e, min(n - 1, peak + PEAK_HALF_WIDTH))
+    fixed = fixed_roi_for_serial(serial)
+    if fixed is not None:
+        hi = max(hi, fixed[1])
+    return lo, hi
+
+
 def centered_roi(peak: int, width: int, n: int) -> tuple[int, int]:
     lo = max(1, peak - (width - 1) // 2)
     hi = lo + width - 1

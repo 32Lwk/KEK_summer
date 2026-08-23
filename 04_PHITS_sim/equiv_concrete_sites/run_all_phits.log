@@ -613,3 +613,621 @@ bat[       4] ncas =          40000. on 2026/08/23 at 14h 49m 29s
 bat[       4] ncas =          40000. on 2026/08/23 at 14h 49m 29s
 bat[       5] ncas =          50000. on 2026/08/23 at 14h 49m 39s
 bat[       5] ncas =          50000. on 2026/08/23 at 14h 49m 39s
+bat[       6] ncas =          60000. on 2026/08/23 at 14h 49m 49s
+bat[       6] ncas =          60000. on 2026/08/23 at 14h 49m 49s
+bat[       7] ncas =          70000. on 2026/08/23 at 14h 49m 59s
+bat[       7] ncas =          70000. on 2026/08/23 at 14h 49m 59s
+bat[       8] ncas =          80000. on 2026/08/23 at 14h 50m 08s
+bat[       8] ncas =          80000. on 2026/08/23 at 14h 50m 08s
+bat[       9] ncas =          90000. on 2026/08/23 at 14h 50m 17s
+bat[       9] ncas =          90000. on 2026/08/23 at 14h 50m 17s
+bat[      10] ncas =         100000. on 2026/08/23 at 14h 50m 27s
+bat[      10] ncas =         100000. on 2026/08/23 at 14h 50m 27s
+Program is finished               on 2026/08/23 at 14h 50m 27s
+Program is finished               on 2026/08/23 at 14h 50m 27s
+[phits-web] PHITS finished normally in 139 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 139 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF
+OK: D1/01_PF
+OK: D1/01_PF
+=== D1/02_linac (large/D1) ===
+=== D1/02_linac (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464231_hl4zlsxn) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464231_hl4zlsxn) ...
+Initialization is completed          on 2026/08/23 at 14h 50m 39s
+Initialization is completed          on 2026/08/23 at 14h 50m 39s
+bat[       1] ncas =          10000. on 2026/08/23 at 14h 51m 22s
+bat[       1] ncas =          10000. on 2026/08/23 at 14h 51m 22s
+*** Lost particle ***
+batch & history number:                   2                4920
+initial & final cells :                  98                  98
+location (x,y,z)        :  1.13662634E+02  4.00393276E+02 -2.74678579E+01
+direction vector (u,v,w):  8.88690422E-01 -4.31854155E-01  1.54049741E-01
+*** Lost particle ***
+batch & history number:                   2                4920
+initial & final cells :                  98                  98
+location (x,y,z)        :  1.13662634E+02  4.00393276E+02 -2.74678579E+01
+direction vector (u,v,w):  8.88690422E-01 -4.31854155E-01  1.54049741E-01
+bat[       2] ncas =          20000. on 2026/08/23 at 14h 51m 33s
+bat[       2] ncas =          20000. on 2026/08/23 at 14h 51m 33s
+bat[       3] ncas =          30000. on 2026/08/23 at 14h 51m 44s
+bat[       3] ncas =          30000. on 2026/08/23 at 14h 51m 44s
+bat[       4] ncas =          40000. on 2026/08/23 at 14h 51m 55s
+bat[       4] ncas =          40000. on 2026/08/23 at 14h 51m 55s
+bat[       5] ncas =          50000. on 2026/08/23 at 14h 52m 06s
+bat[       5] ncas =          50000. on 2026/08/23 at 14h 52m 06s
+bat[       6] ncas =          60000. on 2026/08/23 at 14h 52m 17s
+bat[       6] ncas =          60000. on 2026/08/23 at 14h 52m 17s
+bat[       7] ncas =          70000. on 2026/08/23 at 14h 52m 28s
+bat[       7] ncas =          70000. on 2026/08/23 at 14h 52m 28s
+bat[       8] ncas =          80000. on 2026/08/23 at 14h 52m 38s
+bat[       8] ncas =          80000. on 2026/08/23 at 14h 52m 38s
+bat[       9] ncas =          90000. on 2026/08/23 at 14h 52m 48s
+bat[       9] ncas =          90000. on 2026/08/23 at 14h 52m 48s
+bat[      10] ncas =         100000. on 2026/08/23 at 14h 52m 59s
+bat[      10] ncas =         100000. on 2026/08/23 at 14h 52m 59s
+Program is finished               on 2026/08/23 at 14h 52m 59s
+Program is finished               on 2026/08/23 at 14h 52m 59s
+[phits-web] PHITS finished normally in 147 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 147 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac
+OK: D1/02_linac
+OK: D1/02_linac
+=== D1/03_BT (large/D1) ===
+=== D1/03_BT (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464382_ldgek4fv) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464382_ldgek4fv) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 14:53:07 JST 2026
+Sun Aug 23 14:53:07 JST 2026
+Program is started                on 2026/08/23 at 14h 53m 07s
+Program is started                on 2026/08/23 at 14h 53m 07s
+Initialization is completed          on 2026/08/23 at 14h 53m 12s
+Initialization is completed          on 2026/08/23 at 14h 53m 12s
+bat[       1] ncas =           8000. on 2026/08/23 at 14h 53m 34s
+bat[       1] ncas =           8000. on 2026/08/23 at 14h 53m 34s
+bat[       2] ncas =          16000. on 2026/08/23 at 14h 53m 44s
+bat[       2] ncas =          16000. on 2026/08/23 at 14h 53m 44s
+bat[       3] ncas =          24000. on 2026/08/23 at 14h 54m 14s
+bat[       3] ncas =          24000. on 2026/08/23 at 14h 54m 14s
+bat[       4] ncas =          32000. on 2026/08/23 at 14h 54m 23s
+bat[       4] ncas =          32000. on 2026/08/23 at 14h 54m 23s
+bat[       5] ncas =          40000. on 2026/08/23 at 14h 54m 32s
+bat[       5] ncas =          40000. on 2026/08/23 at 14h 54m 32s
+bat[       6] ncas =          48000. on 2026/08/23 at 14h 54m 42s
+bat[       6] ncas =          48000. on 2026/08/23 at 14h 54m 42s
+bat[       7] ncas =          56000. on 2026/08/23 at 14h 54m 51s
+bat[       7] ncas =          56000. on 2026/08/23 at 14h 54m 51s
+bat[       8] ncas =          64000. on 2026/08/23 at 14h 55m 00s
+bat[       8] ncas =          64000. on 2026/08/23 at 14h 55m 00s
+bat[       9] ncas =          72000. on 2026/08/23 at 14h 55m 09s
+bat[       9] ncas =          72000. on 2026/08/23 at 14h 55m 09s
+bat[      10] ncas =          80000. on 2026/08/23 at 14h 55m 18s
+bat[      10] ncas =          80000. on 2026/08/23 at 14h 55m 18s
+Program is finished               on 2026/08/23 at 14h 55m 18s
+Program is finished               on 2026/08/23 at 14h 55m 18s
+[phits-web] PHITS finished normally in 134 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 134 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT
+OK: D1/03_BT
+OK: D1/03_BT
+=== D1/04_KEKB (large/D1) ===
+=== D1/04_KEKB (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464522_8u8t5u0x) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464522_8u8t5u0x) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 14:55:25 JST 2026
+Sun Aug 23 14:55:25 JST 2026
+Program is started                on 2026/08/23 at 14h 55m 25s
+Program is started                on 2026/08/23 at 14h 55m 25s
+Initialization is completed          on 2026/08/23 at 14h 55m 30s
+Initialization is completed          on 2026/08/23 at 14h 55m 30s
+bat[       1] ncas =           6000. on 2026/08/23 at 14h 55m 50s
+bat[       1] ncas =           6000. on 2026/08/23 at 14h 55m 50s
+bat[       2] ncas =          12000. on 2026/08/23 at 14h 56m 16s
+bat[       2] ncas =          12000. on 2026/08/23 at 14h 56m 16s
+bat[       3] ncas =          18000. on 2026/08/23 at 14h 56m 24s
+bat[       3] ncas =          18000. on 2026/08/23 at 14h 56m 24s
+bat[       4] ncas =          24000. on 2026/08/23 at 14h 56m 32s
+bat[       4] ncas =          24000. on 2026/08/23 at 14h 56m 32s
+bat[       5] ncas =          30000. on 2026/08/23 at 14h 56m 39s
+bat[       5] ncas =          30000. on 2026/08/23 at 14h 56m 39s
+bat[       6] ncas =          36000. on 2026/08/23 at 14h 56m 47s
+bat[       6] ncas =          36000. on 2026/08/23 at 14h 56m 47s
+bat[       7] ncas =          42000. on 2026/08/23 at 14h 56m 54s
+bat[       7] ncas =          42000. on 2026/08/23 at 14h 56m 54s
+bat[       8] ncas =          48000. on 2026/08/23 at 14h 57m 01s
+bat[       8] ncas =          48000. on 2026/08/23 at 14h 57m 01s
+bat[       9] ncas =          54000. on 2026/08/23 at 14h 57m 09s
+bat[       9] ncas =          54000. on 2026/08/23 at 14h 57m 09s
+bat[      10] ncas =          60000. on 2026/08/23 at 14h 57m 15s
+bat[      10] ncas =          60000. on 2026/08/23 at 14h 57m 15s
+Program is finished               on 2026/08/23 at 14h 57m 15s
+Program is finished               on 2026/08/23 at 14h 57m 15s
+[phits-web] PHITS finished normally in 114 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 114 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB
+OK: D1/04_KEKB
+OK: D1/04_KEKB
+=== D2/00_ground (large/D2) ===
+=== D2/00_ground (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464640_f9wzqvin) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464640_f9wzqvin) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 14:57:24 JST 2026
+Sun Aug 23 14:57:24 JST 2026
+Program is started                on 2026/08/23 at 14h 57m 24s
+Program is started                on 2026/08/23 at 14h 57m 24s
+Initialization is completed          on 2026/08/23 at 14h 57m 29s
+Initialization is completed          on 2026/08/23 at 14h 57m 29s
+bat[       1] ncas =          20000. on 2026/08/23 at 14h 58m 02s
+bat[       1] ncas =          20000. on 2026/08/23 at 14h 58m 02s
+bat[       2] ncas =          40000. on 2026/08/23 at 14h 58m 09s
+bat[       2] ncas =          40000. on 2026/08/23 at 14h 58m 09s
+bat[       3] ncas =          60000. on 2026/08/23 at 14h 58m 16s
+bat[       3] ncas =          60000. on 2026/08/23 at 14h 58m 16s
+*** Lost particle ***
+batch & history number:                   4                2681
+initial & final cells :                  98                  98
+location (x,y,z)        : -2.19698366E+02 -4.02151713E+02 -2.23080225E+01
+direction vector (u,v,w):  1.59820004E-01  2.84072204E-01  9.45389099E-01
+*** Lost particle ***
+batch & history number:                   4                2681
+initial & final cells :                  98                  98
+location (x,y,z)        : -2.19698366E+02 -4.02151713E+02 -2.23080225E+01
+direction vector (u,v,w):  1.59820004E-01  2.84072204E-01  9.45389099E-01
+bat[       4] ncas =          80000. on 2026/08/23 at 14h 58m 23s
+bat[       4] ncas =          80000. on 2026/08/23 at 14h 58m 23s
+bat[       5] ncas =         100000. on 2026/08/23 at 14h 58m 29s
+bat[       5] ncas =         100000. on 2026/08/23 at 14h 58m 29s
+bat[       6] ncas =         120000. on 2026/08/23 at 14h 58m 38s
+bat[       6] ncas =         120000. on 2026/08/23 at 14h 58m 38s
+*** Lost particle ***
+batch & history number:                   7                4203
+initial & final cells :                  98                  98
+location (x,y,z)        :  6.62707602E+01  4.01033039E+02 -4.56906778E+01
+direction vector (u,v,w): -1.18839331E-01 -9.64104036E-01 -2.37446040E-01
+*** Lost particle ***
+batch & history number:                   7                4203
+initial & final cells :                  98                  98
+location (x,y,z)        :  6.62707602E+01  4.01033039E+02 -4.56906778E+01
+direction vector (u,v,w): -1.18839331E-01 -9.64104036E-01 -2.37446040E-01
+bat[       7] ncas =         140000. on 2026/08/23 at 14h 58m 45s
+bat[       7] ncas =         140000. on 2026/08/23 at 14h 58m 45s
+*** Lost particle ***
+batch & history number:                   8                1258
+initial & final cells :                  98                  98
+location (x,y,z)        :  1.26870551E+02 -4.01911466E+02 -1.97373612E+01
+direction vector (u,v,w): -2.72314584E-01  9.06688251E-01 -3.22119826E-01
+*** Lost particle ***
+batch & history number:                   8                1258
+initial & final cells :                  98                  98
+location (x,y,z)        :  1.26870551E+02 -4.01911466E+02 -1.97373612E+01
+direction vector (u,v,w): -2.72314584E-01  9.06688251E-01 -3.22119826E-01
+bat[       8] ncas =         160000. on 2026/08/23 at 14h 58m 51s
+bat[       8] ncas =         160000. on 2026/08/23 at 14h 58m 51s
+bat[       9] ncas =         180000. on 2026/08/23 at 14h 58m 58s
+bat[       9] ncas =         180000. on 2026/08/23 at 14h 58m 58s
+bat[      10] ncas =         200000. on 2026/08/23 at 14h 59m 04s
+bat[      10] ncas =         200000. on 2026/08/23 at 14h 59m 04s
+bat[      11] ncas =         220000. on 2026/08/23 at 14h 59m 11s
+bat[      11] ncas =         220000. on 2026/08/23 at 14h 59m 11s
+bat[      12] ncas =         240000. on 2026/08/23 at 14h 59m 17s
+bat[      12] ncas =         240000. on 2026/08/23 at 14h 59m 17s
+bat[      13] ncas =         260000. on 2026/08/23 at 14h 59m 24s
+bat[      13] ncas =         260000. on 2026/08/23 at 14h 59m 24s
+bat[      14] ncas =         280000. on 2026/08/23 at 14h 59m 30s
+bat[      14] ncas =         280000. on 2026/08/23 at 14h 59m 30s
+bat[      15] ncas =         300000. on 2026/08/23 at 14h 59m 36s
+bat[      15] ncas =         300000. on 2026/08/23 at 14h 59m 36s
+bat[      16] ncas =         320000. on 2026/08/23 at 14h 59m 43s
+bat[      16] ncas =         320000. on 2026/08/23 at 14h 59m 43s
+bat[      17] ncas =         340000. on 2026/08/23 at 14h 59m 49s
+bat[      17] ncas =         340000. on 2026/08/23 at 14h 59m 49s
+bat[      18] ncas =         360000. on 2026/08/23 at 14h 59m 56s
+bat[      18] ncas =         360000. on 2026/08/23 at 14h 59m 56s
+bat[      19] ncas =         380000. on 2026/08/23 at 15h 00m 02s
+bat[      19] ncas =         380000. on 2026/08/23 at 15h 00m 02s
+bat[      20] ncas =         400000. on 2026/08/23 at 15h 00m 09s
+bat[      20] ncas =         400000. on 2026/08/23 at 15h 00m 09s
+Program is finished               on 2026/08/23 at 15h 00m 09s
+Program is finished               on 2026/08/23 at 15h 00m 09s
+[phits-web] PHITS finished normally in 168 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 168 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground
+OK: D2/00_ground
+OK: D2/00_ground
+=== D2/01_PF (large/D2) ===
+=== D2/01_PF (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464814_0e4mqf5e) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464814_0e4mqf5e) ...
+Initialization is completed          on 2026/08/23 at 15h 00m 21s
+Initialization is completed          on 2026/08/23 at 15h 00m 21s
+bat[       1] ncas =          10000. on 2026/08/23 at 15h 00m 43s
+bat[       1] ncas =          10000. on 2026/08/23 at 15h 00m 43s
+bat[       2] ncas =          20000. on 2026/08/23 at 15h 01m 14s
+bat[       2] ncas =          20000. on 2026/08/23 at 15h 01m 14s
+bat[       3] ncas =          30000. on 2026/08/23 at 15h 01m 24s
+bat[       3] ncas =          30000. on 2026/08/23 at 15h 01m 24s
+bat[       4] ncas =          40000. on 2026/08/23 at 15h 01m 33s
+bat[       4] ncas =          40000. on 2026/08/23 at 15h 01m 33s
+bat[       5] ncas =          50000. on 2026/08/23 at 15h 01m 44s
+bat[       5] ncas =          50000. on 2026/08/23 at 15h 01m 44s
+bat[       6] ncas =          60000. on 2026/08/23 at 15h 01m 54s
+bat[       6] ncas =          60000. on 2026/08/23 at 15h 01m 54s
+bat[       7] ncas =          70000. on 2026/08/23 at 15h 02m 03s
+bat[       7] ncas =          70000. on 2026/08/23 at 15h 02m 03s
+bat[       8] ncas =          80000. on 2026/08/23 at 15h 02m 12s
+bat[       8] ncas =          80000. on 2026/08/23 at 15h 02m 12s
+bat[       9] ncas =          90000. on 2026/08/23 at 15h 02m 22s
+bat[       9] ncas =          90000. on 2026/08/23 at 15h 02m 22s
+bat[      10] ncas =         100000. on 2026/08/23 at 15h 02m 31s
+bat[      10] ncas =         100000. on 2026/08/23 at 15h 02m 31s
+Program is finished               on 2026/08/23 at 15h 02m 31s
+Program is finished               on 2026/08/23 at 15h 02m 31s
+[phits-web] PHITS finished normally in 138 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 138 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF
+OK: D2/01_PF
+OK: D2/01_PF
+=== D2/02_linac (large/D2) ===
+=== D2/02_linac (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464956_9wrm4pf1) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464956_9wrm4pf1) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 15:02:40 JST 2026
+Sun Aug 23 15:02:40 JST 2026
+Program is started                on 2026/08/23 at 15h 02m 40s
+Program is started                on 2026/08/23 at 15h 02m 40s
+Initialization is completed          on 2026/08/23 at 15h 02m 45s
+Initialization is completed          on 2026/08/23 at 15h 02m 45s
+bat[       1] ncas =          10000. on 2026/08/23 at 15h 03m 28s
+bat[       1] ncas =          10000. on 2026/08/23 at 15h 03m 28s
+bat[       2] ncas =          20000. on 2026/08/23 at 15h 03m 39s
+bat[       2] ncas =          20000. on 2026/08/23 at 15h 03m 39s
+bat[       3] ncas =          30000. on 2026/08/23 at 15h 03m 50s
+bat[       3] ncas =          30000. on 2026/08/23 at 15h 03m 50s
+bat[       4] ncas =          40000. on 2026/08/23 at 15h 04m 01s
+bat[       4] ncas =          40000. on 2026/08/23 at 15h 04m 01s
+bat[       5] ncas =          50000. on 2026/08/23 at 15h 04m 12s
+bat[       5] ncas =          50000. on 2026/08/23 at 15h 04m 12s
+bat[       6] ncas =          60000. on 2026/08/23 at 15h 04m 23s
+bat[       6] ncas =          60000. on 2026/08/23 at 15h 04m 23s
+bat[       7] ncas =          70000. on 2026/08/23 at 15h 04m 34s
+bat[       7] ncas =          70000. on 2026/08/23 at 15h 04m 34s
+bat[       8] ncas =          80000. on 2026/08/23 at 15h 04m 44s
+bat[       8] ncas =          80000. on 2026/08/23 at 15h 04m 44s
+bat[       9] ncas =          90000. on 2026/08/23 at 15h 04m 54s
+bat[       9] ncas =          90000. on 2026/08/23 at 15h 04m 54s
+bat[      10] ncas =         100000. on 2026/08/23 at 15h 05m 05s
+bat[      10] ncas =         100000. on 2026/08/23 at 15h 05m 05s
+Program is finished               on 2026/08/23 at 15h 05m 05s
+Program is finished               on 2026/08/23 at 15h 05m 05s
+[phits-web] PHITS finished normally in 148 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 148 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac
+OK: D2/02_linac
+OK: D2/02_linac
+=== D2/03_BT (large/D2) ===
+=== D2/03_BT (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787465110_xv3tdkxi) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787465110_xv3tdkxi) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 15:05:53 JST 2026
+Sun Aug 23 15:05:53 JST 2026
+Program is started                on 2026/08/23 at 15h 05m 53s
+Program is started                on 2026/08/23 at 15h 05m 53s
+Initialization is completed          on 2026/08/23 at 15h 05m 58s
+Initialization is completed          on 2026/08/23 at 15h 05m 58s
+bat[       1] ncas =           8000. on 2026/08/23 at 15h 06m 20s
+bat[       1] ncas =           8000. on 2026/08/23 at 15h 06m 20s
+bat[       2] ncas =          16000. on 2026/08/23 at 15h 06m 30s
+bat[       2] ncas =          16000. on 2026/08/23 at 15h 06m 30s
+bat[       3] ncas =          24000. on 2026/08/23 at 15h 07m 00s
+bat[       3] ncas =          24000. on 2026/08/23 at 15h 07m 00s
+bat[       4] ncas =          32000. on 2026/08/23 at 15h 07m 09s
+bat[       4] ncas =          32000. on 2026/08/23 at 15h 07m 09s
+bat[       5] ncas =          40000. on 2026/08/23 at 15h 07m 18s
+bat[       5] ncas =          40000. on 2026/08/23 at 15h 07m 18s
+bat[       6] ncas =          48000. on 2026/08/23 at 15h 07m 28s
+bat[       6] ncas =          48000. on 2026/08/23 at 15h 07m 28s
+bat[       7] ncas =          56000. on 2026/08/23 at 15h 07m 37s
+bat[       7] ncas =          56000. on 2026/08/23 at 15h 07m 37s
+bat[       8] ncas =          64000. on 2026/08/23 at 15h 07m 46s
+bat[       8] ncas =          64000. on 2026/08/23 at 15h 07m 46s
+bat[       9] ncas =          72000. on 2026/08/23 at 15h 07m 55s
+bat[       9] ncas =          72000. on 2026/08/23 at 15h 07m 55s
+bat[      10] ncas =          80000. on 2026/08/23 at 15h 08m 04s
+bat[      10] ncas =          80000. on 2026/08/23 at 15h 08m 04s
+Program is finished               on 2026/08/23 at 15h 08m 04s
+Program is finished               on 2026/08/23 at 15h 08m 04s
+[phits-web] PHITS finished normally in 137 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 137 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT
+OK: D2/03_BT
+OK: D2/03_BT
+=== D2/04_KEKB (large/D2) ===
+=== D2/04_KEKB (large/D2) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787465291_zau3x6bu) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787465291_zau3x6bu) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 15:08:14 JST 2026
+Sun Aug 23 15:08:14 JST 2026
+Program is started                on 2026/08/23 at 15h 08m 14s
+Program is started                on 2026/08/23 at 15h 08m 14s
+Initialization is completed          on 2026/08/23 at 15h 08m 19s
+Initialization is completed          on 2026/08/23 at 15h 08m 19s
+bat[       1] ncas =           6000. on 2026/08/23 at 15h 08m 38s
+bat[       1] ncas =           6000. on 2026/08/23 at 15h 08m 38s
+bat[       2] ncas =          12000. on 2026/08/23 at 15h 09m 05s
+bat[       2] ncas =          12000. on 2026/08/23 at 15h 09m 05s
+bat[       3] ncas =          18000. on 2026/08/23 at 15h 09m 13s
+bat[       3] ncas =          18000. on 2026/08/23 at 15h 09m 13s
+bat[       4] ncas =          24000. on 2026/08/23 at 15h 09m 20s
+bat[       4] ncas =          24000. on 2026/08/23 at 15h 09m 20s
+bat[       5] ncas =          30000. on 2026/08/23 at 15h 09m 27s
+bat[       5] ncas =          30000. on 2026/08/23 at 15h 09m 27s
+bat[       6] ncas =          36000. on 2026/08/23 at 15h 09m 35s
+bat[       6] ncas =          36000. on 2026/08/23 at 15h 09m 35s
+bat[       7] ncas =          42000. on 2026/08/23 at 15h 09m 42s
+bat[       7] ncas =          42000. on 2026/08/23 at 15h 09m 42s
+bat[       8] ncas =          48000. on 2026/08/23 at 15h 09m 50s
+bat[       8] ncas =          48000. on 2026/08/23 at 15h 09m 50s
+bat[       9] ncas =          54000. on 2026/08/23 at 15h 09m 57s
+bat[       9] ncas =          54000. on 2026/08/23 at 15h 09m 57s
+bat[      10] ncas =          60000. on 2026/08/23 at 15h 10m 04s
+bat[      10] ncas =          60000. on 2026/08/23 at 15h 10m 04s
+Program is finished               on 2026/08/23 at 15h 10m 04s
+Program is finished               on 2026/08/23 at 15h 10m 04s
+[phits-web] PHITS finished normally in 114 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 114 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB
+OK: D2/04_KEKB
+OK: D2/04_KEKB
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_small_d1.csv
+Traceback (most recent call last):
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_small_d1.csv
+Traceback (most recent call last):
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+    main()
+    main()
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+                                              ^^^^
+                                              ^^^^
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/figures/index.html
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/02_linac/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d1/figures/index.html
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_small_d2.csv
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_small_d2.csv
+Traceback (most recent call last):
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+Traceback (most recent call last):
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+    main()
+    main()
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+                                              ^^^^
+                                              ^^^^
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/figures/index.html
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/small/d2/figures/index.html
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_large_D1.csv
+Traceback (most recent call last):
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_large_D1.csv
+Traceback (most recent call last):
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+    main()
+    main()
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+                                              ^^^^
+                                              ^^^^
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/figures/index.html
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/02_linac/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/figures/index.html
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_large_D2.csv
+Traceback (most recent call last):
+wrote /Users/yuto/KEK_summer/03_今年度用/測定_20260818/tables/PHITS_等価コンクリート_相対_large_D2.csv
+Traceback (most recent call last):
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 296, in <module>
+    main()
+    main()
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+  File "/Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/summarize_relative.py", line 266, in main
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+    title = f"図11比較: 測定 / 理論 / PHITS ({spec.label})"
+                                              ^^^^
+                                              ^^^^
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+NameError: name 'spec' is not defined. Did you mean: 'super'?
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/figures/index.html
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/00_ground/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/01_PF/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/02_linac/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/03_BT/figures/3d_deposit.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/figures/3d_geometry.html / .png / 3d_detector_zoom.png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/04_KEKB/figures/3d_spectrum.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/figures/3d_all_spectra.html / .png
+wrote /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D2/figures/index.html
+summary: total=20 skipped=0 new_ok=20 failed=0
+summary: total=20 skipped=0 new_ok=20 failed=0
