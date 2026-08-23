@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""ピーク ROI と壁効果窓（196–764 keV）の二系統解析を並べて出力する。
+"""ピーク ROI と壁効果窓（191–764 keV）の二系統解析を並べて出力する。
 
 出力:
   tables/窓比較_計数率.csv
-  tables/検出器効率_壁効果196_764keV.csv
-  tables/フラックス_壁効果196_764keV.csv
+  tables/検出器効率_壁効果191_764keV.csv
+  tables/フラックス_窓比較.csv
   tables/D1効率_転送較正_壁効果.csv
 """
 
@@ -17,7 +17,13 @@ from pathlib import Path
 
 import numpy as np
 
-from mca_common import analyze_roi, analyze_wall_window, infer_serial, parse_mca
+from mca_common import (
+    analyze_roi,
+    analyze_wall_window,
+    analyze_wall_window_linear,
+    infer_serial,
+    parse_mca,
+)
 
 ROOT = Path(__file__).resolve().parent
 RAW = ROOT / "測定_20260818" / "raw"
@@ -86,6 +92,9 @@ def analyze_file(path: Path) -> dict:
     sn = infer_serial(path.name, str(m.get("serial") or ""))
     peak = analyze_roi(c, sn)
     wall = analyze_wall_window(c, sn)
+    wall_lin = analyze_wall_window_linear(c, sn)
+    wall_cps = wall.net / live if live else float("nan")
+    wall_lin_cps = wall_lin.net / live if live else float("nan")
     return {
         "filename": path.name,
         "検出器": detector_key(path.name),
@@ -103,13 +112,23 @@ def analyze_file(path: Path) -> dict:
         "wall_hi": wall.roi_hi,
         "wall_e_lo_kev": wall.e_lo_kev,
         "wall_e_hi_kev": wall.e_hi_kev,
-        "wall_net_cps": wall.net / live if live else float("nan"),
+        "wall_sb_lo_lo": wall_lin.sb_lo_lo,
+        "wall_sb_lo_hi": wall_lin.sb_lo_hi,
+        "wall_sb_hi_lo": wall.sb_hi_lo,
+        "wall_sb_hi_hi": wall.sb_hi_hi,
+        "wall_net_cps": wall_cps,
+        "wall_net_cps_linear": wall_lin_cps,
         "wall_gross_cps": wall.gross / live if live else float("nan"),
         "wall_net_cps_err": wall.err / live if live else float("nan"),
         "wall_valid": int(wall.net_valid),
+        "wall_valid_linear": int(wall_lin.net_valid),
         "wall_bg_mode": wall.bg_mode,
+        "wall_bg_mode_linear": wall_lin.bg_mode,
         "ratio_wall_over_peak": (
             (wall.net / peak.net) if peak.net and peak.net > 0 else float("nan")
+        ),
+        "ratio_linear_over_right": (
+            (wall_lin.net / wall.net) if wall.net and wall.net > 0 else float("nan")
         ),
         "peak_warning": peak.warning,
         "wall_warning": wall.warning,
@@ -128,6 +147,63 @@ def main() -> None:
         w.writerows(rows)
     print(f"wrote {out_rates}")
 
+    # --- 背景方式比較（直線 vs 右のみ）---
+    cmp_out = TABLES / "背景比較_wall窓.csv"
+    cmp_fields = [
+        "filename", "検出器", "地点",
+        "wall_lo", "wall_sb_lo", "wall_sb_hi",
+        "wall_bg_mode_linear",
+        "wall_net_cps", "wall_net_cps_linear", "peak_net_cps",
+        "wall_valid", "wall_valid_linear",
+        "ratio_linear_over_right", "delta_cps",
+    ]
+    cmp_rows = []
+    for r in rows:
+        rt = r["wall_net_cps"]
+        lin = r["wall_net_cps_linear"]
+        delta = lin - rt if lin == lin and rt == rt else float("nan")
+        cmp_rows.append({
+            "filename": r["filename"],
+            "検出器": r["検出器"],
+            "地点": r["地点"],
+            "wall_lo": r["wall_lo"],
+            "wall_sb_lo": f"{r['wall_sb_lo_lo']}–{r['wall_sb_lo_hi']}" if r["wall_sb_lo_hi"] else "",
+            "wall_sb_hi": f"{r['wall_sb_hi_lo']}–{r['wall_sb_hi_hi']}" if r["wall_sb_hi_hi"] else "",
+            "wall_bg_mode_linear": r["wall_bg_mode_linear"],
+            "wall_net_cps": f"{rt:.6g}" if rt == rt else "",
+            "wall_net_cps_linear": f"{lin:.6g}" if lin == lin else "",
+            "peak_net_cps": f"{r['peak_net_cps']:.6g}",
+            "wall_valid": r["wall_valid"],
+            "wall_valid_linear": r["wall_valid_linear"],
+            "ratio_linear_over_right": f"{r['ratio_linear_over_right']:.4g}" if r["ratio_linear_over_right"] == r["ratio_linear_over_right"] else "",
+            "delta_cps": f"{delta:.6g}" if delta == delta else "",
+        })
+    with cmp_out.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=cmp_fields)
+        w.writeheader()
+        w.writerows(cmp_rows)
+    print(f"wrote {cmp_out}")
+
+    key_sites = {"地上", "管理棟2階", "linac", "放射線棟BT", "PF", "KEKB"}
+    print("\n--- 背景比較（施設測定・右のみ=主 / 直線=比較）---")
+    for r in rows:
+        if r["地点"] not in key_sites or r["検出器"] not in ("D1", "D2", "d1", "d2"):
+            continue
+        if "熱中性子" in r["filename"]:
+            continue
+        flag = ""
+        if r["wall_valid"] and not r["wall_valid_linear"]:
+            flag = " ★直線のみ NET≤0"
+        elif not r["wall_valid"] and r["wall_valid_linear"]:
+            flag = " ★右のみ NET≤0・直線は正"
+        elif not r["wall_valid"] and not r["wall_valid_linear"]:
+            flag = " ★両方 NET≤0"
+        print(
+            f"  {r['検出器']:2s} {r['地点']:10s}  "
+            f"right={r['wall_net_cps']:.4g}  linear={r['wall_net_cps_linear']:.4g}  "
+            f"peak={r['peak_net_cps']:.4g}  lin/right={r['ratio_linear_over_right']:.3g}{flag}"
+        )
+
     # --- d1 パイル絶対較正（壁効果窓）---
     d1_pile = [
         r
@@ -140,7 +216,7 @@ def main() -> None:
     eps_wall = []
     for r in d1_pile:
         d = 30.0 if "30" in r["地点"] else 80.0
-        phi = thermal_flux(d)
+        phi = thermal_phi(d)
         eps_wall.append(r["wall_net_cps"] / phi)
         print(
             f"  d1 wall @{d:.0f}cm: CPS={r['wall_net_cps']:.2f}  φ={phi:.3f}  "
@@ -209,7 +285,7 @@ def main() -> None:
             print(f"  check short D1: ratio={r2:.3f} → εS={eps_mean*r2:.2f}")
 
     # 効率表（壁効果）
-    eff_wall = TABLES / "検出器効率_壁効果196_764keV.csv"
+    eff_wall = TABLES / "検出器効率_壁効果191_764keV.csv"
     with eff_wall.open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(
             f,
@@ -230,7 +306,7 @@ def main() -> None:
                 "epsilon_S_wall_std_cm2": f"{eps_std:.4g}" if eps_std == eps_std else "",
                 "epsilon_S_peakROI_cm2": f"{peak_eps_d1:.4g}",
                 "wall_over_peak_cal": f"{eps_mean/peak_eps_d1:.4g}" if eps_mean == eps_mean else "",
-                "備考": "黒鉛パイル30&80cm・水平・非飽和・窓196–764keV・右側帯背景",
+                "備考": "黒鉛パイル30&80cm・水平・非飽和・窓191–764keV・右側帯背景",
             }
         )
         w.writerow(
@@ -269,7 +345,7 @@ def main() -> None:
                     "method": "field_transfer_wall_overnight",
                     "epsilon_S_wall_cm2": f"{wall_eps_D1:.4g}",
                     "D1_over_d1_ratio": f"{wall_ratio:.4g}",
-                    "note": "管理棟2階・壁窓196–764keV",
+                    "note": "管理棟2階・壁窓191–764keV",
                 }
             )
         if D1_short and d1_field and eps_mean == eps_mean:
@@ -327,7 +403,7 @@ def main() -> None:
     print("\n=== まとめ ===")
     print(f"  peak ROI  εS(d1)={peak_eps_d1:.2f}  εS(D1)={peak_eps_D1:.2f} cm²")
     if eps_mean == eps_mean:
-        print(f"  wall 196–764  εS(d1)={eps_mean:.2f}±{eps_std:.2f}  εS(D1)={wall_eps_D1:.2f} cm²")
+        print(f"  wall 191–764  εS(d1)={eps_mean:.2f}±{eps_std:.2f}  εS(D1)={wall_eps_D1:.2f} cm²")
         print(f"  wall/peak 較正比 d1: {eps_mean/peak_eps_d1:.3f}")
 
 

@@ -12,6 +12,11 @@ import numpy as np
 
 USB_ROOT = Path("/Volumes")
 
+# --- 解析窓（2026–）---
+# 主窓: 191–764 keV … 右側帯背景 → NET（ROI あり）
+# 副窓: 固定 ch peak ROI … キャンペーン内地点比較・昨年表との突合用（analyze_roi）
+# 公式 φ・ε×S は主窓へ移行。peak ROI はゲイン変動で物理窓とずれるため参照用。
+
 # 終夜参照で決めた共通 ROI（地点比較の積分窓）。背景はピーク外側帯（roi_net_sideband）。
 ROI_BY_SERIAL: dict[str, dict[str, int]] = {
     "1715": {"lo": 314, "hi": 366, "search_lo": 80},   # D1 / D2
@@ -21,15 +26,15 @@ ROI_BY_SERIAL: dict[str, dict[str, int]] = {
 PEAK_HALF_WIDTH = 16
 SIDEBAND_WIDTH = 15
 SIDEBAND_GAP = 0
+WALL_LEFT_SB_MIN_CH = 10  # 壁窓左側帯の下限（ch0 付近を避ける）
 ROI_EDGE = 6  # 参考用（旧・端点台形）
 PEAK_OUTSIDE_WARN_CH = 15
 
 # ³He(n,p)³H: Q=764 keV。壁効果で連続成分はトリトン端〜フルエネルギーに分布。
-# ユーザ指定の積分窓は 196–764 keV（文献のトリトン端 ≈191 keV に近い）。
 HE3_Q_KEV = 764.0
-HE3_WALL_LO_KEV = 196.0
 HE3_PROTON_EDGE_KEV = 573.0
 HE3_TRITON_EDGE_KEV = 191.0
+HE3_WALL_LO_KEV = HE3_TRITON_EDGE_KEV  # 積分窓下端 = トリトン端
 HE3_MARK_KEV = (HE3_Q_KEV, HE3_PROTON_EDGE_KEV, HE3_TRITON_EDGE_KEV)
 
 # シリアル別の 764 keV 基準（large D=1715 と small d=2162 はゲイン応答が違う）。
@@ -303,7 +308,7 @@ class RoiAnalysis:
     sb_hi_lo: int = 0
     sb_hi_hi: int = 0
     bg_mode: str = "sideband"
-    # エネルギー窓メタ（ピーク ROI では空。壁効果窓では 196–764 keV）
+    # エネルギー窓メタ（ピーク ROI では空。壁効果窓では 191–764 keV）
     window_kind: str = "peak_roi"
     e_lo_kev: float = 0.0
     e_hi_kev: float = 0.0
@@ -343,7 +348,7 @@ def he3_wall_channels(
     place: str = "",
     n: int = 512,
 ) -> tuple[int, int] | None:
-    """壁効果連続帯 196–764 keV の ch 範囲（プロット・クリップ用）。"""
+    """壁効果連続帯 191–764 keV の ch 範囲（プロット・クリップ用）。"""
     cal = resolve_he3_energy_cal(str(serial or ""), int(roi_peak or 0), str(place or ""))
     if cal is None or cal.peak_ch <= 0:
         return None
@@ -550,6 +555,112 @@ def analyze_roi(counts, serial: str = "") -> RoiAnalysis:
     )
 
 
+def wall_sideband_ranges(
+    integrate_lo: int,
+    integrate_hi: int,
+    peak: int,
+    n: int,
+    peak_half: int = PEAK_HALF_WIDTH,
+    width: int = SIDEBAND_WIDTH,
+    gap: int = SIDEBAND_GAP,
+) -> tuple[tuple[int, int], tuple[int, int]]:
+    """壁効果窓用側帯: 左は 191 keV 窓下端より低 ch、右はピーク外側。"""
+    lo = max(1, min(integrate_lo, n - 1))
+    hi = max(lo, min(integrate_hi, n - 1))
+    excl_hi = peak + peak_half
+
+    left_hi = lo - gap - 1
+    left_lo = left_hi - width + 1
+    left_lo = max(WALL_LEFT_SB_MIN_CH, left_lo)
+    left_hi = max(left_lo, min(left_hi, n - 1))
+
+    right_lo = min(n - 1, max(hi, excl_hi) + gap + 1)
+    right_hi = min(n - 1, right_lo + max(width, 10) - 1)
+
+    if left_hi < left_lo + 2:
+        left_lo, left_hi = 0, 0
+    if right_hi < right_lo + 2:
+        right_lo, right_hi = 0, 0
+    return (int(left_lo), int(left_hi)), (int(right_lo), int(right_hi))
+
+
+def wall_net_sideband(
+    counts,
+    integrate_lo: int,
+    integrate_hi: int,
+    peak: int,
+    peak_half: int = PEAK_HALF_WIDTH,
+    sideband: int = SIDEBAND_WIDTH,
+    gap: int = SIDEBAND_GAP,
+) -> tuple[float, float, float, float, tuple[int, int], tuple[int, int], str]:
+    """191 keV 未満（左）＋ピーク右（右）の直線背景で壁窓 NET を返す。"""
+    c = np.asarray(counts, dtype=float)
+    n = len(c)
+    lo = max(1, min(integrate_lo, n - 1))
+    hi = max(lo, min(integrate_hi, n - 1))
+    (sb0_lo, sb0_hi), (sb1_lo, sb1_hi) = wall_sideband_ranges(
+        lo, hi, peak, n, peak_half=peak_half, width=sideband, gap=gap
+    )
+
+    left = c[sb0_lo : sb0_hi + 1] if sb0_hi >= sb0_lo > 0 else np.array([])
+    right = c[sb1_lo : sb1_hi + 1] if sb1_hi >= sb1_lo > 0 else np.array([])
+    left_ok = len(left) >= 3
+    right_ok = len(right) >= 3
+
+    y = c[lo : hi + 1]
+    gross = float(y.sum())
+    x = np.arange(lo, hi + 1, dtype=float)
+
+    if left_ok and right_ok:
+        bg0 = float(np.mean(left))
+        bg1 = float(np.mean(right))
+        x0 = 0.5 * (sb0_lo + sb0_hi)
+        x1 = 0.5 * (sb1_lo + sb1_hi)
+        if abs(x1 - x0) < 1e-9:
+            bg = np.full_like(x, bg0, dtype=float)
+        else:
+            bg = bg0 + (bg1 - bg0) / (x1 - x0) * (x - x0)
+        mode = "sideband"
+    elif right_ok:
+        bg1 = float(np.mean(right))
+        bg = np.full_like(x, bg1, dtype=float)
+        mode = "sideband_right"
+    elif left_ok:
+        bg0 = float(np.mean(left))
+        bg = np.full_like(x, bg0, dtype=float)
+        mode = "sideband_left"
+    else:
+        bg = np.zeros_like(x, dtype=float)
+        mode = "none_gross"
+
+    bg_sum = float(np.clip(bg, 0, None).sum())
+    net = gross - bg_sum
+    err = float(np.sqrt(max(gross + bg_sum, 0.0)))
+    return gross, bg_sum, net, err, (sb0_lo, sb0_hi), (sb1_lo, sb1_hi), mode
+
+
+def _wall_window_bounds(
+    counts,
+    serial: str,
+    e_lo_kev: float,
+    e_hi_kev: float,
+) -> tuple[int, int, int, int, int, int]:
+    """壁窓 ch 範囲とピーク・search_lo を返す。"""
+    serial = str(serial or "")
+    search_lo = search_lo_for_serial(serial)
+    c = np.asarray(counts, dtype=float)
+    n = len(c)
+    peak = high_ch_peak(c, serial)
+    auto_lo, auto_hi, _ = find_roi(c, search_lo=search_lo)
+    lo_e, hi_e = energy_window_channels(peak, n, e_lo_kev=e_lo_kev, e_hi_kev=e_hi_kev)
+    lo = lo_e
+    hi = max(hi_e, min(n - 1, peak + PEAK_HALF_WIDTH))
+    fixed = fixed_roi_for_serial(serial)
+    if fixed is not None:
+        hi = max(hi, fixed[1])
+    return lo, hi, peak, auto_lo, auto_hi, search_lo
+
+
 def analyze_wall_window(
     counts,
     serial: str = "",
@@ -557,32 +668,86 @@ def analyze_wall_window(
     e_hi_kev: float = HE3_Q_KEV,
     sideband: int = SIDEBAND_WIDTH,
 ) -> RoiAnalysis:
-    """壁効果連続帯のエネルギー窓 NET（既定 196–764 keV）。
+    """壁効果連続帯 NET（191–764 keV）。背景は右側帯水平（主値）。
 
-    roi_peak を 764 keV とし、線形校正で下端 ch を決める。
-    上端は 764 keV 相当に加え、ピーク分解能分（PEAK_HALF_WIDTH）を含める。
-    低 ch 側帯は使わず、ピーク外側の右側帯のみで水平背景を推定する。
+    191 keV 未満左＋右の直線背景は analyze_wall_window_linear（比較用）。
     """
+    return analyze_wall_window_right_only(counts, serial, e_lo_kev, e_hi_kev, sideband)
+
+
+def analyze_wall_window_linear(
+    counts,
+    serial: str = "",
+    e_lo_kev: float = HE3_WALL_LO_KEV,
+    e_hi_kev: float = HE3_Q_KEV,
+    sideband: int = SIDEBAND_WIDTH,
+) -> RoiAnalysis:
+    """壁窓 NET（191 keV 未満左＋ピーク右の直線背景）。比較・検証用。"""
     serial = str(serial or "")
-    search_lo = search_lo_for_serial(serial)
+    lo, hi, peak, auto_lo, auto_hi, search_lo = _wall_window_bounds(
+        counts, serial, e_lo_kev, e_hi_kev
+    )
+    gross, bg, net, err, (sb0_lo, sb0_hi), (sb1_lo, sb1_hi), bg_mode = wall_net_sideband(
+        counts, lo, hi, peak, sideband=sideband
+    )
+
+    warnings: list[str] = []
+    if peak <= 0:
+        warnings.append("ピーク未検出のためエネルギー校正不可")
+    if net <= 0:
+        warnings.append("NET<=0（直線背景・側帯を確認）")
+    if bg_mode == "none_gross":
+        warnings.append("左右側帯が取れず GROSS を NET として使用")
+    elif bg_mode == "sideband_right":
+        warnings.append("左側帯不可→右側水平背景")
+    elif bg_mode == "sideband_left":
+        warnings.append("右側帯不可→左側水平背景")
+
+    kev_per = HE3_Q_KEV / peak if peak > 0 else 0.0
+    return RoiAnalysis(
+        roi_lo=lo,
+        roi_hi=hi,
+        roi_peak=peak,
+        roi_auto_lo=auto_lo,
+        roi_auto_hi=auto_hi,
+        gross=gross,
+        bg=bg,
+        net=net,
+        err=err,
+        net_valid=net > 0,
+        warning="; ".join(warnings),
+        search_lo=search_lo,
+        serial=serial,
+        sb_lo_lo=sb0_lo,
+        sb_lo_hi=sb0_hi,
+        sb_hi_lo=sb1_lo,
+        sb_hi_hi=sb1_hi,
+        bg_mode=bg_mode,
+        window_kind="wall_191_764",
+        e_lo_kev=float(e_lo_kev),
+        e_hi_kev=float(e_hi_kev),
+        kev_per_ch=kev_per,
+    )
+
+
+def analyze_wall_window_right_only(
+    counts,
+    serial: str = "",
+    e_lo_kev: float = HE3_WALL_LO_KEV,
+    e_hi_kev: float = HE3_Q_KEV,
+    sideband: int = SIDEBAND_WIDTH,
+) -> RoiAnalysis:
+    """壁窓 NET（旧: 右側帯のみ水平背景）。比較・検証用。"""
+    serial = str(serial or "")
+    lo, hi, peak, auto_lo, auto_hi, search_lo = _wall_window_bounds(
+        counts, serial, e_lo_kev, e_hi_kev
+    )
     c = np.asarray(counts, dtype=float)
     n = len(c)
-    peak = high_ch_peak(c, serial)
-    auto_lo, auto_hi, _ = find_roi(c, search_lo=search_lo)
-
-    lo_e, hi_e = energy_window_channels(peak, n, e_lo_kev=e_lo_kev, e_hi_kev=e_hi_kev)
-    # フルエネルギーピークの分解能分を窓に含める（hi_e=peak だと山の右半分が欠ける）
-    lo = lo_e
-    hi = max(hi_e, min(n - 1, peak + PEAK_HALF_WIDTH))
-    fixed = fixed_roi_for_serial(serial)
-    if fixed is not None:
-        hi = max(hi, fixed[1])
-
     y = c[lo : hi + 1]
     gross = float(y.sum())
     n_win = hi - lo + 1
 
-    # 右側帯はピーク除外の外側から
     sb1_lo = min(n - 1, max(hi, peak + PEAK_HALF_WIDTH) + 1)
     sb1_hi = min(n - 1, sb1_lo + max(sideband, 10) - 1)
     right = c[sb1_lo : sb1_hi + 1]
@@ -604,12 +769,7 @@ def analyze_wall_window(
         warnings.append("NET<=0（壁効果窓または右側帯背景を確認）")
     if bg_mode == "none_gross":
         warnings.append("右側帯が取れず GROSS を NET として使用")
-    if hi - lo < 20:
-        warnings.append(f"エネルギー窓が狭い ({lo}-{hi})")
-    if lo < 20:
-        warnings.append(f"窓下端 ch={lo} が低すぎる（ゲイン／ピーク位置を確認）")
 
-    warning = "; ".join(warnings)
     kev_per = HE3_Q_KEV / peak if peak > 0 else 0.0
     return RoiAnalysis(
         roi_lo=lo,
@@ -622,7 +782,7 @@ def analyze_wall_window(
         net=net,
         err=err,
         net_valid=net > 0,
-        warning=warning,
+        warning="; ".join(warnings),
         search_lo=search_lo,
         serial=serial,
         sb_lo_lo=0,
@@ -630,7 +790,7 @@ def analyze_wall_window(
         sb_hi_lo=sb1_lo,
         sb_hi_hi=sb1_hi,
         bg_mode=bg_mode,
-        window_kind="wall_196_764",
+        window_kind="wall_191_764",
         e_lo_kev=float(e_lo_kev),
         e_hi_kev=float(e_hi_kev),
         kev_per_ch=kev_per,

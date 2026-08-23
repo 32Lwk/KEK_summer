@@ -319,33 +319,83 @@ def main() -> None:
             if det == "D2" and (r.get("epsilon_S_ROI_cm2") or "").strip():
                 D2_transfer = r
 
-    # --- 現場フラックス（d1 パイル + D1/d2/D2 転送）---
+    # --- 現場フラックス（主窓 191–764 keV）---
+    eff_wall_path = TABLES / "検出器効率_壁効果191_764keV.csv"
+    eps_wall: dict[str, float] = {"d1": 74.2, "D1": 134.6}
+    if eff_wall_path.exists():
+        for r in csv.DictReader(eff_wall_path.open(encoding="utf-8")):
+            det = (r.get("検出器") or "").strip()
+            v = (r.get("epsilon_S_wall_cm2") or "").strip()
+            if det in eps_wall and v:
+                eps_wall[det] = float(v)
+
     record_csv = TABLES / "測定記録.csv"
     rows_out = []
     with record_csv.open(encoding="utf-8") as f:
         recs = list(csv.DictReader(f))
 
+    # d2 / D2 wall 転送（build_flux_summary と同じ方針）
+    def _wall_cps(recs_list, det: str, site_key: str) -> float | None:
+        from build_flux_summary import detector_key as dk, site_label as sl, prefer_score as ps
+
+        best = None
+        best_score = -1.0
+        for rec in recs_list:
+            fn = rec.get("filename") or ""
+            serial = str(rec.get("シリアル") or "")
+            if dk(fn, serial) != det:
+                continue
+            place = rec.get("場所") or ""
+            if sl(place, fn) != site_key:
+                continue
+            if str(rec.get("wall_net_valid", "1")) in ("0", "False", "false"):
+                continue
+            try:
+                cps = float(rec["wall_net_cps"])
+            except (KeyError, ValueError):
+                continue
+            if cps <= 0:
+                continue
+            live = float(rec.get("live_s") or 0)
+            sc = ps(fn, live)
+            if sc > best_score:
+                best_score = sc
+                best = cps
+        return best
+
+    d1_g = _wall_cps(recs, "D1", "地上")
+    d2_g = _wall_cps(recs, "d2", "地上")
+    if d1_g and d2_g and "D1" in eps_wall:
+        eps_wall["d2"] = eps_wall["D1"] * d2_g / d1_g
+    d1_l = _wall_cps(recs, "D1", "linac")
+    d2_l = _wall_cps(recs, "D2", "linac")
+    if d1_l and d2_l and "D1" in eps_wall:
+        eps_wall["D2"] = eps_wall["D1"] * d2_l / d1_l
+
     for rec in recs:
         fn = rec.get("filename") or rec.get("ファイル名") or ""
         serial = str(rec.get("シリアル") or "")
         det = detector_key(fn, serial)
-        rate_roi = float(rec.get("roi_net_cps") or 0)
-        rate_err = float(rec.get("roi_net_cps_err") or 0)
+        rate_wall = float(rec.get("wall_net_cps") or 0)
+        rate_wall_err = float(rec.get("wall_net_cps_err") or 0)
+        wall_valid = str(rec.get("wall_net_valid", "1")) not in ("0", "False", "false")
+        rate_peak = float(rec.get("roi_net_cps") or 0)
+        rate_peak_err = float(rec.get("roi_net_cps_err") or 0)
 
-        eps_roi = None
+        eps = None
         note = ""
         if det == "d1" and "d1" in eff:
-            eps_roi = eff["d1"]["epsilon_S_ROI_cm2"]
-            note = "d1 熱中性子絶対較正（黒鉛 30/80 cm）"
+            eps = eps_wall.get("d1")
+            note = "d1 熱中性子絶対較正（黒鉛 30/80 cm）· 191–764 keV"
         elif det == "D1" and d1_transfer:
-            eps_roi = float(d1_transfer["epsilon_S_ROI_cm2"])
-            note = "D1 転送較正（管理棟2階 D1/d1×d1εS）; パイル30/80は飽和不使用"
-        elif det == "d2" and d2_transfer:
-            eps_roi = float(d2_transfer["epsilon_S_ROI_cm2"])
-            note = "d2 転送較正（地上 d2/D1×D1εS）; 400cm PE確認は不使用"
-        elif det == "D2" and D2_transfer:
-            eps_roi = float(D2_transfer["epsilon_S_ROI_cm2"])
-            note = "D2 転送較正（地上 D2/D1×D1εS）; 400cm PE確認は不使用"
+            eps = eps_wall.get("D1")
+            note = "D1 転送較正（管理棟2階 D1/d1×d1εS_wall）· 191–764 keV"
+        elif det == "d2" and eps_wall.get("d2"):
+            eps = eps_wall["d2"]
+            note = "d2 転送較正（地上 d2/D1×D1εS_wall）· 191–764 keV"
+        elif det == "D2" and eps_wall.get("D2"):
+            eps = eps_wall["D2"]
+            note = "D2 転送較正（linac D2/D1×D1εS_wall；地上 wall NET≤0）· 191–764 keV"
         elif det in ("D1", "D2", "d2"):
             note = (
                 "絶対効率未確定・相対比較のみ"
@@ -354,9 +404,9 @@ def main() -> None:
                 + ("（D2: calc_D2_efficiency_transfer.py を実行）" if det == "D2" else "")
             )
 
-        if eps_roi and eps_roi > 0:
-            phi = rate_roi / eps_roi
-            phi_err = rate_err / eps_roi
+        if eps and eps > 0 and wall_valid and rate_wall > 0:
+            phi = rate_wall / eps
+            phi_err = rate_wall_err / eps
         else:
             phi = phi_err = float("nan")
 
@@ -367,11 +417,13 @@ def main() -> None:
                 "filename": fn,
                 "検出器": det,
                 "シリアル": serial,
-                "ROI_net_CPS": f"{rate_roi:.6g}",
-                "ROI_net_CPS_err": f"{rate_err:.6g}",
-                "epsilon_S_ROI_cm2": f"{eps_roi:.4g}" if eps_roi else "",
-                "phi_ROI_n_cm2_s": f"{phi:.6g}" if not math.isnan(phi) else "",
-                "phi_ROI_err": f"{phi_err:.6g}" if not math.isnan(phi_err) else "",
+                "NET_CPS_191_764keV": f"{rate_wall:.6g}" if wall_valid else "",
+                "NET_CPS_191_764keV_err": f"{rate_wall_err:.6g}" if wall_valid else "",
+                "peak_ROI_net_CPS": f"{rate_peak:.6g}",
+                "peak_ROI_net_CPS_err": f"{rate_peak_err:.6g}",
+                "epsilon_S_191_764_cm2": f"{eps:.4g}" if eps else "",
+                "phi_191_764_n_cm2_s": f"{phi:.6g}" if not math.isnan(phi) else "",
+                "phi_191_764_err": f"{phi_err:.6g}" if not math.isnan(phi_err) else "",
                 "備考": note,
             }
         )

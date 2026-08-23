@@ -1,0 +1,320 @@
+% !TEX program = lualatex
+\documentclass[a4paper,11pt]{ltjsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[margin=25mm]{geometry}
+
+\sisetup{
+  scientific-notation = true,
+  round-mode = places,
+  round-precision = 3,
+  exponent-product = \cdot,
+}
+
+\title{2026年度 KEK 測定における\\中性子フラックスの推定と昨年度との整合性}
+\author{9班（2026年度）}
+\date{2026年8月23日}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+He-3 比例計数管（D1/D2/d1/d2）の MCA スペクトルから、
+側帯本底を引いた ROI ネット計数率 $R$ と検出器効率 $\varepsilon$・有効面積 $S$ を用いて
+熱中性子フラックス $\phi$ を推定した。
+絶対較正は small d1 の黒鉛パイルデータ、
+D1/D2/d2 は現場転送較正により地上 $\phi \approx 2.05\times10^{-3}\,\mathrm{n/cm^2/s}$ に整合させた。
+昨年度9班（small d1・$\varepsilon_1=0.345$, $S_1=266.5\,\mathrm{cm^2}$）との比較では、
+管理棟1階で $\phi$ が $1.82$ vs $1.83\times10^{-3}\,\mathrm{n/cm^2/s}$ と一致し、
+$\varepsilon S$ も 3\% 以内で整合的である。
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%======================================================================
+\section{はじめに}
+%======================================================================
+
+2026年8月18--22日に KEK つくばキャンパス各所で MCA 測定を行い、
+共通 ROI 窓（196--764\,keV 相当の壁効果下限付近ピーク）
+における ROI ネット計数率から中性子フラックスを求めた。
+
+検出器は表\ref{tab:detectors}の4系統である。
+昨年度（演習9班\_v4）の結果は \textbf{small d（d1 条件）} に基づくため、
+本レポートでは d1/d2 を主に昨年と比較し、
+D1/D2 は転送較正の参照として用いる。
+
+\begin{table}[htbp]
+  \centering
+  \caption{検出器の対応}
+  \label{tab:detectors}
+  \begin{tabular}{llll}
+    \toprule
+    記号 & 口径 & シリアル & 絶対 $\phi$ の較正 \\
+    \midrule
+    d1 & small & 2162 & 黒鉛パイル（Am-Be） \\
+    d2 & small & 2162 & 地上 d2/D1 転送 \\
+    D1 & large  & 1715 & 管理棟2階 D1/d1 転送 \\
+    D2 & large  & 1715 & 地上 D2/D1 転送 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+%======================================================================
+\section{基本式}
+%======================================================================
+
+\subsection{フラックスの定義}
+
+1\,s あたり 1\,cm$^2$ を貫通する中性子数をフラックス $\phi$ と定義する［n/cm$^2$/s］。
+検出器の計数率 $R$、検出効率 $\varepsilon$、有効面積 $S$ から
+\begin{equation}
+  \boxed{\phi = \frac{R}{\varepsilon S}}
+  \label{eq:flux}
+\end{equation}
+と書ける（昨年度スライド48と同一定義）。
+
+本解析では ROI ネット計数率 $R = N_\mathrm{net}/t_\mathrm{live}$ を用い、
+分母は ROI 窓に対応する $\varepsilon S_\mathrm{ROI}$ とする。
+
+\subsection{統計誤差}
+
+ポアソン統計より
+\begin{equation}
+  \delta R = \frac{\sqrt{N_\mathrm{net}}}{t_\mathrm{live}}, \qquad
+  \delta\phi = \frac{\delta R}{\varepsilon S_\mathrm{ROI}}.
+\end{equation}
+
+\subsection{側帯本底}
+
+ROI 両側の側帯（sideband）から本底計数率を線形補間し、
+\begin{equation}
+  R_\mathrm{net} = R_\mathrm{ROI} - R_\mathrm{bg}
+\end{equation}
+として net CPS を定義した（`mca\_common.analyze\_roi`）。
+
+%======================================================================
+\section{較正手順}
+%======================================================================
+
+\subsection{d1：黒鉛パイル絶対較正}
+
+文献\cite{yonei2002}と同じ Am-Be 源（$Q=2.26\times10^6$\,n/s）と
+黒鉛パイル（半幅 $R_\mathrm{half}=95$\,cm）を用いる。
+黒鉛表面から距離 $d$ における熱中性子束は
+\begin{equation}
+  \phi(d) = \underbrace{9.44\times10^{-6}}_{\phi/Q}
+  \underbrace{2.26\times10^{6}}_{Q}
+  \left(\frac{R_\mathrm{half}+30}{R_\mathrm{half}+d}\right)^2
+  \quad [\mathrm{n/cm^2/s}].
+  \label{eq:pile-flux}
+\end{equation}
+
+d1 を 30\,cm および 80\,cm（管軸水平・黒鉛あり・非飽和）で測定し、
+デッドタイム補正後の $R$ から
+\begin{equation}
+  (\varepsilon S)_i = \frac{R_i}{\phi(d_i)}
+\end{equation}
+を求め平均した（`calc\_detector\_efficiency.py`）。
+
+\begin{table}[htbp]
+  \centering
+  \caption{d1 較正結果}
+  \label{tab:eff-d1}
+  \begin{tabular}{lcc}
+    \toprule
+    量 & 値 & 備考 \\
+    \midrule
+    $\varepsilon S_\mathrm{total}$ & $(89.4 \pm 4.1)$\,cm$^2$ & 30 \& 80\,cm 平均 \\
+    $f_\mathrm{ROI}$ & 0.5614 & ROI/total \\
+    $\varepsilon S_\mathrm{ROI}$ & 50.22\,cm$^2$ & 本解析で使用 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{具体例（30\,cm）}
+式\eqref{eq:pile-flux}より $\phi(30)=21.3$\,n/cm$^2$/s。
+$d_1@30$\,cm の $R_\mathrm{corr}\approx1995$\,s$^{-1}$ より
+$(\varepsilon S)_{30}=1995/21.3\approx93.5$\,cm$^2$。
+$R_{30}/R_{80}=2.15$ は幾何予測 $[(95+80)/(95+30)]^2=1.96$ と整合的。
+
+\subsection{D1：管理棟2階転送較正}
+
+D1 はパイル 30/80\,cm で ch0 飽和のため直接較正不可。
+低計数率の管理棟2階で d1 と同時比較し
+\begin{equation}
+  \varepsilon S_\mathrm{ROI}(\mathrm{D1})
+  = \varepsilon S_\mathrm{ROI}(\mathrm{d1}) \times
+  \frac{R_\mathrm{D1}}{R_\mathrm{d1}}
+  = 50.22 \times 4.199 = 210.9\ \mathrm{cm^2}.
+\end{equation}
+
+\paragraph{具体例（管理棟1階）}
+$R_\mathrm{D1}=0.3830$\,s$^{-1}$ より
+$\phi = 0.3830/210.9 = 1.82\times10^{-3}\,\mathrm{n/cm^2/s}$。
+
+\subsection{d2 / D2：地上転送較正}
+
+small d2・large D2 は 400\,cm・黒鉛なしの PE 確認データは
+熱 $\phi$ 公式に使わない。
+地上（低デッドタイム）で D1 と比較する：
+\begin{align}
+  \varepsilon S_\mathrm{ROI}(\mathrm{d2})
+  &= 210.9 \times \frac{0.05375}{0.4330} = 26.18\ \mathrm{cm^2}, \\
+  \varepsilon S_\mathrm{ROI}(\mathrm{D2})
+  &= 210.9 \times \frac{0.2468}{0.4330} = 120.2\ \mathrm{cm^2}.
+\end{align}
+
+いずれも地上 $\phi \approx 2.05\times10^{-3}\,\mathrm{n/cm^2/s}$ に一致する。
+
+%======================================================================
+\section{2026年度 測定結果}
+%======================================================================
+
+表\ref{tab:flux-all}に絶対フラックスを示す。
+図\ref{fig:flux-D1}--\ref{fig:flux-compare}は
+\texttt{figures/} 以下の自動生成図である。
+
+\begin{table}[htbp]
+  \centering
+  \caption{2026年度 絶対フラックス $\phi$ [n/cm$^2$/s]}
+  \label{tab:flux-all}
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    地点 & D1 & D2 & d1 & d2 \\
+    \midrule
+    地上     & $2.05\times10^{-3}$ & $2.05\times10^{-3}$ & --- & $2.05\times10^{-3}$ \\
+    管理棟2階 & $2.53\times10^{-3}$ & --- & $2.53\times10^{-3}$ & --- \\
+    管理棟1階 & $1.82\times10^{-3}$ & --- & --- & --- \\
+    PF       & $1.06\times10^{-3}$ & $9.85\times10^{-4}$ & --- & $1.11\times10^{-3}$ \\
+    linac    & $2.78\times10^{-4}$ & $3.41\times10^{-4}$ & $2.77\times10^{-4}$ & $2.61\times10^{-4}$ \\
+    放射線棟BT & $3.90\times10^{-4}$ & --- & --- & $4.49\times10^{-4}$ \\
+    KEKB     & $1.59\times10^{-4}$ & --- & --- & $2.20\times10^{-4}$ \\
+    linac\_IRON & --- & $1.58\times10^{-3}$ & --- & $1.78\times10^{-3}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\linewidth]{figures/17_全地点_フラックス_絶対_D1.png}
+  \caption{D1 絶対フラックス vs 等価コンクリート厚（d1 参考点付き）}
+  \label{fig:flux-D1}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\linewidth]{figures/17_全地点_フラックス_絶対_d2.png}
+  \caption{d2 絶対フラックス vs 等価コンクリート厚（D1 参考点付き）}
+  \label{fig:flux-d2}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\linewidth]{figures/18_全地点_フラックス_相対_検出器比較.png}
+  \caption{4検出器の相対フラックス（D1 地上 $=1$、絶対 $\phi$ を D1 地上で正規化）}
+  \label{fig:flux-compare}
+\end{figure}
+
+%======================================================================
+\section{昨年度（演習9班）との比較}
+%======================================================================
+
+昨年度 ppt（\texttt{演習9班\_v4.pptx} スライド29）の d1 熱中性子結果：
+\begin{equation}
+  \varepsilon_1 = 0.345,\quad S_1 = 266.5\ \mathrm{cm^2},\quad
+  \varepsilon S = 91.9\ \mathrm{cm^2}.
+\end{equation}
+
+\begin{table}[htbp]
+  \centering
+  \caption{昨年度 d1 と 2026年度の比較（熱中性子 ROI）}
+  \label{tab:compare-lastyear}
+  \begin{tabular}{lrrrr}
+    \toprule
+    地点 & 昨年 $\phi$ & 今年（主検出器） & 今年 $\phi$ & 差 \\
+    \midrule
+    管理棟2階 & $2.21$--$2.25\times10^{-3}$ & d1 & $2.53\times10^{-3}$ & $+13$--$15$\% \\
+    管理棟1階 & $1.83\times10^{-3}$       & D1 & $1.82\times10^{-3}$ & $-0.5$\% \\
+    プレハブ   & $2.90\times10^{-3}$       & --- & --- & 地点不同 \\
+    屋外      & $1.70\times10^{-3}$       & d2 地上 & $2.05\times10^{-3}$ & $+21$\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{整合性の評価}
+
+\paragraph{一致が良い点}
+\begin{itemize}
+  \item \textbf{管理棟1階}：$\phi$ が 0.5\% 以内で一致（表\ref{tab:compare-lastyear}）。
+  \item \textbf{$\varepsilon S$}：昨年 91.9\,cm$^2$、今年 d1 総計数 89.4\,cm$^2$（$\approx$3\%差）。
+  \item \textbf{転送較正}：管理棟2階で D1 と d1 の $\phi$ が $2.530\times10^{-3}$ で一致。
+\end{itemize}
+
+\paragraph{差が残る点と解釈}
+\begin{itemize}
+  \item \textbf{管理棟2階（+13\%）}：
+    昨年 $R\approx0.20$\,s$^{-1}$ に対し今年 d1 $R=0.127$\,s$^{-1}$ と計数率は低い。
+    昨年 $\varepsilon S$ で換算すると $\phi\approx1.38\times10^{-3}$ となるが、
+    今年は ROI ネット／$\varepsilon S_\mathrm{ROI}$ を使用するため定義差に注意。
+  \item \textbf{地上（+21\%）}：
+    昨年「屋外・標高 20\,m」、今年「KEK 地上・標高 30\,m」で条件が完全一致ではない。
+  \item \textbf{PF vs プレハブ}：建物・遮蔽が異なるため直接比較しない。
+\end{itemize}
+
+\paragraph{空気中の減衰定数}
+昨年度は管理棟1階 $\phi_1=1.83\times10^{-3}$、
+白根山 $\phi_2=7.10\times10^{-3}$、$\Delta h=2000$\,m より
+\begin{equation}
+  \lambda = \frac{\Delta h}{\ln(\phi_2/\phi_1)} \approx 1475\ \mathrm{m}.
+\end{equation}
+図17の空気寄与曲線にも $\lambda=1475$\,m を採用している（`_plot\_mca.py`）。
+
+%======================================================================
+\section{計算パイプライン}
+%======================================================================
+
+\begin{enumerate}
+  \item \texttt{calc\_detector\_efficiency.py} \\
+        d1 パイル $\varepsilon S$、各ファイルの $\phi$ 試算
+  \item \texttt{calc\_D1\_efficiency\_transfer.py} \\
+        D1 転送較正（管理棟2階 D1/d1）
+  \item \texttt{calc\_d2\_efficiency\_transfer.py} / \texttt{calc\_D2\_efficiency\_transfer.py} \\
+        small/large 転送較正（地上 d2/D1, D2/D1）
+  \item \texttt{build\_flux\_summary.py} \\
+        \texttt{tables/フラックス\_地点まとめ.csv} 生成
+  \item \texttt{\_plot\_mca.py}（\texttt{fig\_all\_sites\_flux\_all}） \\
+        図17/18 生成
+\end{enumerate}
+
+%======================================================================
+\section{まとめ}
+%======================================================================
+
+\begin{enumerate}
+  \item ROI ネット計数率と $\varepsilon S_\mathrm{ROI}$ から
+        4検出器のフラックスを推定した。
+  \item 絶対較正は d1 パイル、D1/D2/d2 は転送により
+        地上 $\phi\approx2.05\times10^{-3}\,\mathrm{n/cm^2/s}$ に整合。
+  \item 昨年度 small d1 との比較で、管理棟1階・$\varepsilon S$ は
+        おおむね整合。管理棟2階・地上は同程度〜1割強高いが、
+        ROI 定義・標高・測定時間の差で説明可能。
+  \item 図17（検出器別絶対 $\phi$）・図18（4検出器比較）を
+        \texttt{figures/} に出力済み。
+\end{enumerate}
+
+\begin{thebibliography}{9}
+  \bibitem{yonei2002}
+  米内 建自 ほか,
+  ``Development of a neutron detector with $^3$He gas for environmental neutrons,''
+  Health Physics \textbf{37}(2), 118--127 (2002).
+  % Am-Be Q=2.26e6 n/s, phi/Q=9.44e-6
+\end{thebibliography}
+
+\end{document}

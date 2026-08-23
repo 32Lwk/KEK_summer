@@ -17,6 +17,8 @@ import numpy as np
 from mca_common import (
     HE3_MARK_KEV,
     HE3_WALL_LO_KEV,
+    PEAK_HALF_WIDTH,
+    SIDEBAND_WIDTH,
     detector_fs_suffix,
     equiv_decay_csv_name,
     he3_wall_channels,
@@ -37,8 +39,6 @@ PALETTE = [BLUE, RED, GREEN, "#9467BD", "#8C564B", "#E377C2", "#17BECF"]
 YLABEL = "計数率 [1/s / ch]"
 YLABEL_SUM = "計数率 [1/s]"
 CLIP_PAD = 0.002
-HE3_X_PAD_LO = 12
-HE3_X_PAD_HI = 32
 # 対数軸では 0 を描けない。NaN にすると step が切れるので、
 # 半カウント相当（0.5/live）を床として連続線にする。
 LOG_Y_FLOOR = 1e-5
@@ -103,34 +103,6 @@ def union_roi(series: list[dict]) -> tuple[int, int]:
     return min(s["roi_lo"] for s in series), max(s["roi_hi"] for s in series)
 
 
-def union_wall(series: list[dict]) -> tuple[int, int] | None:
-    walls = [
-        (int(s["wall_lo"]), int(s["wall_hi"]))
-        for s in series
-        if s.get("wall_lo") is not None and s.get("wall_hi") is not None
-    ]
-    if not walls:
-        return None
-    return min(w[0] for w in walls), max(w[1] for w in walls)
-
-
-def he3_plot_xlim(wlo: int, whi: int) -> tuple[int, int]:
-    return max(1, wlo - HE3_X_PAD_LO), min(511, whi + HE3_X_PAD_HI)
-
-
-def union_he3_xlim(series: list[dict]) -> tuple[int, int]:
-    wall = union_wall(series)
-    if wall is None:
-        return 1, 511
-    return he3_plot_xlim(*wall)
-
-
-def wall_clip_for(cps: np.ndarray, wlo: int, whi: int) -> float:
-    seg = cps[wlo : whi + 1]
-    peak = float(np.max(seg)) if len(seg) else 0.0
-    return roi_peak_clip(cps, wlo, whi, pad=max(CLIP_PAD, 0.12 * peak))
-
-
 def shade_wall_window(ax, wlo: int, whi: int, label: str | None = None) -> None:
     ax.axvspan(
         wlo,
@@ -138,8 +110,16 @@ def shade_wall_window(ax, wlo: int, whi: int, label: str | None = None) -> None:
         color=WALL_SHADE,
         alpha=0.38,
         zorder=0,
-        label=label or f"wall {HE3_WALL_LO_KEV:.0f}–764 keV ({wlo}–{whi})",
+        label=label or f"ROI {HE3_WALL_LO_KEV:.0f}–764 keV ({wlo}–{whi})",
     )
+
+
+def shade_wall_sideband(ax, s: dict) -> None:
+    """右側帯のみ（主値の背景推定と一致）。"""
+    sb_lo = int(s.get("wall_sb_hi_lo") or 0)
+    sb_hi = int(s.get("wall_sb_hi_hi") or 0)
+    if sb_hi >= sb_lo > 0:
+        ax.axvspan(sb_lo, sb_hi, color="#9EC9E2", alpha=0.35, zorder=0)
 
 
 def load_spectrum() -> dict:
@@ -161,17 +141,25 @@ def load_spectrum() -> dict:
         serial = str(rec.get("シリアル") or "")
         place = rec["場所"]
         wall = he3_wall_channels(serial, roi_peak, place)
+        wall_sb_hi_lo, wall_sb_hi_hi = 0, 0
         if wall is not None:
             wlo, whi = wall
-            clip = wall_clip_for(cps, wlo, whi)
+            cal = resolve_he3_energy_cal(serial, roi_peak, place)
+            peak_ch = cal.peak_ch if cal else roi_peak
+            if peak_ch > 0:
+                wall_sb_hi_lo = min(len(cps) - 1, max(whi, peak_ch + PEAK_HALF_WIDTH) + 1)
+                wall_sb_hi_hi = min(
+                    len(cps) - 1,
+                    wall_sb_hi_lo + max(SIDEBAND_WIDTH, 10) - 1,
+                )
         else:
             wlo, whi = None, None
-            clip = roi_peak_clip(
-                cps,
-                lo,
-                hi,
-                pad=max(CLIP_PAD, 0.1 * float(np.max(cps[lo : hi + 1]) if hi >= lo else 0)),
-            )
+        clip = roi_peak_clip(
+            cps,
+            lo,
+            hi,
+            pad=max(CLIP_PAD, 0.1 * float(np.max(cps[lo : hi + 1]) if hi >= lo else 0)),
+        )
         series.append(
             {
                 "id": sid,
@@ -187,6 +175,8 @@ def load_spectrum() -> dict:
                 "roi_peak": roi_peak,
                 "wall_lo": wlo,
                 "wall_hi": whi,
+                "wall_sb_hi_lo": wall_sb_hi_lo,
+                "wall_sb_hi_hi": wall_sb_hi_hi,
                 "roi_net_cps": float(rec["roi_net_cps"]),
                 "roi_warning": rec.get("roi_warning") or "",
                 "sb_lo_lo": int(float(rec["sb_lo_lo"])) if rec.get("sb_lo_lo") not in (None, "") else 0,
@@ -313,10 +303,47 @@ def mark_he3_energies(ax, s: dict) -> None:
     )
 
 
-def place_legend(ax, fontsize: float = 9, ncol: int = 1) -> None:
-    """凡例を図内右上に固定（loc=best だと地点・スケールで位置がぶれる）。"""
+_LEGEND_LAB_RE = re.compile(
+    r"^(?P<det>[A-Za-z]+\d+)_(?P<ymd>\d{8})_(?P<hm>\d{4,6})_(?P<rest>.+)（(?P<dur>.+)）$"
+)
+
+
+def compact_legend_label(lab: str) -> str:
+    """重ね書き凡例用: D1_20260818_1552_管理棟2階（22.3 min）→ D1 管理棟2階 8/18 15:52 (22.3 min)。"""
+    m = _LEGEND_LAB_RE.match(lab)
+    if not m:
+        return lab
+    ymd, hm = m.group("ymd"), m.group("hm")
+    clock = f"{hm[:2]}:{hm[2:4]}"
+    return (
+        f"{m.group('det')} {m.group('rest')} "
+        f"{int(ymd[4:6])}/{int(ymd[6:8])} {clock} ({m.group('dur')})"
+    )
+
+
+def place_legend(ax, fontsize: float = 9, ncol: int = 1, *, outside: bool | None = None) -> None:
+    """凡例を置く。系列が多い単軸図は枠外右へ逃がし、データと重ねない。"""
     handles, labels = ax.get_legend_handles_labels()
     if not handles:
+        return
+    labels = [compact_legend_label(x) for x in labels]
+    n = len(handles)
+    if outside is None:
+        outside = n >= 10 and len(ax.figure.axes) == 1
+    if outside:
+        ax.legend(
+            handles,
+            labels,
+            frameon=False,
+            loc="upper left",
+            bbox_to_anchor=(1.02, 1.0),
+            fontsize=min(fontsize, 6.5),
+            ncol=1,
+            borderaxespad=0.0,
+            handlelength=1.4,
+            handletextpad=0.35,
+            labelspacing=0.22,
+        )
         return
     ax.legend(
         handles,
@@ -353,56 +380,43 @@ def step_spectrum(ax, ch, c, color, label=None, clip=None, annotate=True) -> Non
 
 def fig_full_linear(d: dict) -> None:
     lo, hi = union_roi(d["series"])
-    he3_xlim = union_he3_xlim(d["series"])
-    wall = union_wall(d["series"])
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d)
-    if wall is not None:
-        shade_wall_window(ax, *wall)
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(0, 511)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title("全ch 線形（³He 窓）")
-    place_legend(ax, fontsize=8, ncol=2)
+    ax.set_title("全ch 線形")
+    place_legend(ax, fontsize=8, outside=True)
     save(fig, "06_全ch_線形")
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d, clip=overlay_clip(d))
-    if wall is not None:
-        shade_wall_window(ax, *wall)
-    shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(0, 511)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"全ch {clip_title(overlay_clip(d))}（³He 窓）")
-    place_legend(ax, fontsize=8, ncol=2)
+    ax.set_title(f"全ch {clip_title(overlay_clip(d))}")
+    place_legend(ax, fontsize=8, outside=True)
     save(fig, "06b_全ch_線形_クリップ")
 
     m = d["ch"] >= 1
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d, mask=m)
-    if wall is not None:
-        shade_wall_window(ax, *wall)
-    shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(1, 511)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("全ch 線形（ch0除く）")
-    place_legend(ax, fontsize=8, ncol=2)
+    place_legend(ax, fontsize=8, outside=True)
     save(fig, "07_全ch_線形_ch0除く")
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d, mask=m, clip=overlay_clip(d))
-    if wall is not None:
-        shade_wall_window(ax, *wall)
-    shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(1, 511)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"全ch {clip_title(overlay_clip(d))}（ch0除く）")
-    place_legend(ax, fontsize=8, ncol=2)
+    place_legend(ax, fontsize=8, outside=True)
     save(fig, "07b_全ch_線形_ch0除く_クリップ")
 
 
@@ -429,13 +443,11 @@ def fig_low_ch(d: dict) -> None:
 
 
 def fig_full_log(d: dict) -> None:
-    lo, hi = union_roi(d["series"])
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     overlay_step(ax, d, log=True, lw=1.2)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
     ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
-    shade_roi(ax, lo, hi)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("対数")
@@ -507,24 +519,17 @@ def _decorate_he3_window(
     ax,
     s: dict,
     *,
-    show_wall: bool = True,
-    show_peak: bool = True,
     show_sideband: bool = True,
     show_energy_marks: bool = False,
-) -> tuple[int, int]:
+) -> None:
+    """191–764 keV 主窓のみ図示（軸範囲は変更しない）。"""
     wlo, whi = s.get("wall_lo"), s.get("wall_hi")
-    lo, hi = s["roi_lo"], s["roi_hi"]
-    if show_wall and wlo is not None and whi is not None:
+    if wlo is not None and whi is not None:
         shade_wall_window(ax, int(wlo), int(whi))
-    if show_peak:
-        shade_roi(ax, lo, hi, label=f"peak ROI {lo}–{hi}")
     if show_sideband:
-        shade_sidebands(ax, s)
+        shade_wall_sideband(ax, s)
     if show_energy_marks:
         mark_he3_energies(ax, s)
-    if wlo is not None and whi is not None:
-        return he3_plot_xlim(int(wlo), int(whi))
-    return 1, 511
 
 
 def _one_site(d: dict, s: dict) -> None:
@@ -534,8 +539,6 @@ def _one_site(d: dict, s: dict) -> None:
     color = s["color"]
     clip = s["clip"]
     lo, hi = s["roi_lo"], s["roi_hi"]
-    wlo, whi = s.get("wall_lo"), s.get("wall_hi")
-    he3_xlim = he3_plot_xlim(int(wlo), int(whi)) if wlo is not None and whi is not None else (1, 511)
     ctitle = clip_title(clip)
     roi_title = f"共通ROI {lo}–{hi}"
     if s.get("roi_warning"):
@@ -543,30 +546,26 @@ def _one_site(d: dict, s: dict) -> None:
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     ax.step(ch, c, where="mid", color=color, lw=1.4)
-    _decorate_he3_window(ax, s, show_sideband=False, show_energy_marks=False)
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(0, 511)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title("全ch 線形（³He 窓）")
-    place_legend(ax)
+    ax.set_title("全ch 線形")
     save(fig, "全ch_線形", out)
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     step_spectrum(ax, ch, c, color, clip=clip)
-    _decorate_he3_window(ax, s, show_sideband=False, show_energy_marks=True)
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(0, 511)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title(f"全ch {ctitle}（³He 窓）")
-    place_legend(ax)
+    ax.set_title(f"全ch {ctitle}")
     save(fig, "全ch_線形_クリップ", out)
 
     m = ch >= 1
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     ax.step(ch[m], c[m], where="mid", color=color, lw=1.4)
     _decorate_he3_window(ax, s)
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(1, 511)
     ax.set_ylim(0, None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -577,7 +576,7 @@ def _one_site(d: dict, s: dict) -> None:
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
     step_spectrum(ax, ch[m], c[m], color, clip=clip)
     _decorate_he3_window(ax, s, show_energy_marks=True)
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(1, 511)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"全ch {ctitle}（ch0除く）")
@@ -606,11 +605,11 @@ def _one_site(d: dict, s: dict) -> None:
     ax.step(ch, cps_for_log(c, live=s.get("live")), where="mid", color=color, lw=1.3)
     ax.set_yscale("log")
     _decorate_he3_window(ax, s, show_energy_marks=True)
-    ax.set_xlim(*he3_xlim)
+    ax.set_xlim(0, 511)
     ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
-    ax.set_title("対数（³He 窓）")
+    ax.set_title("対数")
     place_legend(ax)
     save(fig, "全ch_対数", out)
 
@@ -653,7 +652,6 @@ def fig_overview(d: dict) -> None:
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
     ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
-    shade_roi(ax, lo, hi, label=None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("対数")
@@ -2029,7 +2027,7 @@ def fig_all_sites_equiv_concrete_composition_cps(d: dict | None = None) -> None:
 
 
 # ---------------------------------------------------------------------------
-# 図17/18: 中性子フラックス（φ = ROI / εS_ROI）
+# 図17/18: 中性子フラックス（φ = NET_191–764 keV / εS_wall）
 # ---------------------------------------------------------------------------
 FLUX_SUMMARY_CSV = TABLES / "フラックス_地点まとめ.csv"
 
@@ -2055,6 +2053,7 @@ FLUX_LABEL_OFFSET: dict[str, dict[str, tuple[int, int, str, str]]] = {
         "BT": (-14, 10, "right", "bottom"),
         "KEKB": (-14, 8, "right", "bottom"),
         "linacIRON": (14, -18, "left", "top"),
+        "linac": (14, 12, "left", "bottom"),
     },
     "logy": {
         "地上": (-20, 6, "right", "center"),
@@ -2065,6 +2064,7 @@ FLUX_LABEL_OFFSET: dict[str, dict[str, tuple[int, int, str, str]]] = {
         "BT": (-14, 12, "right", "bottom"),
         "KEKB": (-14, 10, "right", "bottom"),
         "linacIRON": (-14, -20, "right", "top"),
+        "linac": (-14, 10, "right", "bottom"),
     },
     "errorbar": {
         "地上": (-22, -12, "right", "top"),
@@ -2311,6 +2311,40 @@ def _annotate_flux_points(
         )
 
 
+def _annotate_flux_site_names(
+    ax,
+    points: list[dict],
+    *,
+    logy: bool = False,
+) -> None:
+    """複数系列を重ねたフラックス比較図用：地点名のみを1回ずつ注釈。"""
+    by_site: dict[str, list[dict]] = {}
+    for p in points:
+        by_site.setdefault(p["site"], []).append(p)
+
+    for site_pts in by_site.values():
+        lab = site_pts[0]["label"]
+        x = site_pts[0]["x"]
+        ys = [p["y"] for p in site_pts if p["y"] > 0] if logy else [p["y"] for p in site_pts]
+        if not ys:
+            continue
+        y = max(ys)
+        dx, dy, ha, va = _flux_label_offset(lab, logy=logy)
+        ax.annotate(
+            lab,
+            (x, y),
+            xytext=(dx, dy),
+            textcoords="offset points",
+            fontsize=8,
+            ha=ha,
+            va=va,
+            color="#222222",
+            fontweight="bold",
+            zorder=6,
+            clip_on=False,
+        )
+
+
 def fig_all_sites_flux_absolute(
     *,
     logy: bool = False,
@@ -2362,7 +2396,7 @@ def fig_all_sites_flux_absolute(
         color=style["color"],
         ms=style["ms"],
         zorder=3,
-        label=f"測定 {style['label']}（φ = ROI/εS）",
+        label=f"測定 {style['label']}（φ = NET/εS, 191–764 keV）",
     )
     xs = [p["x"] for p in points]
     ys = [p["y"] for p in points]
@@ -2482,6 +2516,7 @@ def fig_all_sites_flux_relative_compare(*, logy: bool = False) -> None:
     _plot_theory_curves(ax, x_c, 1.0, absolute=False)
     ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
 
+    all_compare_pts: list[dict] = []
     for det in plotted:
         pts = _build_flux_points_ground_norm(det, flux=flux)
         st = DETECTOR_STYLE[det]
@@ -2495,6 +2530,9 @@ def fig_all_sites_flux_relative_compare(*, logy: bool = False) -> None:
             zorder=3,
             label=st["label"],
         )
+        all_compare_pts.extend(pts)
+
+    _annotate_flux_site_names(ax, all_compare_pts, logy=logy)
 
     ax.set_xlim(0 if logy else -20, x_max)
     ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")

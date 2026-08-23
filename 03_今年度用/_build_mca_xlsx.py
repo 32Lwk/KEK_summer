@@ -4,7 +4,7 @@
 raw/*.mca と USB 上の未登録 .mca を自動検出する。
 解析窓は 2 系統:
   1) peak_roi … シリアル別共通窓（1715: 314–366, 2162: 350–408）+ 両側帯 NET
-  2) wall_196_764 … ³He(n,p)³H 壁効果帯 196–764 keV（ピーク=764 keV 線形校正）+ 右側帯 NET
+  2) wall_191_764 … ³He(n,p)³H 壁効果帯 191–764 keV（ピーク=764 keV 線形校正）+ 右側帯 NET
 ファイル内 <<ROI>> は使わない。
 """
 
@@ -184,7 +184,7 @@ def summarize(run: dict, meta: dict) -> dict:
         "sb_lo_hi": roi.sb_lo_hi,
         "sb_hi_lo": roi.sb_hi_lo,
         "sb_hi_hi": roi.sb_hi_hi,
-        # --- 壁効果窓 196–764 keV ---
+        # --- 壁効果窓 191–764 keV ---
         "wall_lo": wall.roi_lo,
         "wall_hi": wall.roi_hi,
         "wall_peak": wall.roi_peak,
@@ -199,9 +199,16 @@ def summarize(run: dict, meta: dict) -> dict:
         "wall_net_cps": wall.net / live,
         "wall_net_cps_err": wall.err / live,
         "wall_net_valid": int(wall.net_valid),
+        "wall_gross_cps": wall.gross / live,
+        "wall_gross_cps_err": (wall.gross ** 0.5) / live if wall.gross > 0 else 0.0,
         "wall_warning": wall.warning,
         "wall_bg_mode": wall.bg_mode,
-        "wall_sb_hi": f"{wall.sb_hi_lo}–{wall.sb_hi_hi}",
+        "wall_sb_lo": f"{wall.sb_lo_lo}–{wall.sb_lo_hi}" if wall.sb_lo_hi else "",
+        "wall_sb_hi": f"{wall.sb_hi_lo}–{wall.sb_hi_hi}" if wall.sb_hi_hi else "",
+        "wall_sb_lo_lo": wall.sb_lo_lo,
+        "wall_sb_lo_hi": wall.sb_lo_hi,
+        "wall_sb_hi_lo": wall.sb_hi_lo,
+        "wall_sb_hi_hi": wall.sb_hi_hi,
         "ch451_511": ch451,
         "peak_ch": peak_ch,
         "peak_counts": counts[peak_ch],
@@ -391,7 +398,7 @@ def write_tables(rows: list[dict]) -> None:
         "wall_bg_mode",
         "wall_sb_hi",
     ]
-    write_csv(TABLES / "WALL_NET_CPS_196_764keV.csv", wall_fields, rows)
+    write_csv(TABLES / "WALL_NET_CPS_191_764keV.csv", wall_fields, rows)
 
     n = rows[0]["n_channels"]
     spec_fields = (
