@@ -537,3 +537,79 @@ Program is started                on 2026/08/23 at 14h 45m 15s
 Program is started                on 2026/08/23 at 14h 45m 15s
 Initialization is completed          on 2026/08/23 at 14h 45m 19s
 Initialization is completed          on 2026/08/23 at 14h 45m 19s
+bat[       1] ncas =          20000. on 2026/08/23 at 14h 45m 53s
+bat[       1] ncas =          20000. on 2026/08/23 at 14h 45m 53s
+bat[       2] ncas =          40000. on 2026/08/23 at 14h 46m 01s
+bat[       2] ncas =          40000. on 2026/08/23 at 14h 46m 01s
+bat[       3] ncas =          60000. on 2026/08/23 at 14h 46m 08s
+bat[       3] ncas =          60000. on 2026/08/23 at 14h 46m 08s
+bat[       4] ncas =          80000. on 2026/08/23 at 14h 46m 15s
+bat[       4] ncas =          80000. on 2026/08/23 at 14h 46m 15s
+bat[       5] ncas =         100000. on 2026/08/23 at 14h 46m 21s
+bat[       5] ncas =         100000. on 2026/08/23 at 14h 46m 21s
+bat[       6] ncas =         120000. on 2026/08/23 at 14h 46m 30s
+bat[       6] ncas =         120000. on 2026/08/23 at 14h 46m 30s
+bat[       7] ncas =         140000. on 2026/08/23 at 14h 46m 37s
+bat[       7] ncas =         140000. on 2026/08/23 at 14h 46m 37s
+bat[       8] ncas =         160000. on 2026/08/23 at 14h 46m 43s
+bat[       8] ncas =         160000. on 2026/08/23 at 14h 46m 43s
+bat[       9] ncas =         180000. on 2026/08/23 at 14h 46m 50s
+bat[       9] ncas =         180000. on 2026/08/23 at 14h 46m 50s
+bat[      10] ncas =         200000. on 2026/08/23 at 14h 46m 57s
+bat[      10] ncas =         200000. on 2026/08/23 at 14h 46m 57s
+bat[      11] ncas =         220000. on 2026/08/23 at 14h 47m 03s
+bat[      11] ncas =         220000. on 2026/08/23 at 14h 47m 03s
+bat[      12] ncas =         240000. on 2026/08/23 at 14h 47m 10s
+bat[      12] ncas =         240000. on 2026/08/23 at 14h 47m 10s
+bat[      13] ncas =         260000. on 2026/08/23 at 14h 47m 17s
+bat[      13] ncas =         260000. on 2026/08/23 at 14h 47m 17s
+bat[      14] ncas =         280000. on 2026/08/23 at 14h 47m 23s
+bat[      14] ncas =         280000. on 2026/08/23 at 14h 47m 23s
+bat[      15] ncas =         300000. on 2026/08/23 at 14h 47m 29s
+bat[      15] ncas =         300000. on 2026/08/23 at 14h 47m 29s
+bat[      16] ncas =         320000. on 2026/08/23 at 14h 47m 36s
+bat[      16] ncas =         320000. on 2026/08/23 at 14h 47m 36s
+bat[      17] ncas =         340000. on 2026/08/23 at 14h 47m 43s
+bat[      17] ncas =         340000. on 2026/08/23 at 14h 47m 43s
+bat[      18] ncas =         360000. on 2026/08/23 at 14h 47m 49s
+bat[      18] ncas =         360000. on 2026/08/23 at 14h 47m 49s
+bat[      19] ncas =         380000. on 2026/08/23 at 14h 47m 56s
+bat[      19] ncas =         380000. on 2026/08/23 at 14h 47m 56s
+bat[      20] ncas =         400000. on 2026/08/23 at 14h 48m 02s
+bat[      20] ncas =         400000. on 2026/08/23 at 14h 48m 02s
+Program is finished               on 2026/08/23 at 14h 48m 02s
+Program is finished               on 2026/08/23 at 14h 48m 02s
+[phits-web] PHITS finished normally in 171 s — 7 output file(s) on the server
+[phits-web] PHITS finished normally in 171 s — 7 output file(s) on the server
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground
+[phits-web] downloaded 6 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/equiv_concrete_sites/large/D1/00_ground
+OK: D1/00_ground
+OK: D1/00_ground
+=== D1/01_PF (large/D1) ===
+=== D1/01_PF (large/D1) ===
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464087_f9zgtrhf) ...
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1787464087_f9zgtrhf) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+bash: /root/.bashrc: Permission denied
+Sun Aug 23 14:48:12 JST 2026
+Sun Aug 23 14:48:12 JST 2026
+Program is started                on 2026/08/23 at 14h 48m 12s
+Program is started                on 2026/08/23 at 14h 48m 12s
+Initialization is completed          on 2026/08/23 at 14h 48m 17s
+Initialization is completed          on 2026/08/23 at 14h 48m 17s
+bat[       1] ncas =          10000. on 2026/08/23 at 14h 48m 39s
+bat[       1] ncas =          10000. on 2026/08/23 at 14h 48m 39s
+bat[       2] ncas =          20000. on 2026/08/23 at 14h 49m 09s
+bat[       2] ncas =          20000. on 2026/08/23 at 14h 49m 09s
+bat[       3] ncas =          30000. on 2026/08/23 at 14h 49m 19s
+bat[       3] ncas =          30000. on 2026/08/23 at 14h 49m 19s
+bat[       4] ncas =          40000. on 2026/08/23 at 14h 49m 29s
+bat[       4] ncas =          40000. on 2026/08/23 at 14h 49m 29s
+bat[       5] ncas =          50000. on 2026/08/23 at 14h 49m 39s
+bat[       5] ncas =          50000. on 2026/08/23 at 14h 49m 39s

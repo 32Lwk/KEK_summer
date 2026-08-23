@@ -699,11 +699,11 @@ EQUIV_Y_PAD_LINEAR = 1.32  # ylim 上端 = max(data, A0) × この値
 EQUIV_Y_PAD_LOGY = 4.0  # log ylim 上端 = max(data, A0) × この値
 
 
-def _equiv_legend(ax, fontsize: float = 9) -> None:
-    """凡例をグラフ内左下に置く（データ点・注釈との重なりを避ける）。"""
+def _equiv_legend(ax, fontsize: float = 9, *, logy: bool = False) -> None:
+    """凡例位置: 線形は右上、片対数は左下（曲線・注釈との重なり回避）。"""
     ax.legend(
         frameon=False,
-        loc="lower left",
+        loc="lower left" if logy else "upper right",
         fontsize=fontsize,
         borderaxespad=0.8,
     )
@@ -1293,7 +1293,7 @@ def fig_all_sites_equiv_concrete(
     ax.tick_params(which="major", direction="out", length=5)
     ax.tick_params(which="minor", direction="out", length=3)
     ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
-    _equiv_legend(ax, fontsize=9)
+    _equiv_legend(ax, fontsize=9, logy=logy)
     save(fig, out_name, bbox_inches="none")
     print(f"figure: {out_name}.png")
     if not absolute and not logy:
@@ -1606,7 +1606,7 @@ def fig_all_sites_equiv_concrete_errorbars(
     ax.tick_params(which="major", direction="out", length=5)
     ax.tick_params(which="minor", direction="out", length=3)
     ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
-    _equiv_legend(ax, fontsize=9)
+    _equiv_legend(ax, fontsize=9, logy=logy)
     save(fig, out_name, bbox_inches="none")
     print(f"figure: {out_name}.png")
     if not absolute and not logy:
@@ -1751,7 +1751,7 @@ def fig_all_sites_equiv_concrete_detectors_compare(logy: bool = False) -> None:
         ax.grid(True, which="minor", alpha=0.18, linestyle=":")
     ax.xaxis.set_major_locator(MultipleLocator(50))
     ax.xaxis.set_minor_locator(MultipleLocator(10))
-    _equiv_legend(ax, fontsize=8)
+    _equiv_legend(ax, fontsize=8, logy=logy)
     save(fig, out_name, bbox_inches="none")
     print(f"figure: {out_name}.png")
 
