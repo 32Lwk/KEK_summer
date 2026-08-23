@@ -14,7 +14,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from mca_common import peak_clip as roi_peak_clip
+from mca_common import detector_fs_suffix, equiv_decay_csv_name, peak_clip as roi_peak_clip
 
 import equiv_shielding as esh
 
@@ -28,6 +28,18 @@ PALETTE = [BLUE, RED, GREEN, "#9467BD", "#8C564B", "#E377C2", "#17BECF"]
 YLABEL = "計数率 [1/s / ch]"
 YLABEL_SUM = "計数率 [1/s]"
 CLIP_PAD = 0.002
+# 対数軸では 0 を描けない。NaN にすると step が切れるので、
+# 半カウント相当（0.5/live）を床として連続線にする。
+LOG_Y_FLOOR = 1e-5
+LOG_Y_MAX = 80.0
+
+
+def cps_for_log(c, live: float | None = None) -> np.ndarray:
+    """対数プロット用: 非正値を床値に置き、線が切れないようにする。"""
+    floor = LOG_Y_FLOOR
+    if live is not None and live > 0:
+        floor = max(floor, 0.5 / float(live))
+    return np.maximum(np.asarray(c, dtype=float), floor)
 
 plt.rcParams.update(
     {
@@ -133,8 +145,14 @@ def overlay_step(ax, d: dict, mask=None, clip=None, log=False, lw=1.3) -> None:
     for s in d["series"]:
         c = s["c"] if mask is None else s["c"][mask]
         if log:
-            y = np.where(c > 0, c, np.nan)
-            ax.step(x, y, where="mid", color=s["color"], lw=lw, label=s["lab"])
+            ax.step(
+                x,
+                cps_for_log(c, live=s.get("live")),
+                where="mid",
+                color=s["color"],
+                lw=lw,
+                label=s["lab"],
+            )
         else:
             step_spectrum(ax, x, c, s["color"], s["lab"], clip=clip, annotate=False)
 
@@ -182,6 +200,22 @@ def shade_sidebands(ax, s: dict) -> None:
         ax.axvspan(sb1[0], sb1[1], color="#9EC9E2", alpha=0.35, zorder=0)
 
 
+def place_legend(ax, fontsize: float = 9, ncol: int = 1) -> None:
+    """凡例を図内右上に固定（loc=best だと地点・スケールで位置がぶれる）。"""
+    handles, labels = ax.get_legend_handles_labels()
+    if not handles:
+        return
+    ax.legend(
+        handles,
+        labels,
+        frameon=False,
+        loc="upper right",
+        fontsize=fontsize,
+        ncol=ncol,
+        borderaxespad=0.3,
+    )
+
+
 def step_spectrum(ax, ch, c, color, label=None, clip=None, annotate=True) -> None:
     y = np.minimum(c, clip) if clip is not None else c
     ax.step(ch, y, where="mid", color=color, lw=1.4, label=label)
@@ -190,15 +224,17 @@ def step_spectrum(ax, ch, c, color, label=None, clip=None, annotate=True) -> Non
         if annotate:
             n_hi = int(np.sum(c > clip))
             if n_hi:
+                # 軸の上外側に置き、図内右上の凡例と重ならないようにする
                 ax.text(
                     0.99,
-                    0.97,
+                    1.02,
                     f"{n_hi} ch が {clip:.3f} 超",
                     transform=ax.transAxes,
                     ha="right",
-                    va="top",
+                    va="bottom",
                     fontsize=8,
                     color=GRAY,
+                    clip_on=False,
                 )
 
 
@@ -211,7 +247,7 @@ def fig_full_linear(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("全ch 線形")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "06_全ch_線形")
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
@@ -220,7 +256,7 @@ def fig_full_linear(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"全ch {clip_title(overlay_clip(d))}")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "06b_全ch_線形_クリップ")
 
     m = d["ch"] >= 1
@@ -232,7 +268,7 @@ def fig_full_linear(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("全ch 線形（ch0除く）")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "07_全ch_線形_ch0除く")
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
@@ -242,7 +278,7 @@ def fig_full_linear(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"全ch {clip_title(overlay_clip(d))}（ch0除く）")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "07b_全ch_線形_ch0除く_クリップ")
 
 
@@ -255,7 +291,7 @@ def fig_low_ch(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("低ch")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "01_低ch_線形")
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
@@ -264,7 +300,7 @@ def fig_low_ch(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"低ch {clip_title(low_clip(d))}")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "01b_低ch_線形_クリップ")
 
 
@@ -274,12 +310,12 @@ def fig_full_log(d: dict) -> None:
     overlay_step(ax, d, log=True, lw=1.2)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(1e-5, 80)
+    ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
     shade_roi(ax, lo, hi)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("対数")
-    ax.legend(frameon=False, loc="upper right", fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "02_全ch_対数")
 
 
@@ -293,7 +329,7 @@ def fig_roi(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"ROI {lo}–{hi}")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "03_ROI")
 
 
@@ -318,7 +354,7 @@ def fig_bands(d: dict) -> None:
     ax.set_xticks(x, labels)
     ax.set_ylabel(YLABEL_SUM)
     ax.set_title("帯域")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     ax.set_ylim(0, ymax * 1.18)
     save(fig, "04_帯域比較")
 
@@ -339,7 +375,7 @@ def fig_ratio(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(f"カウント比（対 {ref['場所']}）")
     ax.set_title("比（低ch）")
-    ax.legend(frameon=False, fontsize=8)
+    place_legend(ax, fontsize=8, ncol=2)
     save(fig, "05_比_低ch")
 
 
@@ -382,7 +418,7 @@ def _one_site(d: dict, s: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("全ch 線形（ch0除く）")
-    ax.legend(frameon=False)
+    place_legend(ax)
     save(fig, "全ch_線形_ch0除く", out)
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
@@ -393,7 +429,7 @@ def _one_site(d: dict, s: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"全ch {ctitle}（ch0除く）")
-    ax.legend(frameon=False)
+    place_legend(ax)
     save(fig, "全ch_線形_ch0除く_クリップ", out)
 
     m80 = (ch >= 1) & (ch <= 80)
@@ -415,17 +451,16 @@ def _one_site(d: dict, s: dict) -> None:
     save(fig, "低ch_線形_クリップ", out)
 
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    y = np.where(c > 0, c, np.nan)
-    ax.step(ch, y, where="mid", color=color, lw=1.3)
+    ax.step(ch, cps_for_log(c, live=s.get("live")), where="mid", color=color, lw=1.3)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(1e-5, 80)
+    ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
     shade_roi(ax, lo, hi)
     shade_sidebands(ax, s)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("対数")
-    ax.legend(frameon=False, loc="upper right")
+    place_legend(ax)
     save(fig, "全ch_対数", out)
 
     mroi = (ch >= lo) & (ch <= hi)
@@ -460,13 +495,13 @@ def fig_overview(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("低ch")
-    ax.legend(frameon=False, fontsize=7)
+    place_legend(ax, fontsize=7, ncol=2)
 
     ax = axes[0, 1]
     overlay_step(ax, d, log=True, lw=1.0)
     ax.set_yscale("log")
     ax.set_xlim(0, 511)
-    ax.set_ylim(1e-5, 80)
+    ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
     shade_roi(ax, lo, hi, label=None)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -479,7 +514,7 @@ def fig_overview(d: dict) -> None:
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title(f"ROI {lo}–{hi}")
-    ax.legend(frameon=False, fontsize=7)
+    place_legend(ax, fontsize=7, ncol=2)
 
     ax = axes[1, 1]
     labels = ["ch 0", "1–20", "21–149", "ROI", "ch0除く"]
@@ -493,7 +528,7 @@ def fig_overview(d: dict) -> None:
     ax.set_xticks(x, labels)
     ax.set_ylabel(YLABEL_SUM)
     ax.set_title("帯域")
-    ax.legend(frameon=False, fontsize=7)
+    place_legend(ax, fontsize=7, ncol=2)
 
     save(fig, "00_概要")
 
@@ -601,21 +636,184 @@ LAMBDA_SOIL_GCM2 = esh.LAMBDA_SOIL_GCM2
 LAMBDA_CM = esh.LAMBDA_CONCRETE_CM  # ≈39.2 cm（旧77 cmは誤り）
 LAMBDA_M = esh.LAMBDA_CONCRETE_M    # ≈0.392 m（旧0.77 mは誤り）
 
-# 側帯 NET CPS（ROI_NET_CPS.csv / LIVE_TIME）。相対は地上で規格化。
-USER_CPS = {
-    "地上": 0.4330406589816921,   # 20260819_1530_地上_D1
-    "linac": 0.06869596152646006,  # 20260818_1730_linac_D1
-    "BT": 0.08220067419578098,     # 20260819_1854_放射線棟BT_D1
-    "KEKB": 0.033573903438705525,  # 20260820_1939_KEKB_D1
-    "PF": 0.22349007899558587,     # 20260820_0807_PF_D1（peak 再中心）
+# 施設地点比較に使う場所ラベル（等価コンクリート図の横軸）
+FACILITY_SITES = ("地上", "PF", "linac", "BT", "KEKB")
+
+# 検出器別のマーカー／色（4パターン比較用）
+DETECTOR_STYLE = {
+    "D1": {"color": "#C0392B", "marker": "o", "ms": 9, "label": "D1（大径・SN1715）"},
+    "D2": {"color": "#2471A3", "marker": "s", "ms": 8, "label": "D2（大径・SN1715）"},
+    "d1": {"color": "#1E8449", "marker": "^", "ms": 8, "label": "d1（小径・SN2162）"},
+    "d2": {"color": "#E67E22", "marker": "D", "ms": 7, "label": "d2（小径・SN2162）"},
 }
 
-# d2 側帯 NET。地上・PF なし → 図では linac から地上を外挿。
-USER_CPS_D2 = {
-    "linac": 0.01015583708347463,  # 20260821_080725_linac_d2
-    "BT": 0.01175692807995354,     # 20260819_1859_放射線棟BT_d2
-    "KEKB": 0.005748260171481053,  # 20260820_1939_KEKB_d2
-}
+
+def _detector_from_place(place: str) -> str | None:
+    """場所名（raw ファイル名）から D1/D2/d1/d2 を判定。大文字・小文字を区別。"""
+    if re.search(r"(^|[_＿])D1($|[_＿])", place) or place.startswith("D1"):
+        return "D1"
+    if re.search(r"(^|[_＿])D2($|[_＿])", place) or place.startswith("D2"):
+        return "D2"
+    if re.search(r"(^|[_＿])d1($|[_＿])", place) or place.startswith("d1"):
+        return "d1"
+    if (
+        re.search(r"(^|[_＿])d2($|[_＿])", place)
+        or place.startswith("d2")
+        or place.startswith("smalld2")
+    ):
+        return "d2"
+    return None
+
+
+def _facility_site_from_place(place: str) -> str | None:
+    """遮蔽減衰比較用の地点。熱中性子・管理棟・linacIRON は除外。"""
+    if "熱中性子" in place or "gain" in place.lower():
+        return None
+    if "管理棟" in place or "kanri" in place.lower():
+        return None
+    if "linacIRON" in place or "linaciron" in place.lower():
+        return None
+    if "地上" in place or "ground" in place.lower():
+        return "地上"
+    if re.search(r"(^|[_＿])PF($|[_＿])", place) or place.endswith("_PF") or "_PF_" in place:
+        return "PF"
+    if "KEKB" in place:
+        return "KEKB"
+    if "BT" in place or "hoshasen" in place.lower():
+        return "BT"
+    if "linac" in place.lower():
+        return "linac"
+    return None
+
+
+def load_facility_cps_by_detector(
+    path: Path | None = None,
+) -> dict[str, dict[str, float]]:
+    """ROI_NET_CPS.csv から検出器別・地点別の側帯 NET CPS を読む。
+
+    raw のファイル名規則に従い D1/D2/d1/d2 を混同しない。
+    同一 (検出器, 地点) が複数ある場合は無警告・長い live_s を優先。
+    """
+    csv_path = path or (TABLES / "ROI_NET_CPS.csv")
+    # score, live, cps, cps_err, place
+    best: dict[tuple[str, str], tuple[int, float, float, float, str]] = {}
+    with csv_path.open(encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            if str(row.get("roi_net_valid", "1")) not in ("1", "True", "true"):
+                continue
+            place = row.get("場所") or ""
+            det = _detector_from_place(place)
+            site = _facility_site_from_place(place)
+            if not det or not site:
+                continue
+            try:
+                cps = float(row["roi_net_cps"])
+                live = float(row.get("live_s") or 0.0)
+                cps_err = float(row.get("roi_net_cps_err") or 0.0)
+            except (KeyError, ValueError, TypeError):
+                continue
+            if cps <= 0:
+                continue
+            warn = (row.get("roi_warning") or "").strip()
+            score = (0 if warn else 1, live)
+            key = (det, site)
+            prev = best.get(key)
+            if prev is None or score > (prev[0], prev[1]):
+                best[key] = (score[0], live, cps, cps_err, place)
+
+    out: dict[str, dict[str, float]] = {k: {} for k in ("D1", "D2", "d1", "d2")}
+    errs: dict[str, dict[str, float]] = {k: {} for k in out}
+    sources: dict[str, dict[str, str]] = {k: {} for k in out}
+    for (det, site), (_, _, cps, cps_err, place) in best.items():
+        out[det][site] = cps
+        errs[det][site] = cps_err
+        sources[det][site] = place
+    load_facility_cps_by_detector._sources = sources  # type: ignore[attr-defined]
+    load_facility_cps_by_detector._errs = errs  # type: ignore[attr-defined]
+    return out
+
+
+def facility_cps_sources() -> dict[str, dict[str, str]]:
+    """load_facility_cps_by_detector が選んだ測定ファイル名。"""
+    load_facility_cps_by_detector()
+    return getattr(load_facility_cps_by_detector, "_sources", {})
+
+
+def facility_cps_errs() -> dict[str, dict[str, float]]:
+    """検出器別・地点別の ROI NET CPS 統計誤差 [1/s]。"""
+    load_facility_cps_by_detector()
+    return getattr(load_facility_cps_by_detector, "_errs", {})
+
+
+def load_detector_cps(detector: str) -> dict[str, float]:
+    """指定検出器の施設地点 CPS（実測がある地点のみ）。"""
+    return dict(load_facility_cps_by_detector().get(detector, {}))
+
+
+def load_detector_cps_err(detector: str) -> dict[str, float]:
+    """指定検出器の施設地点 CPS 統計誤差。"""
+    return dict(facility_cps_errs().get(detector, {}))
+
+
+# 図13/14・旧呼び出し用（D1 実測）
+USER_CPS = load_detector_cps("D1")
+
+# ---------------------------------------------------------------------------
+# 系統誤差（厚さ + 密度を二乗和）→ 横軸 δt_eq
+# X = ρ_c·t_c + X_s、t_eq = X/ρ_c
+# 各層: δX/X = √((δt/t)² + (δρ/ρ)²)、δt_eq = √(δX_c²+δX_s²)/ρ_c
+# ---------------------------------------------------------------------------
+SYS_DT_CONCRETE_ABS_CM = 5.0  # コンクリート厚の絶対不確かさ [cm]
+SYS_DT_CONCRETE_FRAC = 0.05  # コンクリート厚の相対不確かさ
+SYS_DT_SOIL_FRAC = 0.10  # 土厚の相対不確かさ
+SYS_DRHO_CONCRETE = 0.10  # ρ_c = 2.3 ± 0.1 [g/cm³]
+SYS_DRHO_SOIL_FRAC = 0.15  # 土密度の相対不確かさ（施設表 1.3–1.6）
+
+
+def _teq_systematic_err_cm(
+    concrete_cm: float,
+    soil_cm: float,
+    *,
+    profile: str = SOIL_PROFILE,
+) -> dict[str, float]:
+    """等価コンクリート厚の系統誤差 [cm]（厚さ・密度を二乗和）。
+
+    各層の質量厚さ不確かさ δX/X = √((δt/t)²+(δρ/ρ)²) を合成し、
+    δt_eq = √(δX_c²+δX_s²)/ρ_c とする。
+    """
+    t_c = max(float(concrete_cm), 0.0)
+    t_s = max(float(soil_cm), 0.0)
+    x_s = _soil_mass_thickness(t_s, profile=profile) if t_s > 0 else 0.0
+    x_c = RHO_CONCRETE * t_c
+    t_eq = (x_c + x_s) / RHO_CONCRETE
+
+    dx_c_t = dx_c_r = 0.0
+    if t_c > 0:
+        dt_c = max(SYS_DT_CONCRETE_ABS_CM, SYS_DT_CONCRETE_FRAC * t_c)
+        drho_c_rel = SYS_DRHO_CONCRETE / RHO_CONCRETE
+        dx_c_t = x_c * (dt_c / t_c)
+        dx_c_r = x_c * drho_c_rel
+
+    dx_s_t = dx_s_r = 0.0
+    if t_s > 0 and x_s > 0:
+        dt_s = SYS_DT_SOIL_FRAC * t_s
+        dx_s_t = x_s * (dt_s / t_s)
+        dx_s_r = x_s * SYS_DRHO_SOIL_FRAC
+
+    dx_c = float(np.hypot(dx_c_t, dx_c_r))
+    dx_s = float(np.hypot(dx_s_t, dx_s_r))
+    dteq_thick = float(np.hypot(dx_c_t, dx_s_t)) / RHO_CONCRETE
+    dteq_dens = float(np.hypot(dx_c_r, dx_s_r)) / RHO_CONCRETE
+    dteq = float(np.hypot(dx_c, dx_s)) / RHO_CONCRETE
+
+    return {
+        "t_eq_cm": t_eq,
+        "dteq_cm": dteq,
+        "dteq_thickness_cm": dteq_thick,
+        "dteq_density_cm": dteq_dens,
+        "dx_concrete": dx_c,
+        "dx_soil": dx_s,
+    }
 
 
 def _soil_mass_thickness(soil_cm: float, profile: str = SOIL_PROFILE) -> float:
@@ -683,12 +881,54 @@ def _site_shielding(cps_map: dict[str, float]) -> list[dict]:
 
 def _site_shielding_d1() -> list[dict]:
     """図11/12用（D1・側帯 NET CPS）。"""
-    return _site_shielding(USER_CPS)
+    return _site_shielding(load_detector_cps("D1"))
 
 
 def load_d2_cps() -> dict[str, float]:
-    """d2 の側帯 NET CPS。PF・地上は含まない。"""
-    return dict(USER_CPS_D2)
+    """小径 d2 の側帯 NET CPS（SN 2162、raw 実測のみ）。"""
+    return load_detector_cps("d2")
+
+
+def load_d1_cps() -> dict[str, float]:
+    """小径 d1 の側帯 NET CPS（SN 2162、raw 実測のみ）。"""
+    return load_detector_cps("d1")
+
+
+def load_D2_cps() -> dict[str, float]:
+    """大径 D2 の側帯 NET CPS（SN 1715、raw 実測のみ）。"""
+    return load_detector_cps("D2")
+
+
+def _equiv_concrete_for_detector(
+    detector: str,
+    *,
+    absolute: bool = False,
+    logy: bool = False,
+) -> None:
+    """検出器別の図11/12。raw に無い地点は載せない。接尾辞は small_d2 / large_D2 等。"""
+    cps = load_detector_cps(detector)
+    if "地上" not in cps:
+        src = facility_cps_sources().get(detector, {})
+        print(
+            f"skip {detector}: 地上測定なし（施設地点={list(cps) or 'なし'} "
+            f"sources={src}）。他検出器の値は流用しない。"
+        )
+        return
+    if len(cps) < 2:
+        print(f"skip {detector}: 比較地点が不足（{cps}）")
+        return
+    if not absolute and not logy:
+        for site, place in sorted(facility_cps_sources().get(detector, {}).items()):
+            print(f"  {detector} {site}: {place}  CPS={cps[site]:.6g}")
+    fig_all_sites_equiv_concrete(
+        absolute=absolute,
+        logy=logy,
+        cps_map=cps,
+        ref_label="地上",
+        name_suffix=detector_fs_suffix(detector),
+        csv_name=equiv_decay_csv_name(detector),
+        detector=detector,
+    )
 
 
 def _site_shielding_composition() -> list[dict]:
@@ -731,7 +971,10 @@ def fig_all_sites_equiv_concrete(
     """
     from matplotlib.ticker import LogLocator, MultipleLocator
 
-    cps = cps_map if cps_map is not None else USER_CPS
+    cps = cps_map if cps_map is not None else load_detector_cps("D1")
+    if not cps:
+        print(f"skip {detector}: CPS が空")
+        return
     sites = _site_shielding(cps)
     if ref_label not in cps:
         raise KeyError(f"基準地点 {ref_label!r} が CPS にありません: {list(cps)}")
@@ -948,17 +1191,22 @@ def fig_all_sites_equiv_concrete_cps_semilog(d: dict | None = None) -> None:
 def fig_all_sites_equiv_concrete_d2(
     absolute: bool = False, logy: bool = False
 ) -> None:
-    """d2 検出器版の図11/12。地上・PF なしのため linac から地上 CPS を外挿。"""
-    cps = load_d2_cps()
-    fig_all_sites_equiv_concrete(
-        absolute=absolute,
-        logy=logy,
-        cps_map=cps,
-        ref_label="linac",
-        name_suffix="_d2",
-        csv_name="等価コンクリート_減衰_d2.csv",
-        detector="d2",
-    )
+    """小径 d2 検出器版の図11/12（SN 2162）。"""
+    _equiv_concrete_for_detector("d2", absolute=absolute, logy=logy)
+
+
+def fig_all_sites_equiv_concrete_d1(
+    absolute: bool = False, logy: bool = False
+) -> None:
+    """小径 d1 検出器版の図11/12（SN 2162）。"""
+    _equiv_concrete_for_detector("d1", absolute=absolute, logy=logy)
+
+
+def fig_all_sites_equiv_concrete_D2(
+    absolute: bool = False, logy: bool = False
+) -> None:
+    """大径 D2 検出器版の図11/12（SN 1715）。BT・KEKB 未測定。"""
+    _equiv_concrete_for_detector("D2", absolute=absolute, logy=logy)
 
 
 def fig_all_sites_equiv_concrete_d2_cps() -> None:
@@ -973,13 +1221,388 @@ def fig_all_sites_equiv_concrete_d2_cps_semilog() -> None:
     fig_all_sites_equiv_concrete_d2(absolute=True, logy=True)
 
 
+def fig_all_sites_equiv_concrete_d1_cps() -> None:
+    fig_all_sites_equiv_concrete_d1(absolute=True)
+
+
+def fig_all_sites_equiv_concrete_d1_semilog() -> None:
+    fig_all_sites_equiv_concrete_d1(absolute=False, logy=True)
+
+
+def fig_all_sites_equiv_concrete_d1_cps_semilog() -> None:
+    fig_all_sites_equiv_concrete_d1(absolute=True, logy=True)
+
+
+def fig_all_sites_equiv_concrete_D2_cps() -> None:
+    fig_all_sites_equiv_concrete_D2(absolute=True)
+
+
+def fig_all_sites_equiv_concrete_D2_semilog() -> None:
+    fig_all_sites_equiv_concrete_D2(absolute=False, logy=True)
+
+
+def fig_all_sites_equiv_concrete_D2_cps_semilog() -> None:
+    fig_all_sites_equiv_concrete_D2(absolute=True, logy=True)
+
+
+def _rel_cps_err(cps: float, cps_err: float, cps0: float, cps0_err: float) -> float:
+    """相対 CPS = cps/cps0 の統計誤差（独立測定の伝播）。"""
+    if cps <= 0 or cps0 <= 0:
+        return 0.0
+    return float(cps / cps0) * float(
+        np.hypot(cps_err / cps if cps > 0 else 0.0, cps0_err / cps0 if cps0 > 0 else 0.0)
+    )
+
+
+def fig_all_sites_equiv_concrete_errorbars(
+    *,
+    absolute: bool = False,
+    logy: bool = False,
+    cps_map: dict[str, float] | None = None,
+    cps_err_map: dict[str, float] | None = None,
+    ref_label: str = "地上",
+    name_suffix: str = "",
+    csv_name: str = "等価コンクリート_減衰_誤差棒.csv",
+    detector: str = "D1",
+) -> None:
+    """図11/12と同軸の新規図。縦=統計誤差、横=系統誤差（厚さ+密度の二乗和）。"""
+    from matplotlib.ticker import LogLocator, MultipleLocator
+
+    cps = cps_map if cps_map is not None else load_detector_cps("D1")
+    cps_err = cps_err_map if cps_err_map is not None else load_detector_cps_err(detector)
+    if not cps:
+        print(f"skip errorbars {detector}: CPS が空")
+        return
+    sites = _site_shielding(cps)
+    if ref_label not in cps:
+        raise KeyError(f"基準地点 {ref_label!r} が CPS にありません: {list(cps)}")
+    cps0 = float(cps[ref_label])
+    cps0_err = float(cps_err.get(ref_label, 0.0))
+    a0 = cps0 if absolute else 1.0
+    lam_air = 1475.0 * 100.0
+    rel_key = "相対_地上1"
+
+    rows = []
+    points = []
+    for site in sites:
+        x_eq = _equiv_concrete_cm_from_x(site["X"])
+        sys = _teq_systematic_err_cm(site["concrete_cm"], site["soil_cm"])
+        y_rel = site["cps"] / cps0
+        y = site["cps"] if absolute else y_rel
+        e_cps = float(cps_err.get(site["label"], 0.0))
+        y_err = e_cps if absolute else _rel_cps_err(site["cps"], e_cps, cps0, cps0_err)
+        x_err = float(sys["dteq_cm"])
+        points.append(
+            {
+                "label": site["label"],
+                "x": x_eq,
+                "y": y,
+                "x_err": x_err,
+                "y_err": y_err,
+                "cps": site["cps"],
+                "cps_err": e_cps,
+                "y_rel": y_rel,
+                "site": site,
+                "sys": sys,
+            }
+        )
+        rows.append(
+            {
+                "地点": site["label"],
+                "CPS": f"{site['cps']:.8f}",
+                "CPS_統計誤差": f"{e_cps:.8f}",
+                rel_key: f"{y_rel:.6f}",
+                "相対_統計誤差": f"{_rel_cps_err(site['cps'], e_cps, cps0, cps0_err):.6f}",
+                "土_cm": f"{site['soil_cm']:.1f}",
+                "コンクリート_cm": f"{site['concrete_cm']:.1f}",
+                "質量厚さ_X": f"{site['X']:.2f}",
+                "等価コンクリート_cm": f"{x_eq:.1f}",
+                "等価コンクリート_系統誤差_cm": f"{x_err:.2f}",
+                "系統_厚さ寄与_cm": f"{sys['dteq_thickness_cm']:.2f}",
+                "系統_密度寄与_cm": f"{sys['dteq_density_cm']:.2f}",
+                "理論_A0exp_相対": f"{float(np.asarray(_theory_rel(x_eq, 1.0)).reshape(-1)[0]):.6f}",
+                "理論_A0exp_CPS": f"{float(np.asarray(_theory_rel(x_eq, cps0)).reshape(-1)[0]):.6f}",
+                "備考": (
+                    f"{site['note']}; "
+                    f"系統=√(厚さ²+密度²) "
+                    f"δt_c=max({SYS_DT_CONCRETE_ABS_CM}cm,{SYS_DT_CONCRETE_FRAC:.0%}t) "
+                    f"δt_s={SYS_DT_SOIL_FRAC:.0%} "
+                    f"δρ_c={SYS_DRHO_CONCRETE} δρ_s={SYS_DRHO_SOIL_FRAC:.0%}"
+                ),
+            }
+        )
+
+    out_csv = TABLES / csv_name
+    if not absolute and not logy:
+        with out_csv.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            w.writeheader()
+            w.writerows(rows)
+
+    x_max = max(p["x"] + p["x_err"] for p in points) * 1.04
+    # 地上(x=0)が左枠に張り付かない程度の余白（図11と同程度）
+    x_left = -20.0
+    x_air = np.linspace(x_left, 0, 200)
+    x_c = np.linspace(0, x_max, 900)
+    y_theory = _theory_rel(x_c, a0)
+
+    fig, ax = plt.subplots(figsize=(8.8, 5.2))
+    fig.subplots_adjust(left=0.20, right=0.96, top=0.90, bottom=0.16)
+
+    if not logy:
+        ax.plot(
+            x_air,
+            a0 * np.exp(x_air / lam_air),
+            color=BLUE,
+            lw=1.6,
+            label=r"空気  $\lambda=1475$ m",
+        )
+    ax.plot(
+        x_c,
+        y_theory,
+        color=GRAY,
+        lw=2.0,
+        label=(
+            rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0={a0:.4f}$）"
+            if absolute
+            else rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）"
+        ),
+    )
+    if not logy:
+        ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
+
+    measure_label = f"測定 {detector}" if absolute else f"測定 {detector}（地上=1）"
+    ax.errorbar(
+        [p["x"] for p in points],
+        [p["y"] for p in points],
+        xerr=[p["x_err"] for p in points],
+        yerr=[p["y_err"] for p in points],
+        fmt="o",
+        color=RED,
+        ms=8,
+        zorder=3,
+        elinewidth=1.0,
+        capsize=2.5,
+        label=measure_label,
+    )
+
+    if absolute:
+        ax.set_ylabel("実測 CPS [1/s]")
+        out_name = "16_全地点_等価コンクリート_実測CPS_誤差棒"
+    else:
+        ax.set_ylabel("相対 CPS（地上 = 1）")
+        out_name = "16_全地点_等価コンクリート_誤差棒"
+    if name_suffix:
+        out_name = f"{out_name}{name_suffix}"
+
+    y_data_max = max(p["y"] + p["y_err"] for p in points)
+    y_th_max = float(np.max(y_theory))
+    y_data_min = min(max(p["y"] - p["y_err"], 1e-12) for p in points)
+    y_th_min = float(np.min(y_theory[y_theory > 0]))
+
+    # 片対数でも左余白を残し、地上点が枠に乗らないようにする
+    ax.set_xlim(x_left, x_max)
+    if logy:
+        out_name = f"{out_name}_片対数"
+        # 理論曲線が桁落ちして線だけ長くなるのを防ぐ（データ近傍に合わせる）
+        y_min = y_data_min * 0.35
+        y_max = max(y_data_max, a0) * 2.0
+        ax.set_yscale("log")
+        ax.set_ylim(y_min, y_max)
+        ax.yaxis.set_major_locator(LogLocator(base=10.0))
+        ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+        ax.grid(True, which="major", alpha=0.35, linestyle="--")
+        ax.grid(True, which="minor", axis="y", alpha=0.12, linestyle=":")
+        ax.grid(True, which="minor", axis="x", alpha=0.18, linestyle=":")
+        offsets = {
+            "地上": (12, -16),
+            "PF": (8, 8),
+            "linac": (8, -20),
+            "BT": (-12, 10),
+            "KEKB": (-10, 10),
+        }
+    else:
+        y_top = max(y_data_max, a0) * 1.12
+        ax.set_ylim(0, y_top)
+        if absolute:
+            ax.yaxis.set_major_locator(MultipleLocator(0.05))
+            ax.yaxis.set_minor_locator(MultipleLocator(0.01))
+        else:
+            ax.yaxis.set_major_locator(MultipleLocator(0.1))
+            ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+        ax.grid(True, which="major", alpha=0.35, linestyle="--")
+        ax.grid(True, which="minor", alpha=0.18, linestyle=":")
+        offsets = {
+            "地上": (10, -18),
+            "PF": (8, 6),
+            "linac": (8, -20),
+            "BT": (-10, 8),
+            "KEKB": (-10, 6),
+        }
+
+    # 図11と同じ短い注釈（引出線なし・1行）
+    for p in points:
+        dx, dy = offsets.get(p["label"], (8, 8))
+        if absolute:
+            txt = f'{p["label"]}  {p["cps"]:.4f}±{p["cps_err"]:.4f}'
+        else:
+            txt = f'{p["label"]}  {p["y_rel"]:.3f}±{p["y_err"]:.3f}'
+        ax.annotate(
+            txt,
+            (p["x"], p["y"]),
+            textcoords="offset points",
+            xytext=(dx, dy),
+            fontsize=8,
+            ha="left" if dx >= 0 else "right",
+            va="center",
+        )
+
+    ax.xaxis.set_major_locator(MultipleLocator(50))
+    ax.xaxis.set_minor_locator(MultipleLocator(10))
+    ax.tick_params(which="major", direction="out", length=5)
+    ax.tick_params(which="minor", direction="out", length=3)
+    ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
+    ax.legend(frameon=False, loc="upper right", fontsize=9)
+    save(fig, out_name, bbox_inches="none")
+    print(f"figure: {out_name}.png")
+    if not absolute and not logy:
+        print(f"equiv errorbar table: {out_csv}")
+    for p in points:
+        print(
+            f"  {p['label']}: x={p['x']:.1f}±{p['x_err']:.1f} cm  "
+            f"y={p['y']:.4f}±{p['y_err']:.4f}  "
+            f"(厚{p['sys']['dteq_thickness_cm']:.1f}+密{p['sys']['dteq_density_cm']:.1f})"
+        )
+
+
+def _equiv_concrete_errorbars_for_detector(
+    detector: str,
+    *,
+    absolute: bool = False,
+    logy: bool = False,
+) -> None:
+    cps = load_detector_cps(detector)
+    if "地上" not in cps or len(cps) < 2:
+        print(f"skip errorbars {detector}: 地点不足（{list(cps)}）")
+        return
+    fig_all_sites_equiv_concrete_errorbars(
+        absolute=absolute,
+        logy=logy,
+        cps_map=cps,
+        cps_err_map=load_detector_cps_err(detector),
+        ref_label="地上",
+        name_suffix=detector_fs_suffix(detector),
+        csv_name=equiv_decay_csv_name(detector).replace(".csv", "_誤差棒.csv"),
+        detector=detector,
+    )
+
+
+def fig_all_sites_equiv_concrete_errorbars_all() -> None:
+    """D1 / D2 / d2 の誤差棒図（相対・実測 × 線形・片対数）を一括生成。"""
+    for det in ("D1", "D2", "d2"):
+        for absolute in (False, True):
+            for logy in (False, True):
+                _equiv_concrete_errorbars_for_detector(
+                    det, absolute=absolute, logy=logy
+                )
+
+
+def fig_all_sites_equiv_concrete_detectors_compare(logy: bool = False) -> None:
+    """4検出器（D1/D2/d1/d2）の相対 CPS を同一軸に重ねる。実測地点のみ。"""
+    from matplotlib.ticker import LogLocator, MultipleLocator
+
+    by_det = load_facility_cps_by_detector()
+    sources = facility_cps_sources()
+    plotted = []
+    for det in ("D1", "D2", "d1", "d2"):
+        cps = by_det.get(det) or {}
+        if "地上" not in cps or len(cps) < 2:
+            print(
+                f"compare skip {det}: 地上なし or 地点不足 "
+                f"({list(cps)}; {sources.get(det, {})})"
+            )
+            continue
+        plotted.append(det)
+        for site, place in sorted(sources.get(det, {}).items()):
+            print(f"  compare {det} {site}: {place}  CPS={cps[site]:.6g}")
+
+    if not plotted:
+        print("compare skip: 重ねる検出器なし")
+        return
+
+    x_max = 0.0
+    for base in _site_layers():
+        if any(base["label"] in (by_det.get(d) or {}) for d in plotted):
+            x_max = max(x_max, _equiv_concrete_cm_from_x(_mass_thickness(base["concrete_cm"], base["soil_cm"])))
+    x_max = max(x_max, 1.0) * 1.04
+    x_c = np.linspace(0, x_max, 900)
+    y_theory = _theory_rel(x_c, 1.0)
+
+    fig, ax = plt.subplots(figsize=(8.8, 5.2))
+    fig.subplots_adjust(left=0.20, right=0.96, top=0.90, bottom=0.16)
+    ax.plot(
+        x_c,
+        y_theory,
+        color=GRAY,
+        lw=2.0,
+        label=rf"$A_0\,e^{{-x/\lambda_c}}$  （$\lambda_c={LAMBDA_CM:.1f}\,\mathrm{{cm}}$, $A_0=1$）",
+    )
+    ax.axvline(0, color="#CCCCCC", lw=0.8, zorder=1)
+
+    for det in plotted:
+        cps = by_det[det]
+        cps0 = cps["地上"]
+        style = DETECTOR_STYLE[det]
+        xs, ys = [], []
+        for base in _site_layers():
+            lab = base["label"]
+            if lab not in cps:
+                continue
+            x_eq = _equiv_concrete_cm_from_x(_mass_thickness(base["concrete_cm"], base["soil_cm"]))
+            xs.append(x_eq)
+            ys.append(cps[lab] / cps0)
+        ax.plot(
+            xs,
+            ys,
+            linestyle="none",
+            marker=style["marker"],
+            color=style["color"],
+            ms=style["ms"],
+            zorder=3,
+            label=style["label"],
+        )
+
+    ax.set_xlim(0 if logy else -20, x_max)
+    ax.set_ylabel("相対 CPS（各地点の地上 = 1）")
+    ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
+    out_name = "11_全地点_等価コンクリート_検出器比較"
+    if logy:
+        out_name += "_片対数"
+        ax.set_yscale("log")
+        ax.yaxis.set_major_locator(LogLocator(base=10.0))
+        ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
+        ax.grid(True, which="major", alpha=0.35, linestyle="--")
+        ax.grid(True, which="minor", axis="y", alpha=0.12, linestyle=":")
+    else:
+        ax.set_ylim(0, 1.15)
+        ax.yaxis.set_major_locator(MultipleLocator(0.1))
+        ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+        ax.grid(True, which="major", alpha=0.35, linestyle="--")
+        ax.grid(True, which="minor", alpha=0.18, linestyle=":")
+    ax.xaxis.set_major_locator(MultipleLocator(50))
+    ax.xaxis.set_minor_locator(MultipleLocator(10))
+    ax.legend(frameon=False, loc="upper right", fontsize=8)
+    save(fig, out_name, bbox_inches="none")
+    print(f"figure: {out_name}.png")
+
+
 def fig_all_sites_equiv_concrete_composition(
     d: dict | None = None, absolute: bool = False
 ) -> None:
     """組成補正版。図11/12は上書きせず、図13/14として新規保存。"""
     from matplotlib.ticker import MultipleLocator
 
-    cps0 = USER_CPS["地上"]
+    cps0 = load_detector_cps("D1")["地上"]
     a0 = cps0 if absolute else 1.0
     lam_air = 1475.0 * 100.0
 
@@ -1135,6 +1758,47 @@ def fig_all_sites_equiv_concrete_composition_cps(d: dict | None = None) -> None:
 
 
 
+def cleanup_unsafe_detector_artifacts() -> None:
+    """macOS で _d2/_D2 等が衝突する旧ファイル名を削除。
+
+    d1 は施設地点（地上等）が raw に無いため、誤って d2 流用で作った図も消す。
+    """
+    unsafe_stems = [
+        "11_全地点_等価コンクリート_d1",
+        "11_全地点_等価コンクリート_d2",
+        "11_全地点_等価コンクリート_D2",
+        "12_全地点_等価コンクリート_実測CPS_d1",
+        "12_全地点_等価コンクリート_実測CPS_d2",
+        "12_全地点_等価コンクリート_実測CPS_D2",
+    ]
+    # d1 施設減衰図は raw に地上が無い限り無効
+    if "地上" not in load_detector_cps("d1"):
+        unsafe_stems.extend(
+            [
+                "11_全地点_等価コンクリート_small_d1",
+                "12_全地点_等価コンクリート_実測CPS_small_d1",
+            ]
+        )
+    for stem in unsafe_stems:
+        for suffix in ("", "_片対数"):
+            p = FIG / f"{stem}{suffix}.png"
+            if p.exists():
+                p.unlink()
+    for name in (
+        "等価コンクリート_減衰_d1.csv",
+        "等価コンクリート_減衰_d2.csv",
+        "等価コンクリート_減衰_D2.csv",
+        "等価コンクリート_減衰_small_d1.csv",
+    ):
+        if "地上" in load_detector_cps("d1") and name.endswith("small_d1.csv"):
+            continue
+        p = TABLES / name
+        if p.exists() and (
+            not name.endswith("small_d1.csv") or "地上" not in load_detector_cps("d1")
+        ):
+            p.unlink()
+
+
 def cleanup_old_figures(valid_folders: set[str]) -> None:
     stale = [
         "03_ROI_150-450.png",
@@ -1175,6 +1839,18 @@ def main() -> None:
     fig_all_sites_equiv_concrete_d2_cps()
     fig_all_sites_equiv_concrete_d2_semilog()
     fig_all_sites_equiv_concrete_d2_cps_semilog()
+    fig_all_sites_equiv_concrete_d1()
+    fig_all_sites_equiv_concrete_d1_cps()
+    fig_all_sites_equiv_concrete_d1_semilog()
+    fig_all_sites_equiv_concrete_d1_cps_semilog()
+    fig_all_sites_equiv_concrete_D2()
+    fig_all_sites_equiv_concrete_D2_cps()
+    fig_all_sites_equiv_concrete_D2_semilog()
+    fig_all_sites_equiv_concrete_D2_cps_semilog()
+    fig_all_sites_equiv_concrete_detectors_compare(logy=False)
+    fig_all_sites_equiv_concrete_detectors_compare(logy=True)
+    fig_all_sites_equiv_concrete_errorbars_all()
+    cleanup_unsafe_detector_artifacts()
     fig_all_sites_equiv_concrete_composition(d)
     fig_all_sites_equiv_concrete_composition_cps(d)
     valid = set()
