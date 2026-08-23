@@ -113,8 +113,8 @@ h: n            x            y(neutron ),hh0l n
    5.3088E+01   7.7179E+01   0.0000E+00  0.0000
    7.7179E+01   1.1220E+02   0.0000E+00  0.0000
    1.1220E+02   1.6312E+02   0.0000E+00  0.0000
-   1.6312E+02   2.3714E+02   5.5770E-03  1.0000
-   2.3714E+02   3.4475E+02   0.0000E+00  0.0000
+   1.6312E+02   2.3714E+02   0.0000E+00  0.0000
+   2.3714E+02   3.4475E+02   1.0651E-05  1.0000
    3.4475E+02   5.0119E+02   0.0000E+00  0.0000
    5.0119E+02   7.2862E+02   0.0000E+00  0.0000
    7.2862E+02   1.0593E+03   0.0000E+00  0.0000
@@ -122,10 +122,10 @@ h: n            x            y(neutron ),hh0l n
    1.5399E+03   2.2387E+03   0.0000E+00  0.0000
    2.2387E+03   3.2546E+03   0.0000E+00  0.0000
    3.2546E+03   4.7315E+03   0.0000E+00  0.0000
-   4.7315E+03   6.8786E+03   0.0000E+00  0.0000
+   4.7315E+03   6.8786E+03   5.1555E-04  1.0000
    6.8786E+03   1.0000E+04   0.0000E+00  0.0000
 
-#   sum over                 5.5770E-03  1.0000
+#   sum over                 5.2620E-04  1.0000
 
 'no. =  1,  reg  =      1'
 msuc: {\huge He-3 有効ガス 内中性子フラックス}
@@ -139,7 +139,7 @@ e:
 # Information for Restart Calculation
 # This calculation was newly started
 # istdev =  2 # 1:Batch variance, 2:History variance
-# resc2  = 9.12880518773937729E+03 # Total source weight or Total source weight / maxcas
+# resc2  = 8.21592466896959377E+04 # Total source weight or Total source weight / maxcas
 # resc3  = 1.00000000000000000E+05 # Total history number or Total batch number
 # maxcas =       10000 # History / Batch, only used for istdev=1
 # bitrseed = 0001110011011001101111011000110011100000010010101010010011101100 # bit data of rseed

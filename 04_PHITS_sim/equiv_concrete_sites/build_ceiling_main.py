@@ -17,6 +17,7 @@ from pathlib import Path
 
 from detector_specs import (
     DETECTORS,
+    HE3_PRESSURE_ATM,
     DetectorSpec,
     detector_cells,
     detector_root,
@@ -170,7 +171,7 @@ m4
   Fe    -0.04
 
 m5
-  3He  1.0
+  3He  1.0   $ 組成のみ。実密度は cell 1 の負値（{he3_pressure_atm:g} atm）
 
 m6
   Fe 70
@@ -300,6 +301,7 @@ def build_site_inp(site: dict, spec: DetectorSpec) -> str:
         tl=site["tl"],
         tj=site["tj"],
         c11=c11,
+        he3_pressure_atm=HE3_PRESSURE_ATM,
         room_top="c2",
         room_zmin="0.0",
         detector_sets=det_sets,

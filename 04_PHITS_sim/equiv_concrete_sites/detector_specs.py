@@ -31,7 +31,11 @@ LARGE_T_WALL_CM = 0.2
 LARGE_L_PMT_CM = 10.0  # R580 全長 ~100 mm 級（推定）
 LARGE_R_PMT_CM = 1.9   # R580 外径 38 mm → 半径 1.9 cm（以前 3.8 cm は mm 誤読）
 
-COMMON_RHO_HE3 = 0.00124
+# He-3 ガス内部圧 [atm]（実測値）
+HE3_PRESSURE_ATM = 10
+# PHITS ライブラリ基準密度 [g/cm³] @ 1 atm（pegs5 RHO=1.24e-3）
+HE3_RHO_1ATM_G_CM3 = 0.00124
+COMMON_RHO_HE3 = HE3_RHO_1ATM_G_CM3 * HE3_PRESSURE_ATM  # 0.0124 @ 10 atm
 
 # d2: SUS 外側に厚み 5 cm の PE 筒
 PE_WRAP_THICKNESS_CM = 5.0

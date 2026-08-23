@@ -24,6 +24,147 @@ SIDEBAND_GAP = 0
 ROI_EDGE = 6  # 参考用（旧・端点台形）
 PEAK_OUTSIDE_WARN_CH = 15
 
+# ³He(n,p)³H: Q=764 keV。壁効果で連続成分はトリトン端〜フルエネルギーに分布。
+# ユーザ指定の積分窓は 196–764 keV（文献のトリトン端 ≈191 keV に近い）。
+HE3_Q_KEV = 764.0
+HE3_WALL_LO_KEV = 196.0
+HE3_PROTON_EDGE_KEV = 573.0
+HE3_TRITON_EDGE_KEV = 191.0
+HE3_MARK_KEV = (HE3_Q_KEV, HE3_PROTON_EDGE_KEV, HE3_TRITON_EDGE_KEV)
+
+# シリアル別の 764 keV 基準（large D=1715 と small d=2162 はゲイン応答が違う）。
+# 1715 はキャンペーン内で実効ゲインが二群ある（≈342 と ≈387）。
+# peak_ref: その群の代表 ch（764 keV）。lo/hi: 群判定帯（roi_peak がこの中なら当該群）。
+HE3_CAL_BY_SERIAL: dict[str, list[dict]] = {
+    "1715": [
+        {
+            "id": "D_low_gain",
+            "peak_ref": 245,
+            "lo": 220,
+            "hi": 280,
+            "note": "D1 低ゲイン帯（PF / gain≈500 付近 ch≈245）",
+        },
+        {
+            "id": "D_std_lo",
+            "peak_ref": 342,
+            "lo": 325,
+            "hi": 360,
+            "note": "D1 初期・管理棟系（ch≈340）",
+        },
+        {
+            "id": "D_std_hi",
+            "peak_ref": 387,
+            "lo": 365,
+            "hi": 430,
+            "note": "D1 後半 / D2（ch≈387）",
+        },
+    ],
+    "2162": [
+        {
+            "id": "d_std",
+            "peak_ref": 389,
+            "lo": 360,
+            "hi": 420,
+            "note": "d1/d2 標準（ch≈389）",
+        },
+    ],
+}
+
+
+@dataclass(frozen=True)
+class He3EnergyCal:
+    """³He エネルギー目印用の較正結果。"""
+
+    peak_ch: int  # 764 keV に対応させるチャンネル
+    serial: str
+    mode: str  # HE3_CAL id / run_gain / fallback
+    source: str  # peak_run | peak_ref
+    note: str
+
+    @property
+    def kev_per_ch(self) -> float:
+        return HE3_Q_KEV / float(self.peak_ch) if self.peak_ch > 0 else float("nan")
+
+    def channel_of(self, energy_kev: float) -> float:
+        return float(self.peak_ch) * (float(energy_kev) / HE3_Q_KEV)
+
+
+def _place_is_gain_trial(place: str) -> bool:
+    p = (place or "").lower()
+    return ("gain" in p) or ("corse" in p) or ("coarse" in p)
+
+
+def resolve_he3_energy_cal(
+    serial: str,
+    roi_peak: int,
+    place: str = "",
+) -> He3EnergyCal | None:
+    """シリアル×ゲイン群で 764 keV チャンネルを決める。
+
+    - 群帯内: そのスペクトルの roi_peak を 764 keV とする（群ラベルは SN 別）
+    - ファイル名が gain 試験: 当該 roi_peak（設定変更セッション）
+    - 帯外（誤ピーク疑い）: その SN の代表 peak_ref にフォールバック
+    """
+    ser = str(serial or "").strip()
+    peak = int(roi_peak or 0)
+    profiles = HE3_CAL_BY_SERIAL.get(ser)
+    if not profiles:
+        if peak <= 0:
+            return None
+        return He3EnergyCal(peak, ser or "?", "unknown", "peak_run", "シリアル未登録")
+
+    if _place_is_gain_trial(place) and peak > 0:
+        return He3EnergyCal(
+            peak,
+            ser,
+            "run_gain",
+            "peak_run",
+            "ゲイン試験: 当該ピークを 764 keV",
+        )
+
+    for prof in profiles:
+        if peak > 0 and int(prof["lo"]) <= peak <= int(prof["hi"]):
+            return He3EnergyCal(
+                peak,
+                ser,
+                str(prof["id"]),
+                "peak_run",
+                str(prof["note"]),
+            )
+
+    # 帯外 → 代表値（roi_peak が壁効果・誤検出のとき）
+    # 近い群の peak_ref を選ぶ。peak が無い/0 なら先頭群。
+    if peak > 0:
+        prof = min(profiles, key=lambda p: abs(int(p["peak_ref"]) - peak))
+    else:
+        prof = profiles[0]
+    return He3EnergyCal(
+        int(prof["peak_ref"]),
+        ser,
+        f"fallback_{prof['id']}",
+        "peak_ref",
+        f"ピーク帯外(roi_peak={peak})→{prof['note']}",
+    )
+
+# 図・CSV 接尾辞（macOS 既定 FS はケース非区別 → _d2 と _D2 は同一ファイル）
+DETECTOR_FS_TAG: dict[str, str] = {
+    "D1": "",
+    "d1": "small_d1",
+    "d2": "small_d2",
+    "D2": "large_D2",
+}
+
+
+def detector_fs_suffix(detector: str) -> str:
+    """検出器キーからファイル名接尾辞を返す（D1 は空 = 従来の無接尾辞）。"""
+    tag = DETECTOR_FS_TAG.get(detector, detector)
+    return f"_{tag}" if tag else ""
+
+
+def equiv_decay_csv_name(detector: str) -> str:
+    suf = detector_fs_suffix(detector)
+    return f"等価コンクリート_減衰{suf}.csv" if suf else "等価コンクリート_減衰.csv"
+
 
 def make_id(stem: str) -> str:
     s = (
@@ -162,6 +303,38 @@ class RoiAnalysis:
     sb_hi_lo: int = 0
     sb_hi_hi: int = 0
     bg_mode: str = "sideband"
+    # エネルギー窓メタ（ピーク ROI では空。壁効果窓では 196–764 keV）
+    window_kind: str = "peak_roi"
+    e_lo_kev: float = 0.0
+    e_hi_kev: float = 0.0
+    kev_per_ch: float = 0.0
+
+
+def kev_to_channel(e_kev: float, peak_ch_764: int) -> float:
+    """roi_peak を 764 keV フルエネルギーピークとする線形校正。"""
+    if peak_ch_764 <= 0:
+        return float("nan")
+    return float(peak_ch_764) * (e_kev / HE3_Q_KEV)
+
+
+def channel_to_kev(ch: float, peak_ch_764: int) -> float:
+    if peak_ch_764 <= 0:
+        return float("nan")
+    return float(ch) * HE3_Q_KEV / float(peak_ch_764)
+
+
+def energy_window_channels(
+    peak_ch_764: int,
+    n: int,
+    e_lo_kev: float = HE3_WALL_LO_KEV,
+    e_hi_kev: float = HE3_Q_KEV,
+) -> tuple[int, int]:
+    """エネルギー窓 [e_lo, e_hi] keV をチャンネル整数範囲へ。"""
+    lo = int(np.floor(kev_to_channel(e_lo_kev, peak_ch_764)))
+    hi = int(np.ceil(kev_to_channel(e_hi_kev, peak_ch_764)))
+    lo = max(1, min(lo, n - 1))
+    hi = max(lo, min(hi, n - 1))
+    return lo, hi
 
 
 def centered_roi(peak: int, width: int, n: int) -> tuple[int, int]:
@@ -330,6 +503,7 @@ def analyze_roi(counts, serial: str = "") -> RoiAnalysis:
         )
 
     warning = "; ".join(warnings)
+    kev_per = HE3_Q_KEV / peak if peak > 0 else 0.0
     return RoiAnalysis(
         roi_lo=lo,
         roi_hi=hi,
@@ -349,7 +523,99 @@ def analyze_roi(counts, serial: str = "") -> RoiAnalysis:
         sb_hi_lo=sb1_lo,
         sb_hi_hi=sb1_hi,
         bg_mode=bg_mode,
+        window_kind="peak_roi",
+        e_lo_kev=channel_to_kev(lo, peak) if peak > 0 else 0.0,
+        e_hi_kev=channel_to_kev(hi, peak) if peak > 0 else 0.0,
+        kev_per_ch=kev_per,
     )
+
+
+def analyze_wall_window(
+    counts,
+    serial: str = "",
+    e_lo_kev: float = HE3_WALL_LO_KEV,
+    e_hi_kev: float = HE3_Q_KEV,
+    sideband: int = SIDEBAND_WIDTH,
+) -> RoiAnalysis:
+    """壁効果連続帯のエネルギー窓 NET（既定 196–764 keV）。
+
+    roi_peak を 764 keV とし、線形校正で下端 ch を決める。
+    上端は 764 keV 相当に加え、ピーク分解能分（PEAK_HALF_WIDTH）を含める。
+    低 ch 側帯は使わず、ピーク外側の右側帯のみで水平背景を推定する。
+    """
+    serial = str(serial or "")
+    search_lo = search_lo_for_serial(serial)
+    c = np.asarray(counts, dtype=float)
+    n = len(c)
+    peak = high_ch_peak(c, serial)
+    auto_lo, auto_hi, _ = find_roi(c, search_lo=search_lo)
+
+    lo_e, hi_e = energy_window_channels(peak, n, e_lo_kev=e_lo_kev, e_hi_kev=e_hi_kev)
+    # フルエネルギーピークの分解能分を窓に含める（hi_e=peak だと山の右半分が欠ける）
+    lo = lo_e
+    hi = max(hi_e, min(n - 1, peak + PEAK_HALF_WIDTH))
+    fixed = fixed_roi_for_serial(serial)
+    if fixed is not None:
+        hi = max(hi, fixed[1])
+
+    y = c[lo : hi + 1]
+    gross = float(y.sum())
+    n_win = hi - lo + 1
+
+    # 右側帯はピーク除外の外側から
+    sb1_lo = min(n - 1, max(hi, peak + PEAK_HALF_WIDTH) + 1)
+    sb1_hi = min(n - 1, sb1_lo + max(sideband, 10) - 1)
+    right = c[sb1_lo : sb1_hi + 1]
+    right_ok = len(right) >= 3
+    if right_ok:
+        bg_per_ch = float(np.mean(right))
+        bg_mode = "sideband_right"
+    else:
+        bg_per_ch = 0.0
+        bg_mode = "none_gross"
+    bg = bg_per_ch * n_win
+    net = gross - bg
+    err = float(np.sqrt(max(gross + bg, 0.0)))
+
+    warnings: list[str] = []
+    if peak <= 0:
+        warnings.append("ピーク未検出のためエネルギー校正不可")
+    if net <= 0:
+        warnings.append("NET<=0（壁効果窓または右側帯背景を確認）")
+    if bg_mode == "none_gross":
+        warnings.append("右側帯が取れず GROSS を NET として使用")
+    if hi - lo < 20:
+        warnings.append(f"エネルギー窓が狭い ({lo}-{hi})")
+    if lo < 20:
+        warnings.append(f"窓下端 ch={lo} が低すぎる（ゲイン／ピーク位置を確認）")
+
+    warning = "; ".join(warnings)
+    kev_per = HE3_Q_KEV / peak if peak > 0 else 0.0
+    return RoiAnalysis(
+        roi_lo=lo,
+        roi_hi=hi,
+        roi_peak=peak,
+        roi_auto_lo=auto_lo,
+        roi_auto_hi=auto_hi,
+        gross=gross,
+        bg=bg,
+        net=net,
+        err=err,
+        net_valid=net > 0,
+        warning=warning,
+        search_lo=search_lo,
+        serial=serial,
+        sb_lo_lo=0,
+        sb_lo_hi=0,
+        sb_hi_lo=sb1_lo,
+        sb_hi_hi=sb1_hi,
+        bg_mode=bg_mode,
+        window_kind="wall_196_764",
+        e_lo_kev=float(e_lo_kev),
+        e_hi_kev=float(e_hi_kev),
+        kev_per_ch=kev_per,
+    )
+
 
 
 def roi_net(counts, lo: int, hi: int, edge: int = 6) -> tuple[float, float, float, float]:

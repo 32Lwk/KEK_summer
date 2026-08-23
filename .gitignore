@@ -6,3 +6,7 @@ __pycache__/
 *.tmp
 .phits_web_session
 .phits_web_result.zip
+
+# Regenerable EGSnrc cross-section dumps (large)
+pegs5.dat
+**/__pycache__/

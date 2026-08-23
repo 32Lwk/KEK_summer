@@ -14,7 +14,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from mca_common import detector_fs_suffix, equiv_decay_csv_name, peak_clip as roi_peak_clip
+from mca_common import (
+    HE3_MARK_KEV,
+    detector_fs_suffix,
+    equiv_decay_csv_name,
+    peak_clip as roi_peak_clip,
+    resolve_he3_energy_cal,
+)
 
 import equiv_shielding as esh
 
@@ -111,6 +117,7 @@ def load_spectrum() -> dict:
             {
                 "id": sid,
                 "場所": rec["場所"],
+                "シリアル": str(rec.get("シリアル") or ""),
                 "c": cps,
                 "e": np.sqrt(np.maximum(c, 0.0)) / live,
                 "live": live,
@@ -198,6 +205,51 @@ def shade_sidebands(ax, s: dict) -> None:
         ax.axvspan(sb0[0], sb0[1], color="#9EC9E2", alpha=0.35, zorder=0)
     if sb1[1] >= sb1[0] > 0 and sb1 != sb0:
         ax.axvspan(sb1[0], sb1[1], color="#9EC9E2", alpha=0.35, zorder=0)
+
+
+# ³He エネルギー目印（較正は mca_common.resolve_he3_energy_cal: SN×ゲイン群別）。
+HE3_MARK_COLOR = {764.0: "#D62728", 573.0: "#FF7F0E", 191.0: "#2CA02C"}
+
+
+def mark_he3_energies(ax, s: dict) -> None:
+    """シリアル×ゲイン群で決めた 764 keV 基準から縦線を引く。"""
+    cal = resolve_he3_energy_cal(
+        str(s.get("シリアル") or ""),
+        int(s.get("roi_peak") or 0),
+        str(s.get("場所") or ""),
+    )
+    if cal is None or cal.peak_ch <= 0:
+        return
+    for e_kev in HE3_MARK_KEV:
+        ch_e = cal.channel_of(e_kev)
+        color = HE3_MARK_COLOR.get(float(e_kev), "#555555")
+        ax.axvline(ch_e, color=color, ls="--", lw=1.0, alpha=0.9, zorder=3)
+        ax.text(
+            ch_e,
+            0.97,
+            f"{e_kev:.0f} keV",
+            transform=ax.get_xaxis_transform(),
+            rotation=90,
+            va="top",
+            ha="right",
+            fontsize=7,
+            color=color,
+            clip_on=False,
+        )
+    # 左下に較正モード（D/d・フォールバックの区別）
+    tag = f"SN{cal.serial}/{cal.mode}"
+    if cal.source == "peak_ref":
+        tag += f" ref={cal.peak_ch}"
+    ax.text(
+        0.01,
+        0.02,
+        tag,
+        transform=ax.transAxes,
+        ha="left",
+        va="bottom",
+        fontsize=7,
+        color=GRAY,
+    )
 
 
 def place_legend(ax, fontsize: float = 9, ncol: int = 1) -> None:
@@ -425,6 +477,7 @@ def _one_site(d: dict, s: dict) -> None:
     step_spectrum(ax, ch[m], c[m], color, clip=clip)
     shade_roi(ax, lo, hi)
     shade_sidebands(ax, s)
+    mark_he3_energies(ax, s)
     ax.set_xlim(1, 511)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
@@ -457,6 +510,7 @@ def _one_site(d: dict, s: dict) -> None:
     ax.set_ylim(LOG_Y_FLOOR, LOG_Y_MAX)
     shade_roi(ax, lo, hi)
     shade_sidebands(ax, s)
+    mark_he3_energies(ax, s)
     ax.set_xlabel("チャンネル")
     ax.set_ylabel(YLABEL)
     ax.set_title("対数")
@@ -630,14 +684,32 @@ SOIL_PROFILE = esh.DEFAULT_PROFILE
 RHO_CONCRETE = esh.RHO_CONCRETE
 RHO_LOAM = esh.RHO_LOAM
 RHO_JOSO = esh.RHO_JOSO
+RHO_IRON = esh.RHO_IRON
 LOAM_MAX_CM = esh.LOAM_MAX_CM
 LAMBDA_CONCRETE_GCM2 = esh.LAMBDA_CONCRETE_GCM2
 LAMBDA_SOIL_GCM2 = esh.LAMBDA_SOIL_GCM2
+LAMBDA_IRON_GCM2 = esh.LAMBDA_IRON_GCM2
 LAMBDA_CM = esh.LAMBDA_CONCRETE_CM  # ≈39.2 cm（旧77 cmは誤り）
 LAMBDA_M = esh.LAMBDA_CONCRETE_M    # ≈0.392 m（旧0.77 mは誤り）
 
+# 図11/12系の余白（凡例は左下・注釈用に上余白を確保）
+EQUIV_FIGSIZE = (8.8, 6.0)
+EQUIV_SUBPLOT = dict(left=0.18, right=0.96, top=0.92, bottom=0.12)
+EQUIV_Y_PAD_LINEAR = 1.32  # ylim 上端 = max(data, A0) × この値
+EQUIV_Y_PAD_LOGY = 4.0  # log ylim 上端 = max(data, A0) × この値
+
+
+def _equiv_legend(ax, fontsize: float = 9) -> None:
+    """凡例をグラフ内左下に置く（データ点・注釈との重なりを避ける）。"""
+    ax.legend(
+        frameon=False,
+        loc="lower left",
+        fontsize=fontsize,
+        borderaxespad=0.8,
+    )
+
 # 施設地点比較に使う場所ラベル（等価コンクリート図の横軸）
-FACILITY_SITES = ("地上", "PF", "linac", "BT", "KEKB")
+FACILITY_SITES = ("地上", "PF", "linac", "BT", "KEKB", "linacIRON")
 
 # 検出器別のマーカー／色（4パターン比較用）
 DETECTOR_STYLE = {
@@ -666,13 +738,14 @@ def _detector_from_place(place: str) -> str | None:
 
 
 def _facility_site_from_place(place: str) -> str | None:
-    """遮蔽減衰比較用の地点。熱中性子・管理棟・linacIRON は除外。"""
+    """遮蔽減衰比較用の地点。熱中性子・管理棟は除外。"""
     if "熱中性子" in place or "gain" in place.lower():
         return None
     if "管理棟" in place or "kanri" in place.lower():
         return None
+    # linacIRON は linac より先に判定（名前が linac を含むため）
     if "linacIRON" in place or "linaciron" in place.lower():
-        return None
+        return "linacIRON"
     if "地上" in place or "ground" in place.lower():
         return "地上"
     if re.search(r"(^|[_＿])PF($|[_＿])", place) or place.endswith("_PF") or "_PF_" in place:
@@ -766,26 +839,32 @@ USER_CPS = load_detector_cps("D1")
 SYS_DT_CONCRETE_ABS_CM = 5.0  # コンクリート厚の絶対不確かさ [cm]
 SYS_DT_CONCRETE_FRAC = 0.05  # コンクリート厚の相対不確かさ
 SYS_DT_SOIL_FRAC = 0.10  # 土厚の相対不確かさ
+SYS_DT_IRON_ABS_CM = 5.0  # 鉄厚の絶対不確かさ [cm]
+SYS_DT_IRON_FRAC = 0.05  # 鉄厚の相対不確かさ
 SYS_DRHO_CONCRETE = 0.10  # ρ_c = 2.3 ± 0.1 [g/cm³]
 SYS_DRHO_SOIL_FRAC = 0.15  # 土密度の相対不確かさ（施設表 1.3–1.6）
+SYS_DRHO_IRON = 0.30  # ρ_Fe = 7.2 ± 0.3 [g/cm³]
 
 
 def _teq_systematic_err_cm(
     concrete_cm: float,
     soil_cm: float,
+    iron_cm: float = 0.0,
     *,
     profile: str = SOIL_PROFILE,
 ) -> dict[str, float]:
     """等価コンクリート厚の系統誤差 [cm]（厚さ・密度を二乗和）。
 
     各層の質量厚さ不確かさ δX/X = √((δt/t)²+(δρ/ρ)²) を合成し、
-    δt_eq = √(δX_c²+δX_s²)/ρ_c とする。
+    δt_eq = √(δX_c²+δX_s²+δX_fe²)/ρ_c とする。
     """
     t_c = max(float(concrete_cm), 0.0)
     t_s = max(float(soil_cm), 0.0)
+    t_fe = max(float(iron_cm), 0.0)
     x_s = _soil_mass_thickness(t_s, profile=profile) if t_s > 0 else 0.0
     x_c = RHO_CONCRETE * t_c
-    t_eq = (x_c + x_s) / RHO_CONCRETE
+    x_fe = RHO_IRON * t_fe
+    t_eq = (x_c + x_s + x_fe) / RHO_CONCRETE
 
     dx_c_t = dx_c_r = 0.0
     if t_c > 0:
@@ -800,11 +879,19 @@ def _teq_systematic_err_cm(
         dx_s_t = x_s * (dt_s / t_s)
         dx_s_r = x_s * SYS_DRHO_SOIL_FRAC
 
+    dx_fe_t = dx_fe_r = 0.0
+    if t_fe > 0 and x_fe > 0:
+        dt_fe = max(SYS_DT_IRON_ABS_CM, SYS_DT_IRON_FRAC * t_fe)
+        drho_fe_rel = SYS_DRHO_IRON / RHO_IRON
+        dx_fe_t = x_fe * (dt_fe / t_fe)
+        dx_fe_r = x_fe * drho_fe_rel
+
     dx_c = float(np.hypot(dx_c_t, dx_c_r))
     dx_s = float(np.hypot(dx_s_t, dx_s_r))
-    dteq_thick = float(np.hypot(dx_c_t, dx_s_t)) / RHO_CONCRETE
-    dteq_dens = float(np.hypot(dx_c_r, dx_s_r)) / RHO_CONCRETE
-    dteq = float(np.hypot(dx_c, dx_s)) / RHO_CONCRETE
+    dx_fe = float(np.hypot(dx_fe_t, dx_fe_r))
+    dteq_thick = float(np.hypot(np.hypot(dx_c_t, dx_s_t), dx_fe_t)) / RHO_CONCRETE
+    dteq_dens = float(np.hypot(np.hypot(dx_c_r, dx_s_r), dx_fe_r)) / RHO_CONCRETE
+    dteq = float(np.hypot(np.hypot(dx_c, dx_s), dx_fe)) / RHO_CONCRETE
 
     return {
         "t_eq_cm": t_eq,
@@ -813,6 +900,7 @@ def _teq_systematic_err_cm(
         "dteq_density_cm": dteq_dens,
         "dx_concrete": dx_c,
         "dx_soil": dx_s,
+        "dx_iron": dx_fe,
     }
 
 
@@ -820,27 +908,50 @@ def _soil_mass_thickness(soil_cm: float, profile: str = SOIL_PROFILE) -> float:
     return esh.soil_mass_thickness_gcm2(soil_cm, profile=profile)
 
 
-def _mass_thickness(concrete_cm: float, soil_cm: float, profile: str = SOIL_PROFILE) -> float:
-    return concrete_cm * RHO_CONCRETE + _soil_mass_thickness(soil_cm, profile=profile)
+def _iron_mass_thickness(iron_cm: float) -> float:
+    return max(float(iron_cm), 0.0) * RHO_IRON
+
+
+def _mass_thickness(
+    concrete_cm: float,
+    soil_cm: float,
+    iron_cm: float = 0.0,
+    profile: str = SOIL_PROFILE,
+) -> float:
+    return (
+        concrete_cm * RHO_CONCRETE
+        + _soil_mass_thickness(soil_cm, profile=profile)
+        + _iron_mass_thickness(iron_cm)
+    )
 
 
 def _equiv_concrete_cm_from_x(x_gcm2: float) -> float:
     return x_gcm2 / RHO_CONCRETE
 
 
-def _optical_depth(x_c: float, x_s: float) -> float:
-    """組成を反映した光学的厚さ τ = X_c/λ_c + X_s/λ_s（無次元）。"""
-    return x_c / LAMBDA_CONCRETE_GCM2 + x_s / LAMBDA_SOIL_GCM2
+def _optical_depth(x_c: float, x_s: float, x_fe: float = 0.0) -> float:
+    """組成を反映した光学的厚さ τ = X_c/λ_c + X_s/λ_s + X_fe/λ_fe（無次元）。"""
+    tau = x_c / LAMBDA_CONCRETE_GCM2 + x_s / LAMBDA_SOIL_GCM2
+    if x_fe > 0:
+        tau += x_fe / LAMBDA_IRON_GCM2
+    return tau
 
 
-def _equiv_concrete_cm_composition(x_c: float, x_s: float) -> float:
+def _equiv_concrete_cm_composition(x_c: float, x_s: float, x_fe: float = 0.0) -> float:
     """組成補正した等価コンクリート厚 [cm]。純コンクリートでは t_eq = t_c。"""
-    return _optical_depth(x_c, x_s) * LAMBDA_CONCRETE_GCM2 / RHO_CONCRETE
+    return _optical_depth(x_c, x_s, x_fe) * LAMBDA_CONCRETE_GCM2 / RHO_CONCRETE
 
 
-def _equiv_from_layers(concrete_cm: float, soil_cm: float, profile: str = SOIL_PROFILE):
-    """土+コンクリート厚から等価コンクリート（自動換算）。"""
-    return esh.equiv_concrete(concrete_cm, soil_cm, profile=profile)
+def _equiv_from_layers(
+    concrete_cm: float,
+    soil_cm: float,
+    iron_cm: float = 0.0,
+    profile: str = SOIL_PROFILE,
+):
+    """土+コンクリート+鉄厚から等価コンクリート（自動換算）。"""
+    return esh.equiv_concrete(
+        concrete_cm, soil_cm, iron_cm=iron_cm, profile=profile
+    )
 
 
 def _theory_rel(x_eq_cm, a0: float = 1.0):
@@ -851,15 +962,29 @@ def _theory_rel(x_eq_cm, a0: float = 1.0):
 def _site_layers() -> list[dict]:
     """地点ごとの遮蔽層厚（検出器共通）。"""
     return [
-        {"label": "地上", "concrete_cm": 0.0, "soil_cm": 0.0, "note": "基準（屋外）"},
-        {"label": "PF", "concrete_cm": 105.0, "soil_cm": 0.0, "note": ""},
-        {"label": "linac", "concrete_cm": 150.0, "soil_cm": 0.0, "note": ""},
-        {"label": "BT", "concrete_cm": 60.0, "soil_cm": 220.0, "note": "土はロームのみ（220 cm < 3.5 m）"},
+        {"label": "地上", "concrete_cm": 0.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": "基準（屋外）"},
+        {"label": "PF", "concrete_cm": 105.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": ""},
+        {"label": "linac", "concrete_cm": 150.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": ""},
+        {
+            "label": "BT",
+            "concrete_cm": 60.0,
+            "soil_cm": 220.0,
+            "iron_cm": 0.0,
+            "note": "土はロームのみ（220 cm < 3.5 m）",
+        },
         {
             "label": "KEKB",
             "concrete_cm": 80.0,
             "soil_cm": 670.0,
+            "iron_cm": 0.0,
             "note": "ローム3.5 m + 常総2.0 m + 下総1.2 m + コンクリ80 cm（Book5の117.25は桁誤り）",
+        },
+        {
+            "label": "linacIRON",
+            "concrete_cm": 200.0,
+            "soil_cm": 100.0,
+            "iron_cm": 150.0,
+            "note": "土100 cm + コンクリート200 cm + 鉄150 cm（ρ_Fe=7.2）",
         },
     ]
 
@@ -871,7 +996,9 @@ def _site_shielding(cps_map: dict[str, float]) -> list[dict]:
         if base["label"] not in cps_map:
             continue
         site = dict(base)
-        site["X"] = _mass_thickness(site["concrete_cm"], site["soil_cm"])
+        site["X"] = _mass_thickness(
+            site["concrete_cm"], site["soil_cm"], site.get("iron_cm", 0.0)
+        )
         site["cps"] = float(cps_map[site["label"]])
         if not site["note"]:
             site["note"] = f"X={site['X']:.2f}"
@@ -936,14 +1063,21 @@ def _site_shielding_composition() -> list[dict]:
     sites = []
     for base in _site_shielding_d1():
         site = dict(base)
-        r = _equiv_from_layers(site["concrete_cm"], site["soil_cm"])
+        iron_cm = site.get("iron_cm", 0.0)
+        r = _equiv_from_layers(site["concrete_cm"], site["soil_cm"], iron_cm)
         site["X_c"] = r.x_concrete_gcm2
         site["X_s"] = r.x_soil_gcm2
+        site["X_fe"] = r.x_iron_gcm2
         site["X"] = r.x_total_gcm2
         site["tau"] = r.tau
         site["t_eq"] = r.t_eq_cm
+        extras = []
         if site["soil_cm"] > 0:
-            site["note"] = site["note"].rstrip("。") + f"・組成λ補正({r.profile})"
+            extras.append(f"組成λ補正({r.profile})")
+        if iron_cm > 0:
+            extras.append(f"鉄{iron_cm:.0f}cm")
+        if extras:
+            site["note"] = site["note"].rstrip("。") + "・" + "・".join(extras)
         sites.append(site)
     return sites
 
@@ -1016,6 +1150,7 @@ def fig_all_sites_equiv_concrete(
                 rel_key: f"{y_rel:.6f}",
                 "土_cm": f"{site['soil_cm']:.1f}",
                 "コンクリート_cm": f"{site['concrete_cm']:.1f}",
+                "鉄_cm": f"{site.get('iron_cm', 0.0):.1f}",
                 "質量厚さ_X": f"{site['X']:.2f}",
                 "等価コンクリート_cm": f"{x_eq:.1f}",
                 "等価コンクリート_m": f"{x_eq / 100.0:.4f}",
@@ -1038,8 +1173,8 @@ def fig_all_sites_equiv_concrete(
     y_air_level = a0
     y_theory = _theory_rel(x_c, a0)
 
-    fig, ax = plt.subplots(figsize=(8.8, 5.2))
-    fig.subplots_adjust(left=0.20, right=0.96, top=0.90, bottom=0.16)
+    fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
+    fig.subplots_adjust(**EQUIV_SUBPLOT)
 
     if not logy:
         ax.plot(
@@ -1086,6 +1221,7 @@ def fig_all_sites_equiv_concrete(
             "linac": (8, -28),
             "BT": (8, 8),
             "KEKB": (-8, 10),
+            "linacIRON": (8, -22),
         }
     else:
         offsets = {
@@ -1094,6 +1230,7 @@ def fig_all_sites_equiv_concrete(
             "linac": (8, -28),
             "BT": (8, 6),
             "KEKB": (-10, 6),
+            "linacIRON": (8, -28),
         }
     for p in points:
         dx, dy = offsets.get(p["label"], (8, 8))
@@ -1130,7 +1267,7 @@ def fig_all_sites_equiv_concrete(
     if logy:
         out_name = f"{out_name}_片対数"
         y_min = min(y_data_min, y_th_min) * 0.5
-        y_max = max(y_data_max, y_th_max, a0) * 2.0
+        y_max = max(y_data_max, y_th_max, a0) * EQUIV_Y_PAD_LOGY
         ax.set_yscale("log")
         ax.set_ylim(y_min, y_max)
         ax.yaxis.set_major_locator(LogLocator(base=10.0))
@@ -1139,8 +1276,8 @@ def fig_all_sites_equiv_concrete(
         ax.grid(True, which="minor", axis="y", alpha=0.12, linestyle=":")
         ax.grid(True, which="minor", axis="x", alpha=0.18, linestyle=":")
     else:
-        # 図11/12 と同じく A0（地上相当）まで見せる
-        y_top = max(y_data_max, a0) * 1.12
+        # 図11/12 と同じく A0（地上相当）まで見せる（凡例・注釈用に上余白）
+        y_top = max(y_data_max, a0) * EQUIV_Y_PAD_LINEAR
         ax.set_ylim(0, y_top)
         if absolute:
             ax.yaxis.set_major_locator(MultipleLocator(0.05))
@@ -1156,7 +1293,7 @@ def fig_all_sites_equiv_concrete(
     ax.tick_params(which="major", direction="out", length=5)
     ax.tick_params(which="minor", direction="out", length=3)
     ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
-    ax.legend(frameon=False, loc="upper right", fontsize=9)
+    _equiv_legend(ax, fontsize=9)
     save(fig, out_name, bbox_inches="none")
     print(f"figure: {out_name}.png")
     if not absolute and not logy:
@@ -1205,7 +1342,7 @@ def fig_all_sites_equiv_concrete_d1(
 def fig_all_sites_equiv_concrete_D2(
     absolute: bool = False, logy: bool = False
 ) -> None:
-    """大径 D2 検出器版の図11/12（SN 1715）。BT・KEKB 未測定。"""
+    """大径 D2 検出器版の図11/12（SN 1715）。BT・KEKB 未測定。linacIRON あり。"""
     _equiv_concrete_for_detector("D2", absolute=absolute, logy=logy)
 
 
@@ -1286,7 +1423,9 @@ def fig_all_sites_equiv_concrete_errorbars(
     points = []
     for site in sites:
         x_eq = _equiv_concrete_cm_from_x(site["X"])
-        sys = _teq_systematic_err_cm(site["concrete_cm"], site["soil_cm"])
+        sys = _teq_systematic_err_cm(
+            site["concrete_cm"], site["soil_cm"], site.get("iron_cm", 0.0)
+        )
         y_rel = site["cps"] / cps0
         y = site["cps"] if absolute else y_rel
         e_cps = float(cps_err.get(site["label"], 0.0))
@@ -1315,6 +1454,7 @@ def fig_all_sites_equiv_concrete_errorbars(
                 "相対_統計誤差": f"{_rel_cps_err(site['cps'], e_cps, cps0, cps0_err):.6f}",
                 "土_cm": f"{site['soil_cm']:.1f}",
                 "コンクリート_cm": f"{site['concrete_cm']:.1f}",
+                "鉄_cm": f"{site.get('iron_cm', 0.0):.1f}",
                 "質量厚さ_X": f"{site['X']:.2f}",
                 "等価コンクリート_cm": f"{x_eq:.1f}",
                 "等価コンクリート_系統誤差_cm": f"{x_err:.2f}",
@@ -1327,7 +1467,9 @@ def fig_all_sites_equiv_concrete_errorbars(
                     f"系統=√(厚さ²+密度²) "
                     f"δt_c=max({SYS_DT_CONCRETE_ABS_CM}cm,{SYS_DT_CONCRETE_FRAC:.0%}t) "
                     f"δt_s={SYS_DT_SOIL_FRAC:.0%} "
-                    f"δρ_c={SYS_DRHO_CONCRETE} δρ_s={SYS_DRHO_SOIL_FRAC:.0%}"
+                    f"δt_fe=max({SYS_DT_IRON_ABS_CM}cm,{SYS_DT_IRON_FRAC:.0%}t) "
+                    f"δρ_c={SYS_DRHO_CONCRETE} δρ_s={SYS_DRHO_SOIL_FRAC:.0%} "
+                    f"δρ_fe={SYS_DRHO_IRON}"
                 ),
             }
         )
@@ -1346,8 +1488,8 @@ def fig_all_sites_equiv_concrete_errorbars(
     x_c = np.linspace(0, x_max, 900)
     y_theory = _theory_rel(x_c, a0)
 
-    fig, ax = plt.subplots(figsize=(8.8, 5.2))
-    fig.subplots_adjust(left=0.20, right=0.96, top=0.90, bottom=0.16)
+    fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
+    fig.subplots_adjust(**EQUIV_SUBPLOT)
 
     if not logy:
         ax.plot(
@@ -1404,9 +1546,9 @@ def fig_all_sites_equiv_concrete_errorbars(
     ax.set_xlim(x_left, x_max)
     if logy:
         out_name = f"{out_name}_片対数"
-        # 理論曲線が桁落ちして線だけ長くなるのを防ぐ（データ近傍に合わせる）
-        y_min = y_data_min * 0.35
-        y_max = max(y_data_max, a0) * 2.0
+        # 図11と同じく、横軸全幅で理論曲線が枠内に収まるよう y を取る
+        y_min = min(y_data_min, y_th_min) * 0.5
+        y_max = max(y_data_max, y_th_max, a0) * EQUIV_Y_PAD_LOGY
         ax.set_yscale("log")
         ax.set_ylim(y_min, y_max)
         ax.yaxis.set_major_locator(LogLocator(base=10.0))
@@ -1420,9 +1562,10 @@ def fig_all_sites_equiv_concrete_errorbars(
             "linac": (8, -20),
             "BT": (-12, 10),
             "KEKB": (-10, 10),
+            "linacIRON": (8, -18),
         }
     else:
-        y_top = max(y_data_max, a0) * 1.12
+        y_top = max(y_data_max, a0) * EQUIV_Y_PAD_LINEAR
         ax.set_ylim(0, y_top)
         if absolute:
             ax.yaxis.set_major_locator(MultipleLocator(0.05))
@@ -1438,6 +1581,7 @@ def fig_all_sites_equiv_concrete_errorbars(
             "linac": (8, -20),
             "BT": (-10, 8),
             "KEKB": (-10, 6),
+            "linacIRON": (8, -18),
         }
 
     # 図11と同じ短い注釈（引出線なし・1行）
@@ -1462,7 +1606,7 @@ def fig_all_sites_equiv_concrete_errorbars(
     ax.tick_params(which="major", direction="out", length=5)
     ax.tick_params(which="minor", direction="out", length=3)
     ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
-    ax.legend(frameon=False, loc="upper right", fontsize=9)
+    _equiv_legend(ax, fontsize=9)
     save(fig, out_name, bbox_inches="none")
     print(f"figure: {out_name}.png")
     if not absolute and not logy:
@@ -1533,13 +1677,22 @@ def fig_all_sites_equiv_concrete_detectors_compare(logy: bool = False) -> None:
     x_max = 0.0
     for base in _site_layers():
         if any(base["label"] in (by_det.get(d) or {}) for d in plotted):
-            x_max = max(x_max, _equiv_concrete_cm_from_x(_mass_thickness(base["concrete_cm"], base["soil_cm"])))
+            x_max = max(
+                x_max,
+                _equiv_concrete_cm_from_x(
+                    _mass_thickness(
+                        base["concrete_cm"],
+                        base["soil_cm"],
+                        base.get("iron_cm", 0.0),
+                    )
+                ),
+            )
     x_max = max(x_max, 1.0) * 1.04
     x_c = np.linspace(0, x_max, 900)
     y_theory = _theory_rel(x_c, 1.0)
 
-    fig, ax = plt.subplots(figsize=(8.8, 5.2))
-    fig.subplots_adjust(left=0.20, right=0.96, top=0.90, bottom=0.16)
+    fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
+    fig.subplots_adjust(**EQUIV_SUBPLOT)
     ax.plot(
         x_c,
         y_theory,
@@ -1558,7 +1711,13 @@ def fig_all_sites_equiv_concrete_detectors_compare(logy: bool = False) -> None:
             lab = base["label"]
             if lab not in cps:
                 continue
-            x_eq = _equiv_concrete_cm_from_x(_mass_thickness(base["concrete_cm"], base["soil_cm"]))
+            x_eq = _equiv_concrete_cm_from_x(
+                _mass_thickness(
+                    base["concrete_cm"],
+                    base["soil_cm"],
+                    base.get("iron_cm", 0.0),
+                )
+            )
             xs.append(x_eq)
             ys.append(cps[lab] / cps0)
         ax.plot(
@@ -1579,19 +1738,20 @@ def fig_all_sites_equiv_concrete_detectors_compare(logy: bool = False) -> None:
     if logy:
         out_name += "_片対数"
         ax.set_yscale("log")
+        ax.set_ylim(1e-6, EQUIV_Y_PAD_LOGY)
         ax.yaxis.set_major_locator(LogLocator(base=10.0))
         ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
         ax.grid(True, which="major", alpha=0.35, linestyle="--")
         ax.grid(True, which="minor", axis="y", alpha=0.12, linestyle=":")
     else:
-        ax.set_ylim(0, 1.15)
+        ax.set_ylim(0, EQUIV_Y_PAD_LINEAR)
         ax.yaxis.set_major_locator(MultipleLocator(0.1))
         ax.yaxis.set_minor_locator(MultipleLocator(0.02))
         ax.grid(True, which="major", alpha=0.35, linestyle="--")
         ax.grid(True, which="minor", alpha=0.18, linestyle=":")
     ax.xaxis.set_major_locator(MultipleLocator(50))
     ax.xaxis.set_minor_locator(MultipleLocator(10))
-    ax.legend(frameon=False, loc="upper right", fontsize=8)
+    _equiv_legend(ax, fontsize=8)
     save(fig, out_name, bbox_inches="none")
     print(f"figure: {out_name}.png")
 
@@ -1629,8 +1789,10 @@ def fig_all_sites_equiv_concrete_composition(
                 "相対_地上1": f"{y_rel:.6f}",
                 "土_cm": f"{site['soil_cm']:.1f}",
                 "コンクリート_cm": f"{site['concrete_cm']:.1f}",
+                "鉄_cm": f"{site.get('iron_cm', 0.0):.1f}",
                 "X_コンクリート": f"{site['X_c']:.2f}",
                 "X_土": f"{site['X_s']:.2f}",
+                "X_鉄": f"{site.get('X_fe', 0.0):.2f}",
                 "質量厚さ_X": f"{site['X']:.2f}",
                 "光学厚さ_tau": f"{site['tau']:.6f}",
                 "等価コンクリート_cm": f"{x_eq:.1f}",
@@ -1654,8 +1816,8 @@ def fig_all_sites_equiv_concrete_composition(
     x_c = np.linspace(0, x_max, 900)
     y_air_level = a0
 
-    fig, ax = plt.subplots(figsize=(8.8, 5.2))
-    fig.subplots_adjust(left=0.20, right=0.96, top=0.90, bottom=0.16)
+    fig, ax = plt.subplots(figsize=EQUIV_FIGSIZE)
+    fig.subplots_adjust(**EQUIV_SUBPLOT)
 
     ax.plot(
         x_air,
@@ -1712,13 +1874,13 @@ def fig_all_sites_equiv_concrete_composition(
 
     ax.set_xlim(-20, x_max)
     if absolute:
-        ax.set_ylim(0, cps0 * 1.12)
+        ax.set_ylim(0, cps0 * EQUIV_Y_PAD_LINEAR)
         ax.yaxis.set_major_locator(MultipleLocator(0.05))
         ax.yaxis.set_minor_locator(MultipleLocator(0.01))
         ax.set_ylabel("実測 CPS [1/s]")
         out_name = "14_全地点_等価コンクリート_組成補正_実測CPS"
     else:
-        ax.set_ylim(0, 1.12)
+        ax.set_ylim(0, EQUIV_Y_PAD_LINEAR)
         ax.yaxis.set_major_locator(MultipleLocator(0.1))
         ax.yaxis.set_minor_locator(MultipleLocator(0.02))
         ax.set_ylabel("相対 CPS（地上 = 1）")
@@ -1734,7 +1896,7 @@ def fig_all_sites_equiv_concrete_composition(
         r"等価コンクリート厚さ [cm]"
         r"（$t_{\mathrm{eq}}=(X_c/\lambda_c+X_s/\lambda_s)\,\lambda_c/\rho_c$）"
     )
-    ax.legend(frameon=False, loc="upper right", fontsize=9)
+    _equiv_legend(ax, fontsize=9)
     save(fig, out_name, bbox_inches="none")
     print(f"figure: {out_name}.png")
     if not absolute:

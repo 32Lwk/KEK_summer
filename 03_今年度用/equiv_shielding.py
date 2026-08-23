@@ -200,6 +200,8 @@ FILL = Material(
     "完新世埋土（旭 B1 浅部）",
 )
 PAVEMENT = Material("舗装", 2.20, COMPOSITION_CONCRETE_SLIDE, "AS+砕石")
+# 申請・施設表の代表値（純鉄 7.86 より小さく安全側の 7.2）
+IRON = Material("鉄", 7.20, {"Fe": 1.0}, "ρ=7.2（ATF/PF/PS・SKEKB 系の代表）")
 
 
 @dataclass
@@ -310,6 +312,8 @@ class EquivResult:
     lambda_concrete_cm: float
     rho_concrete: float
     attenuation: float
+    iron_cm: float = 0.0
+    x_iron_gcm2: float = 0.0
 
     @property
     def t_eq_m(self) -> float:
@@ -378,11 +382,14 @@ def equiv_concrete(
     concrete_cm: float = 0.0,
     soil_cm: float = 0.0,
     *,
+    iron_cm: float = 0.0,
     profile: str | SoilProfile = DEFAULT_PROFILE,
     concrete: Material | None = None,
+    iron: Material | None = None,
 ) -> EquivResult:
-    """コンクリート厚 [cm] と土厚 [cm] から等価コンクリート厚を計算。"""
+    """コンクリート・土・鉄厚 [cm] から等価コンクリート厚を計算。"""
     mat_c = concrete or DEFAULT_CONCRETE
+    mat_fe = iron or IRON
     if isinstance(profile, str):
         if profile not in PROFILES:
             raise KeyError(f"未知の profile: {profile}. 候補={list(PROFILES)}")
@@ -395,9 +402,14 @@ def equiv_concrete(
     soil_m = max(soil_cm, 0.0) / 100.0
     x_c = max(concrete_cm, 0.0) * mat_c.rho_g_cm3
     x_s = prof.mass_thickness_gcm2(soil_m)
-    tau = x_c / mat_c.lambda_gcm2 + prof.optical_depth(soil_m)
+    x_fe = max(iron_cm, 0.0) * mat_fe.rho_g_cm3
+    tau = (
+        x_c / mat_c.lambda_gcm2
+        + prof.optical_depth(soil_m)
+        + (x_fe / mat_fe.lambda_gcm2 if x_fe > 0 else 0.0)
+    )
     t_eq = tau * mat_c.lambda_gcm2 / mat_c.rho_g_cm3
-    t_eq_dens = (x_c + x_s) / mat_c.rho_g_cm3
+    t_eq_dens = (x_c + x_s + x_fe) / mat_c.rho_g_cm3
 
     return EquivResult(
         concrete_cm=float(concrete_cm),
@@ -405,7 +417,7 @@ def equiv_concrete(
         profile=prof_name,
         x_concrete_gcm2=x_c,
         x_soil_gcm2=x_s,
-        x_total_gcm2=x_c + x_s,
+        x_total_gcm2=x_c + x_s + x_fe,
         tau=tau,
         t_eq_cm=t_eq,
         t_eq_density_only_cm=t_eq_dens,
@@ -413,6 +425,8 @@ def equiv_concrete(
         lambda_concrete_cm=mat_c.lambda_cm,
         rho_concrete=mat_c.rho_g_cm3,
         attenuation=math.exp(-tau),
+        iron_cm=float(iron_cm),
+        x_iron_gcm2=x_fe,
     )
 
 
@@ -638,6 +652,9 @@ LAMBDA_CONCRETE_M = LAMBDA_CONCRETE_CM / 100.0
 RHO_LOAM = LOAM.rho_g_cm3
 RHO_JOSO = JOSO.rho_g_cm3
 RHO_SHIMOSA = SHIMOSA.rho_g_cm3
+RHO_IRON = IRON.rho_g_cm3
+LAMBDA_IRON_GCM2 = float(IRON.lambda_gcm2)
+LAMBDA_IRON_CM = LAMBDA_IRON_GCM2 / RHO_IRON
 LOAM_MAX_CM = PROFILE_TSUKUBA.layers[0].thickness_m * 100.0
 
 

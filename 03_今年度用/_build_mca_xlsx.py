@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """今年度 MCA（Amptek MCA8000D）スペクトルを CSV と Excel に変換する。
 
-raw/*.mca と USB 上の未登録 .mca を自動検出する。エネルギー較正は未実施。
-ROI はシリアル別の共通窓（1715: 314–366, 2162: 350–408）+ ピーク外側帯 NET。
+raw/*.mca と USB 上の未登録 .mca を自動検出する。
+解析窓は 2 系統:
+  1) peak_roi … シリアル別共通窓（1715: 314–366, 2162: 350–408）+ 両側帯 NET
+  2) wall_196_764 … ³He(n,p)³H 壁効果帯 196–764 keV（ピーク=764 keV 線形校正）+ 右側帯 NET
 ファイル内 <<ROI>> は使わない。
 """
 
@@ -25,6 +27,7 @@ from openpyxl.utils import get_column_letter
 
 from mca_common import (
     analyze_roi,
+    analyze_wall_window,
     discover_raw_mca,
     discover_usb_mca,
     infer_serial,
@@ -49,42 +52,42 @@ center = Alignment(horizontal="center", vertical="center", wrap_text=True)
 left = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
 KNOWN_META = {
-    "20260818_1552_管理棟2階_D1.mca": {
+    "D1_20260818_1552_管理棟2階.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
         "メモ": "短時間。検出器 D1（SN 1715）。ch0はADCオーバーフロー。ROIは共通窓 314–366。",
     },
-    "20260818_1730_linac_D1.mca": {
+    "D1_20260818_1730_linac.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
         "メモ": "linac。検出器 D1（SN 1715）。ch0はADCオーバーフロー。ROIは共通窓。",
     },
-    "20260819_0832_管理棟2階_D1.mca": {
+    "D1_20260819_0832_管理棟2階.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
         "メモ": "終夜。検出器 D1（SN 1715）。ROIは共通窓。",
     },
-    "20260819_1344_管理棟1階_D1.mca": {
+    "D1_20260819_1344_管理棟1階.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
         "メモ": "検出器 D1（SN 1715）。ROIは共通窓。",
     },
-    "20260819_1520_管理棟2階_d1.mca": {
+    "d1_20260819_1520_管理棟2階.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
         "メモ": "管理棟2階・約21 h。検出器 d1（SN 2162）。ポリエチレンの緩衝材なし。旧名の放射線棟2階は誤記。CPS差は d 検出器の応答。ch0なし。ROIは共通窓。",
     },
-    "20260819_1530_地上_D1.mca": {
+    "D1_20260819_1530_地上.mca": {
         "屋内_屋外": "屋外",
         "標高_m": 30,
         "メモ": "地上。検出器 D1（SN 1715）。ROIは共通窓。",
     },
-    "20260819_1854_放射線棟BT_D1.mca": {
+    "D1_20260819_1854_放射線棟BT.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
         "メモ": "放射線棟 BT。検出器 D1（SN 1715）。ROIは共通窓。",
     },
-    "20260819_1859_放射線棟BT_d2.mca": {
+    "d2_20260819_1859_放射線棟BT.mca": {
         "屋内_屋外": "屋内",
         "標高_m": 30,
         "メモ": "放射線棟 BT。検出器 d2（SN 2162）。CPS差は d 検出器の応答。ROIは共通窓。",
@@ -130,6 +133,7 @@ def summarize(run: dict, meta: dict) -> dict:
     real = float(meta["REAL_TIME"])
     total = sum(counts)
     roi = analyze_roi(counts, serial=infer_serial(run["filename"], meta.get("serial", "")))
+    wall = analyze_wall_window(counts, serial=infer_serial(run["filename"], meta.get("serial", "")))
     roi_lo, roi_hi, roi_peak = roi.roi_lo, roi.roi_hi, roi.roi_peak
     roi_sum, roi_bg, roi_net_n, roi_net_err = roi.gross, roi.bg, roi.net, roi.err
     ch0 = counts[0]
@@ -180,6 +184,24 @@ def summarize(run: dict, meta: dict) -> dict:
         "sb_lo_hi": roi.sb_lo_hi,
         "sb_hi_lo": roi.sb_hi_lo,
         "sb_hi_hi": roi.sb_hi_hi,
+        # --- 壁効果窓 196–764 keV ---
+        "wall_lo": wall.roi_lo,
+        "wall_hi": wall.roi_hi,
+        "wall_peak": wall.roi_peak,
+        "wall_e_lo_kev": wall.e_lo_kev,
+        "wall_e_hi_kev": wall.e_hi_kev,
+        "wall_kev_per_ch": wall.kev_per_ch,
+        "wall_counts": wall.gross,
+        "wall_cps": wall.gross / live,
+        "wall_bg_counts": wall.bg,
+        "wall_bg_cps": wall.bg / live,
+        "wall_net_counts": wall.net,
+        "wall_net_cps": wall.net / live,
+        "wall_net_cps_err": wall.err / live,
+        "wall_net_valid": int(wall.net_valid),
+        "wall_warning": wall.warning,
+        "wall_bg_mode": wall.bg_mode,
+        "wall_sb_hi": f"{wall.sb_hi_lo}–{wall.sb_hi_hi}",
         "ch451_511": ch451,
         "peak_ch": peak_ch,
         "peak_counts": counts[peak_ch],
@@ -301,6 +323,16 @@ def write_tables(rows: list[dict]) -> None:
         "sb_lo_hi",
         "sb_hi_lo",
         "sb_hi_hi",
+        "wall_lo",
+        "wall_hi",
+        "wall_peak",
+        "wall_e_lo_kev",
+        "wall_e_hi_kev",
+        "wall_net_cps",
+        "wall_net_cps_err",
+        "wall_net_valid",
+        "wall_warning",
+        "wall_bg_mode",
         "peak_ch",
         "装置",
         "シリアル",
@@ -335,6 +367,31 @@ def write_tables(rows: list[dict]) -> None:
         "sb_hi",
     ]
     write_csv(TABLES / "ROI_NET_CPS.csv", net_fields, rows)
+
+    wall_fields = [
+        "id",
+        "場所",
+        "シリアル",
+        "live_s",
+        "wall_lo",
+        "wall_hi",
+        "wall_peak",
+        "wall_e_lo_kev",
+        "wall_e_hi_kev",
+        "wall_kev_per_ch",
+        "wall_counts",
+        "wall_cps",
+        "wall_bg_counts",
+        "wall_bg_cps",
+        "wall_net_counts",
+        "wall_net_cps",
+        "wall_net_cps_err",
+        "wall_net_valid",
+        "wall_warning",
+        "wall_bg_mode",
+        "wall_sb_hi",
+    ]
+    write_csv(TABLES / "WALL_NET_CPS_196_764keV.csv", wall_fields, rows)
 
     n = rows[0]["n_channels"]
     spec_fields = (
