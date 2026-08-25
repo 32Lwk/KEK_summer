@@ -17,17 +17,24 @@ from pathlib import Path
 
 import numpy as np
 
+from flux_calibration import compute_wall_efficiencies, write_wall_efficiencies_csv
 from mca_common import (
     analyze_roi,
     analyze_wall_window,
     analyze_wall_window_linear,
     infer_serial,
-    parse_mca,
+    is_pf_d2_mca,
+    parse_mca_for_analysis,
 )
 
 ROOT = Path(__file__).resolve().parent
 RAW = ROOT / "測定_20260818" / "raw"
 TABLES = ROOT / "測定_20260818" / "tables"
+SIM_ROOT = ROOT.parent / "04_PHITS_sim" / "equiv_concrete_sites"
+import sys
+
+sys.path.insert(0, str(SIM_ROOT))
+from detector_specs import DETECTORS, he3_geometric_areas  # noqa: E402
 
 Q_AMBE = 2.26e6
 PHI_OVER_Q = 9.44e-6
@@ -84,7 +91,7 @@ def site_label(name: str) -> str:
 
 
 def analyze_file(path: Path) -> dict:
-    m = parse_mca(path)
+    m = parse_mca_for_analysis(path)
     c = np.asarray(m["counts"], dtype=float)
     live = float(m["LIVE_TIME"])
     real = float(m["REAL_TIME"])
@@ -132,11 +139,12 @@ def analyze_file(path: Path) -> dict:
         ),
         "peak_warning": peak.warning,
         "wall_warning": wall.warning,
+        "total_cps": float(c.sum()) / live if live else float("nan"),
     }
 
 
 def main() -> None:
-    files = sorted(RAW.glob("*.mca"))
+    files = [p for p in sorted(RAW.glob("*.mca")) if not is_pf_d2_mca(p.name)]
     rows = [analyze_file(p) for p in files]
 
     out_rates = TABLES / "窓比較_計数率.csv"
@@ -211,39 +219,33 @@ def main() -> None:
         if r["検出器"] == "d1"
         and r["地点"] in ("熱中性子_30cm", "熱中性子_80cm")
         and r["wall_valid"]
-        and r["dead_frac"] < 0.15
     ]
-    eps_wall = []
     for r in d1_pile:
         d = 30.0 if "30" in r["地点"] else 80.0
         phi = thermal_phi(d)
-        eps_wall.append(r["wall_net_cps"] / phi)
+        tot = float(r.get("total_cps") or 0)
+        f_w = r["wall_net_cps"] / tot if tot else float("nan")
         print(
-            f"  d1 wall @{d:.0f}cm: CPS={r['wall_net_cps']:.2f}  φ={phi:.3f}  "
-            f"εS={r['wall_net_cps']/phi:.2f}  (peak CPS={r['peak_net_cps']:.2f})"
+            f"  d1 wall @{d:.0f}cm: CPS={r['wall_net_cps']:.2f}  total={tot:.2f}  "
+            f"f_wall={f_w:.3f}  φ照合={phi:.3f}  R/φ={r['wall_net_cps']/phi:.2f}"
         )
-    if len(eps_wall) >= 2:
-        eps_mean = float(np.mean(eps_wall))
-        eps_std = float(np.std(eps_wall))
-    elif eps_wall:
-        eps_mean = float(eps_wall[0])
-        eps_std = float("nan")
-    else:
-        eps_mean = eps_std = float("nan")
-        print("WARNING: d1 wall pile points missing")
 
-    # ピーク側は既存表から読む
-    peak_eps_d1 = 50.22
-    peak_eps_D1 = 210.9
-    eff_path = TABLES / "検出器効率_熱中性子校正版.csv"
-    if eff_path.exists():
-        for r in csv.DictReader(eff_path.open(encoding="utf-8")):
-            if r.get("検出器") == "d1" and r.get("epsilon_S_ROI_cm2"):
-                peak_eps_d1 = float(r["epsilon_S_ROI_cm2"])
-            if r.get("検出器") == "D1" and r.get("epsilon_S_ROI_cm2"):
-                peak_eps_D1 = float(r["epsilon_S_ROI_cm2"])
+    wall_eff = compute_wall_efficiencies(rows)
+    peak_eps_d1 = wall_eff["d1"].epsilon_S_peakROI_cm2 or 50.22
+    peak_eps_D1 = wall_eff["D1"].epsilon_S_peakROI_cm2 or 210.9
+    eps_mean = wall_eff["d1"].epsilon_S_wall_cm2
+    eps_std = wall_eff["d1"].epsilon_S_wall_std_cm2 or float("nan")
+    wall_eps_D1 = wall_eff["D1"].epsilon_S_wall_cm2
 
-    # --- D1 転送（管理棟2階・壁効果）---
+    print("\n--- wall ε×S（4 検出器）---")
+    for det in ("d1", "D1", "d2", "D2"):
+        e = wall_eff[det]
+        std_s = f"±{e.epsilon_S_wall_std_cm2:.2f}" if e.epsilon_S_wall_std_cm2 else ""
+        print(f"  {det}: εS_wall={e.epsilon_S_wall_cm2:.2f}{std_s} cm²  ({e.note})")
+
+    eff_wall = write_wall_efficiencies_csv(wall_eff)
+    print(f"wrote {eff_wall}")
+
     d1_field = next(
         (r for r in rows if r["検出器"] == "d1" and r["地点"] == "管理棟2階" and r["wall_valid"]),
         None,
@@ -270,67 +272,11 @@ def main() -> None:
         ),
         None,
     )
-
-    wall_eps_D1 = float("nan")
-    wall_ratio = float("nan")
-    if d1_field and D1_night and eps_mean == eps_mean:
-        wall_ratio = D1_night["wall_net_cps"] / d1_field["wall_net_cps"]
-        wall_eps_D1 = eps_mean * wall_ratio
-        print(
-            f"\n  D1 wall transfer: ratio={wall_ratio:.3f}  "
-            f"εS_wall(D1)={wall_eps_D1:.2f} cm²  (d1 εS_wall={eps_mean:.2f})"
-        )
-        if D1_short:
-            r2 = D1_short["wall_net_cps"] / d1_field["wall_net_cps"]
-            print(f"  check short D1: ratio={r2:.3f} → εS={eps_mean*r2:.2f}")
-
-    # 効率表（壁効果）
-    eff_wall = TABLES / "検出器効率_壁効果191_764keV.csv"
-    with eff_wall.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(
-            f,
-            fieldnames=[
-                "検出器",
-                "epsilon_S_wall_cm2",
-                "epsilon_S_wall_std_cm2",
-                "epsilon_S_peakROI_cm2",
-                "wall_over_peak_cal",
-                "備考",
-            ],
-        )
-        w.writeheader()
-        w.writerow(
-            {
-                "検出器": "d1",
-                "epsilon_S_wall_cm2": f"{eps_mean:.4g}" if eps_mean == eps_mean else "",
-                "epsilon_S_wall_std_cm2": f"{eps_std:.4g}" if eps_std == eps_std else "",
-                "epsilon_S_peakROI_cm2": f"{peak_eps_d1:.4g}",
-                "wall_over_peak_cal": f"{eps_mean/peak_eps_d1:.4g}" if eps_mean == eps_mean else "",
-                "備考": "黒鉛パイル30&80cm・水平・非飽和・窓191–764keV・右側帯背景",
-            }
-        )
-        w.writerow(
-            {
-                "検出器": "D1",
-                "epsilon_S_wall_cm2": f"{wall_eps_D1:.4g}" if wall_eps_D1 == wall_eps_D1 else "",
-                "epsilon_S_wall_std_cm2": "",
-                "epsilon_S_peakROI_cm2": f"{peak_eps_D1:.4g}",
-                "wall_over_peak_cal": f"{wall_eps_D1/peak_eps_D1:.4g}" if wall_eps_D1 == wall_eps_D1 else "",
-                "備考": f"転送: 管理棟2階 D1/d1 壁窓比={wall_ratio:.3f}×d1εS_wall" if wall_ratio == wall_ratio else "転送不可",
-            }
-        )
-        for det in ("D2", "d2"):
-            w.writerow(
-                {
-                    "検出器": det,
-                    "epsilon_S_wall_cm2": "",
-                    "epsilon_S_wall_std_cm2": "",
-                    "epsilon_S_peakROI_cm2": "",
-                    "wall_over_peak_cal": "",
-                    "備考": "未較正（400cm・黒鉛なし）",
-                }
-            )
-    print(f"wrote {eff_wall}")
+    wall_ratio = (
+        D1_night["wall_net_cps"] / d1_field["wall_net_cps"]
+        if d1_field and D1_night
+        else float("nan")
+    )
 
     detail = TABLES / "D1効率_転送較正_壁効果.csv"
     with detail.open("w", encoding="utf-8", newline="") as f:
@@ -339,16 +285,15 @@ def main() -> None:
             fieldnames=["method", "epsilon_S_wall_cm2", "D1_over_d1_ratio", "note"],
         )
         w.writeheader()
-        if wall_eps_D1 == wall_eps_D1:
-            w.writerow(
-                {
-                    "method": "field_transfer_wall_overnight",
-                    "epsilon_S_wall_cm2": f"{wall_eps_D1:.4g}",
-                    "D1_over_d1_ratio": f"{wall_ratio:.4g}",
-                    "note": "管理棟2階・壁窓191–764keV",
-                }
-            )
-        if D1_short and d1_field and eps_mean == eps_mean:
+        w.writerow(
+            {
+                "method": "field_transfer_wall_overnight",
+                "epsilon_S_wall_cm2": f"{wall_eps_D1:.4g}",
+                "D1_over_d1_ratio": f"{wall_ratio:.4g}",
+                "note": "メーカー450×d1 wall/total（熱中性子）",
+            }
+        )
+        if D1_short and d1_field:
             r2 = D1_short["wall_net_cps"] / d1_field["wall_net_cps"]
             w.writerow(
                 {
@@ -360,6 +305,33 @@ def main() -> None:
             )
     print(f"wrote {detail}")
 
+    for label, det in (("d2", "d2"), ("D2", "D2")):
+        tr_path = TABLES / f"{label}効率_転送較正_壁効果.csv"
+        e = wall_eff[det]
+        ratio = e.epsilon_S_wall_cm2 / wall_eps_D1
+        with tr_path.open("w", encoding="utf-8", newline="") as f:
+            w = csv.DictWriter(
+                f,
+                fieldnames=[
+                    "method",
+                    "epsilon_S_wall_cm2",
+                    f"{det}_over_D1_ratio",
+                    "D1_epsilon_S_wall_cm2",
+                    "note",
+                ],
+            )
+            w.writeheader()
+            w.writerow(
+                {
+                    "method": f"field_transfer_{det.lower()}_wall",
+                    "epsilon_S_wall_cm2": f"{e.epsilon_S_wall_cm2:.4g}",
+                    f"{det}_over_D1_ratio": f"{ratio:.4g}",
+                    "D1_epsilon_S_wall_cm2": f"{wall_eps_D1:.4g}",
+                    "note": e.note,
+                }
+            )
+        print(f"wrote {tr_path}")
+
     # --- 現場フラックス比較（peak / wall）---
     flux_out = TABLES / "フラックス_窓比較.csv"
     skip_sites = {"熱中性子_30cm", "熱中性子_80cm", "熱中性子_gain調整", "熱中性子_その他", "その他"}
@@ -368,8 +340,8 @@ def main() -> None:
         if r["地点"] in skip_sites:
             continue
         det = r["検出器"]
-        peak_eps = peak_eps_d1 if det == "d1" else (peak_eps_D1 if det == "D1" else None)
-        wall_eps = eps_mean if det == "d1" else (wall_eps_D1 if det == "D1" else None)
+        peak_eps = wall_eff[det].epsilon_S_peakROI_cm2 if det in wall_eff else None
+        wall_eps = wall_eff[det].epsilon_S_wall_cm2 if det in wall_eff else None
         row = {
             "検出器": det,
             "地点": r["地点"],
@@ -402,9 +374,29 @@ def main() -> None:
 
     print("\n=== まとめ ===")
     print(f"  peak ROI  εS(d1)={peak_eps_d1:.2f}  εS(D1)={peak_eps_D1:.2f} cm²")
-    if eps_mean == eps_mean:
-        print(f"  wall 191–764  εS(d1)={eps_mean:.2f}±{eps_std:.2f}  εS(D1)={wall_eps_D1:.2f} cm²")
-        print(f"  wall/peak 較正比 d1: {eps_mean/peak_eps_d1:.3f}")
+    print(
+        f"  wall 191–764  "
+        + "  ".join(
+            f"εS({d})={wall_eff[d].epsilon_S_wall_cm2:.2f}" for d in ("d1", "D1", "d2", "D2")
+        )
+        + " cm²"
+    )
+    print(f"  wall/peak 較正比 d1: {eps_mean/peak_eps_d1:.3f}")
+
+    print("\n--- He-3 感知面積（メーカー cps/nv の S は等方 S_surf/4。2rL は平行ビーム）---")
+    for det in ("d1", "D1", "d2", "D2"):
+        g = he3_geometric_areas(det)
+        spec = DETECTORS[det]
+        model = f" [{spec.rs_model}]" if spec.rs_model else ""
+        mfr = spec.manufacturer_sensitivity_cps_nv
+        e = wall_eff.get(det)
+        f_s = f"  f_wall={e.f_wall:.3f}" if e and e.f_wall is not None else ""
+        print(
+            f"  {det}{model}: r_he3={g['r_he3_cm']:.2f} cm  L_sens={g['l_sensitive_cm']:.1f} cm  "
+            f"S_iso={g['S_he3_isotropic_cm2']:.1f} cm²  "
+            f"メーカー={mfr:.0f} cps/nv  ε_mfr={g['epsilon_mfr']:.3f}"
+            f"{f_s}"
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,65 @@
+[ Title ]
+Connectivity ping: cosmic-ray flux in an empty sphere (tiny statistics)
+S6 theory_research: Web PHITS 疎通確認のみ。source_check の縮小版。
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =     1000
+ maxbch   =        2
+ e-mode   =        2
+ irqmd    =        1
+ negs     =        2
+ mdbatima =     3000
+ maxbnk   =   100000
+ iMeVperU =        1
+ emin(12) =      1.0
+ emin(13) =      1.0
+
+set: c1[1500.]           $ 線源球の半径
+set: c2[2200.]           $ 世界球（c2 > sqrt(2)*c1）
+
+[ Source ]
+  totfact = -pi*c1**2
+ infl:{source.inp}
+     proj = neutron
+ infl:{source.inp}
+     proj = muon+
+ infl:{source.inp}
+     proj = muon-
+ infl:{source.inp}
+     proj = photon
+
+[ Material ]
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+
+[ Surface ]
+  10   so   1000.0
+  12   so   c2
+
+[ Cell ]
+  100    0            -10
+  110    0             10 -12
+  999   -1             12
+
+[ Volume ]
+   reg          vol
+   100    4.18879e+09
+
+[ T-Track ]
+    title = Cosmic-ray flux in vacuum (ping)
+     mesh =  reg
+      reg =  100
+   e-type =    3
+       ne =   75
+     emin =  1.0e-9
+     emax =  1.0e+6
+     unit =    1
+     axis =  eng
+     file = ping.out
+     part =  neutron photon ( muon+ muon- )
+   epsout =    1
+
+[ End ]

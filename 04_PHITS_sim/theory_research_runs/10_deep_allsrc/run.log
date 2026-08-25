@@ -1,0 +1,22 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running deep_all.inp on https://phits.kek.jp (session cli_1787498404_xwgukt61) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'deep_all.inp'
+bash: /root/.bashrc: Permission denied
+Mon Aug 24 00:20:07 JST 2026
+Program is started                on 2026/08/24 at 00h 20m 07s
+Initialization is completed          on 2026/08/24 at 00h 20m 10s
+bat[       1] ncas =            500. on 2026/08/24 at 00h 20m 50s
+bat[       2] ncas =           1000. on 2026/08/24 at 00h 21m 01s
+bat[       3] ncas =           1500. on 2026/08/24 at 00h 21m 12s
+bat[       4] ncas =           2000. on 2026/08/24 at 00h 21m 24s
+bat[       5] ncas =           2500. on 2026/08/24 at 00h 21m 36s
+bat[       6] ncas =           3000. on 2026/08/24 at 00h 21m 47s
+bat[       7] ncas =           3500. on 2026/08/24 at 00h 21m 58s
+bat[       8] ncas =           4000. on 2026/08/24 at 00h 22m 09s
+bat[       9] ncas =           4500. on 2026/08/24 at 00h 22m 21s
+bat[      10] ncas =           5000. on 2026/08/24 at 00h 22m 31s
+Program is finished               on 2026/08/24 at 00h 22m 31s
+[phits-web] PHITS finished normally in 148 s — 11 output file(s) on the server
+[phits-web] downloaded 10 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/theory_research_runs/10_deep_allsrc
+exit=0

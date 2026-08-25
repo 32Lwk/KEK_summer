@@ -1,0 +1,82 @@
+{
+  "id": "BT",
+  "name": "Beam Transport (KEKB BT)",
+  "source_pdf": "05_施設図/BT.pdf",
+  "map_anchor": {
+    "x_pct": 46.5,
+    "y_pct": 42.5,
+    "棟No": "",
+    "notes": "KEKB リング周辺 BT 区域"
+  },
+  "tunnel": {
+    "type": "torus",
+    "majorR_m": 88,
+    "minorR_m": 5,
+    "yCenter_m": -8,
+    "innerR_m": 3.5
+  },
+  "evaluation_points": [
+    {
+      "id": "E1",
+      "label": "E1 (LER S1)",
+      "ring": "LER"
+    },
+    {
+      "id": "E6",
+      "label": "E6 (LER S6)",
+      "ring": "LER"
+    },
+    {
+      "id": "E13",
+      "label": "E13 (HER S13)",
+      "ring": "HER"
+    },
+    {
+      "id": "E15A",
+      "label": "E15A (PF-AR)",
+      "ring": "PF-AR"
+    }
+  ],
+  "cross_sections": [
+    {
+      "id": "BT_LER_S1",
+      "name": "LER S1→E1 断面",
+      "source_pdf": "BT.pdf 図1.8",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 5.0,
+      "inner_height_m": 4.0,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 50,
+          "source": "BT.pdf 表2.1"
+        },
+        {
+          "material": "土",
+          "thickness_cm": 640,
+          "source": "BT.pdf 表2.1"
+        }
+      ]
+    },
+    {
+      "id": "BT_HER_S11",
+      "name": "HER S11→E11 断面",
+      "source_pdf": "BT.pdf 図1.14",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 4.5,
+      "inner_height_m": 3.8,
+      "layers": [
+        {
+          "material": "鉄",
+          "thickness_cm": 3,
+          "source": "BT.pdf 表2.1"
+        }
+      ]
+    }
+  ],
+  "tables_ref": [
+    "表2.1 p.34",
+    "表2.2 p.35",
+    "図1.8-1.19"
+  ]
+}

@@ -1,0 +1,10 @@
+param,value,unit,note
+F0_fast,0.002729,n/cm2/s,地上 fast flux
+Lambda_h,134,g/cm2,ハドロン減衰長
+C_mu,0.0001656,n/cm2/s,μ 起源源強度
+Lmu1,389,g/cm2,μ 減衰長1
+fstop,0.1648,-,浅部急減割合
+Lmu2,6276,g/cm2,μ 減衰長2
+phi_rad,5.001e-06,n/cm2/s,環境放射能熱束
+logres_before,3.088,dex,旧理論 RMS
+logres_after,0.3089,dex,完全理論 RMS

@@ -1,0 +1,22 @@
+\section{完全理論曲線（多成分モデル）}
+
+旧理論 $\phi = A_0 e^{-t/\lambda_c}$（$A_0=1.32e-03$~n/cm$^2$/s, $\lambda_c=39.2$~cm）に対し、
+log$_{10}$ RMS 残差は 3.09~dex から 0.31~dex に改善した。
+
+\subsection{輸送モデル}
+\begin{equation}
+\phi_{\rm fast}(x) = \left[ F_0 e^{-x/\Lambda_h} + C_\mu I_\mu(x) \right] G_{\rm fast}({\rm site})
+\end{equation}
+\begin{equation}
+I_\mu(x) = (1-f_{\rm stop})e^{-x/\Lambda_{\mu 2}} + f_{\rm stop} e^{-x/\Lambda_{\mu 1}}
+\end{equation}
+
+フィット結果: $F_0=2.729e-03$, $\Lambda_h=134.0$~g/cm$^2$,
+$C_\mu=1.656e-04$, $\phi_{\rm rad}=5.001e-06$~n/cm$^2$/s.
+
+\subsection{検出器応答}
+\begin{equation}
+\phi_{\rm wall}^{\rm pred} = \phi_{\rm th} + r_{\rm epi}\phi_{\rm epi} + r_{\rm fast,net}\phi_{\rm fast}
+\end{equation}
+
+図は \texttt{theory\_research/figures/} を参照。

@@ -1,0 +1,15 @@
+$ 宇宙線線源 — 10_deep_allsrc/source.inp と同一
+ <source> = 1.0
+   s-type =    9
+       x0 =    0.0
+       y0 =    0.0
+       z0 =    0.0
+       r1 =    c1
+       r2 =    c1
+      dir =   iso
+   e-type =   25
+    icenv =    5
+ solarmod = 100.0
+     alti =   0.03
+     glat =  36.15
+    glong = 140.08

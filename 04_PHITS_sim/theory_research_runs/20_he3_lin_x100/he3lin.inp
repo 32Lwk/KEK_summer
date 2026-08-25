@@ -1,0 +1,79 @@
+[ Title ]
+He-3 rho-scaling linearity check, x100 (1000 atm equivalent), thermal isotropic field
+S6 theory_research: equiv_concrete_sites の He-3 密度x100ハックの線形性検証。
+D1 裸管（SUS 2mm, He-3 10 atm）を 25.3 meV 等方場で照射し Deposit を取る。
+x100 版（20_he3_lin_x100）との比が 100 になれば線形、飽和していれば <100。
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =    20000
+ maxbch   =        5
+ e-mode   =        2
+ negs     =        2
+ maxbnk   =   100000
+
+set: c31[66.0] c32[5.0] c33[0.2] c34[c32-c33]
+
+[ Source ]
+  totfact = pi*60.0**2   $ 球内フルエンス 1/(pi r1^2) -> 1 n/cm2/source に規格化
+   s-type =    9
+       x0 =    0.0
+       y0 =    0.0
+       z0 =   33.0
+       r1 =   60.0
+       r2 =   60.0
+      dir =  -all
+     proj = neutron
+       e0 = 2.53e-8
+
+[ Material ]
+m5
+  3He  1.0
+m6
+  Fe 70
+  Cr 18
+  Ni  9
+  Mn  2
+  Si  1
+
+[ Surface ]
+  1   so   100.0
+ 11   rcc  0  0  0   0  0  c31  c34
+ 12   rcc  0  0  0   0  0  c31  c32
+
+[ Cell ]
+  1   5  -1.24000   -11
+  2   6  -8.0        11 -12
+  3   0             12 -1
+ 99  -1              1
+
+[ T-Deposit ]
+    title = He-3 deposit spectrum, rho x100
+     mesh =  reg
+      reg =  1
+   output = deposit
+   e-type =    2
+       ne =   75
+     emin =    0
+     emax =  1.5
+     file = de.out
+     axis =  eng
+     unit =    3
+   epsout =    1
+   dresol = 0.05
+
+[ T-Track ]
+    title = neutron flux inside He-3, rho x100
+     mesh =  reg
+      reg =  1
+   e-type =    3
+       ne =   40
+     emin =  1.0e-9
+     emax =  1.0e-3
+     unit =    1
+     axis =  eng
+     file = neutron_he3.out
+     part = neutron
+   epsout =    1
+
+[ End ]

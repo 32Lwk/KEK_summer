@@ -1,0 +1,197 @@
+[ Title ]
+linacIRON: 3D iron shield with one open face under linac tunnel
+S6 proposal: soil 100 cm + concrete 200 cm + iron 150 cm overhead;
+iron box (150 cm walls, +y face open) inside tunnel at beam height.
+Compare to d2/D2 measurements at linacIRON (t_eq=728 cm, phi_d2=1.52e-3).
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =     1500
+ maxbch   =       10
+ e-mode   =        2
+ irqmd    =        1
+ negs     =        2
+ mdbatima =     3000
+ maxbnk   =   100000
+ iMeVperU =        1
+ emin(12) =      1.0
+ emin(13) =      1.0
+
+set: c1[1600.]
+set: c2[2200.]
+set: c3[1500.]
+
+[ Source ]
+  totfact = -pi*c1**2
+ infl:{source.inp}
+     proj = neutron
+ infl:{source.inp}
+     proj = muon+
+ infl:{source.inp}
+     proj = muon-
+ infl:{source.inp}
+     proj = photon
+
+[ Material ]
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+mat[2]
+     H  -0.023
+     C  -0.0023
+     O  -1.22
+    Na  -0.0368
+    Mg  -0.005
+    Al  -0.078
+    Si  -0.775
+     K  -0.0299
+    Ca  -0.1
+    Fe  -0.032
+mat[3]
+     H  -0.0448
+     O  -0.6336
+    Si  -0.1386
+    Al  -0.0870
+    Fe  -0.0600
+    Ca  -0.0096
+    Mg  -0.0078
+     K  -0.0054
+    Na  -0.0048
+    Ti  -0.0078
+mat[4]
+     H  -0.0224
+     O  -0.5488
+    Si  -0.1848
+    Al  -0.1160
+    Fe  -0.0800
+    Ca  -0.0128
+    Mg  -0.0104
+     K  -0.0072
+    Na  -0.0064
+    Ti  -0.0104
+mat[5]
+     H  -0.0224
+     O  -0.5488
+    Si  -0.1848
+    Al  -0.1160
+    Fe  -0.0800
+    Ca  -0.0128
+    Mg  -0.0104
+     K  -0.0072
+    Na  -0.0064
+    Ti  -0.0104
+mat[6]
+    Fe  -1.0
+
+[ Mat Name Color ]
+   mat     name       size  color
+     1     Air         1.0  yellowgreen
+     2     Concrete    1.0  lightgray
+     3     Loam        1.0  orangeyellow
+     4     Clay        1.0  mossgreen
+     5     Shimousa    1.0  mossgreen
+     6     Iron        7.2  gray
+
+[ Surface ]
+  10   so   c3
+  12   so   c2
+  20   pz   0.0
+  21   pz   -300.0
+  22   pz   -500.0
+$ linac building (from linac_cosmic/02_linac)
+  30   rpp  -452.5 452.5  -920.0  920.0     0.0   579.0
+  31   rpp  -432.5 432.5  -900.0  900.0     0.0   549.0
+  40   rpp  -512.5 512.5 -1000.0 1000.0  -250.0     0.0
+  41   rpp  -400.0 400.0 -1000.0 1000.0  -644.0  -250.0
+  42   rpp  -250.0 250.0  -900.0  900.0  -564.0  -250.0
+$ linacIRON overhead: soil 100 + conc 200 + iron 150 cm above tunnel
+  60   pz  -100.0
+  61   pz  -300.0
+  62   pz  -450.0
+$ iron box inside tunnel (150 cm walls; +y open between y=200..900)
+  70   rpp  -150.0 150.0  -200.0 200.0  -714.0  -564.0
+  71   rpp  -150.0 150.0   200.0 900.0  -714.0  -564.0
+  72   rpp  -150.0 150.0  -900.0 -200.0  -714.0  -564.0
+  73   rpp  -150.0 150.0  -200.0 200.0  -900.0  -714.0
+  74   rpp   150.0 300.0  -900.0 900.0  -714.0  -564.0
+$ detectors
+  50   rpp  -200.0 200.0  -600.0  600.0    50.0   250.0
+  51   rpp  -200.0 200.0  -600.0  600.0  -530.0  -330.0
+  75   rpp   -50.0  50.0  -100.0 100.0  -664.0  -614.0
+
+[ Cell ]
+  100    2 -2.35      -30  31
+  110    1 -1.205e-3  -31  50
+  111    1 -1.205e-3  -50
+  200    2 -2.35      -40
+  210    2 -2.35      -41  42
+  220    1 -1.205e-3  -42  51  70  71  72  73  74
+  221    1 -1.205e-3  -51
+$ overhead layers above tunnel (inside soil column, x/y large)
+  401    3 -1.35      -10  -20   60  70  71  72  73  74
+  402    2 -2.35      -10  -20  -61   60  70  71  72  73  74
+  403    6 -7.2       -10  -20  -62   61  70  71  72  73  74
+  410    4 -1.65      -10  -21  -22   61  70  71  72  73  74
+  420    5 -1.85      -10  -22        62  70  71  72  73  74
+$ iron box walls (5 faces; +y open)
+  230    6 -7.2       -70
+  231    6 -7.2       -71
+  232    6 -7.2       -72
+  233    6 -7.2       -73
+  234    6 -7.2       -74
+  235    1 -1.205e-3  -42  -70 -71 -72 -73 -74  75
+  236    1 -1.205e-3  -75
+  310    1 -1.205e-3  -10   20  30
+  400    3 -1.35      -10  -20  21  40  41  60  61  62
+  410    4 -1.65      -10  -21  22  41
+  420    5 -1.85      -10  -22      41
+  900    0             10 -12
+  999   -1             12
+
+[ Volume ]
+   reg          vol
+   111    9.600e+07
+   221    9.600e+07
+   235    1.000e+07
+   236    1.000e+06
+
+[ T-Track ]
+    title = Flux spectra, linacIRON [1/cm2/s]
+     mesh =  reg
+      reg =  111 221 235 236
+   e-type =    3
+       ne =   75
+     emin =  1.0e-9
+     emax =  1.0e+6
+     unit =    1
+     axis =  eng
+     file = spectrum_reg.out
+     part =  neutron photon ( muon+ muon- )
+   epsout =    1
+
+[ T-Track ]
+    title = Neutron flux vs depth, linac + iron overhead
+     mesh =  xyz
+   x-type =    2
+       nx =    1
+     xmin = -250.0
+     xmax =  250.0
+   y-type =    2
+       ny =    1
+     ymin = -300.0
+     ymax =  300.0
+   z-type =    2
+       nz =   64
+     zmin = -1000.0
+     zmax =   600.0
+   e-type =    1
+       ne =    3
+            1.0e-9  1.0e-6  1.0e-1  1.0e+6
+     unit =    1
+     axis =    z
+     file = depth_profile.out
+     part =  neutron
+   epsout =    1
+
+[ End ]

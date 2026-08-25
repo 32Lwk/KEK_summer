@@ -1,0 +1,19 @@
+\contentsline {section}{\numberline {1}はじめに}{2}{section.1}%
+\contentsline {section}{\numberline {2}基本式}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}フラックスの定義}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}統計誤差}{2}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}側帯本底}{2}{subsection.2.3}%
+\contentsline {section}{\numberline {3}較正手順}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}d1：黒鉛パイル絶対較正}{3}{subsection.3.1}%
+\contentsline {paragraph}{具体例（30\,cm）}{3}{section*.2}%
+\contentsline {subsection}{\numberline {3.2}D1：管理棟2階転送較正}{3}{subsection.3.2}%
+\contentsline {paragraph}{具体例（管理棟1階）}{3}{section*.3}%
+\contentsline {subsection}{\numberline {3.3}d2 / D2：地上転送較正}{3}{subsection.3.3}%
+\contentsline {section}{\numberline {4}2026年度 測定結果}{4}{section.4}%
+\contentsline {section}{\numberline {5}昨年度（演習9班）との比較}{4}{section.5}%
+\contentsline {subsection}{\numberline {5.1}整合性の評価}{6}{subsection.5.1}%
+\contentsline {paragraph}{一致が良い点}{6}{section*.4}%
+\contentsline {paragraph}{差が残る点と解釈}{6}{section*.5}%
+\contentsline {paragraph}{空気中の減衰定数}{6}{section*.6}%
+\contentsline {section}{\numberline {6}計算パイプライン}{6}{section.6}%
+\contentsline {section}{\numberline {7}まとめ}{7}{section.7}%

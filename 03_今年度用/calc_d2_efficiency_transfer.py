@@ -12,9 +12,15 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
+import sys
+
 from mca_common import analyze_roi, infer_serial, parse_mca
 
 ROOT = Path(__file__).resolve().parent
+SIM_ROOT = ROOT.parent / "04_PHITS_sim" / "equiv_concrete_sites"
+sys.path.insert(0, str(SIM_ROOT))
+from detector_specs import he3_geometric_areas  # noqa: E402
+
 RAW = ROOT / "測定_20260818" / "raw"
 TABLES = ROOT / "測定_20260818" / "tables"
 
@@ -52,6 +58,8 @@ def main() -> None:
     d1_ground = _roi_cps(RAW / "D1_20260819_1530_地上.mca")
     d2_ground = _roi_cps(RAW / "D2_20260822_155048_地上.mca")
 
+    geom_D2 = he3_geometric_areas("D2")
+
     ratio = d2_ground["roi_net_cps"] / d1_ground["roi_net_cps"]
     eps_roi = eps_d1 * ratio
     eps_tot = eps_roi / F_ROI
@@ -84,8 +92,8 @@ def main() -> None:
             row["epsilon_S_std_cm2"] = ""
             row["epsilon_S_ROI_cm2"] = f"{eps_roi:.4g}"
             row["f_roi_over_total"] = f"{F_ROI:.4g}"
-            row["S_end_cm2"] = "72.4"
-            row["S_side_cm2"] = "1689"
+            row["S_end_cm2"] = f"{geom_D2['S_he3_end_cm2']:.3g}"
+            row["S_side_cm2"] = f"{geom_D2['S_he3_lateral_cm2']:.3g}"
             row["備考"] = (
                 f"転送較正: 地上 D2/D1 ROI比={ratio:.4f}×D1εS_ROI; "
                 f"400cm PE確認は熱φ公式不可・不使用"

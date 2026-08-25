@@ -1,0 +1,478 @@
+% !TEX program = lualatex
+\documentclass[a4paper,11pt]{ltjsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[margin=22mm]{geometry}
+\usepackage{longtable}
+
+\sisetup{
+  scientific-notation = true,
+  round-mode = places,
+  round-precision = 3,
+  exponent-product = \cdot,
+}
+
+\title{図19における完全理論曲線\\--- 文献根拠・導出・リサーチ記録}
+\date{2026年8月24日}
+
+\begin{document}
+\maketitle
+
+
+\tableofcontents
+\newpage
+
+%======================================================================
+\section{問題設定と旧理論の限界}
+%======================================================================
+
+\subsection{観測量}
+
+実測の絶対フラックスは壁効果窓（191--764\,keV）のネット計数率 $R_{\mathrm{wall}}$ から
+\begin{equation}
+  \phi_{\mathrm{wall}}
+  = \frac{R_{\mathrm{wall}}}{\varepsilon S_{\mathrm{wall}}}
+\end{equation}
+と定義する\cite{yoneuchi2002}。
+較正鎖は d1 黒鉛パイル（Am-Be）$\to$ D1 管理棟転送 $\to$ d2 地上転送である\cite{CONTEXT}。
+
+\subsection{旧理論}
+
+教材・昨年度スライドに基づく比較曲線は
+\begin{equation}
+  \phi_{\mathrm{old}}(t_{\mathrm{eq}})
+  = A_0\,e^{-t_{\mathrm{eq}}/\lambda_c},
+  \qquad
+  A_0 = 3.07\times10^{-3}\,\mathrm{n/cm^2/s},
+  \quad
+  \lambda_c \in \{39.2,\,60.0\}\,\mathrm{cm}
+\end{equation}
+である。$\lambda_c=39.2$\,cm はコンクリート組成混合則
+$\Lambda_i=37 A^{0.3}\,\mathrm{g/cm^2}$ から得た
+$\Lambda_c\approx90.2\,\mathrm{g/cm^2}$（$\rho_c=2.30$）に対応し，
+\textbf{MeV 中性子の局所生成・局所減衰}の尺度である\cite{equiv,S0}。
+一次宇宙線ハドロンの透過長（$\Lambda_h\sim120\,\mathrm{g/cm^2}$）や
+ミューオン起源二次中性子とは物理対象が異なる。
+
+\subsection{実測との乖離（d2 wall，Phase~0）}
+
+\begin{table}[htbp]
+  \centering
+  \caption{d2 wall 絶対 $\phi$ と旧理論（$\lambda_c=39.2$\,cm）の比\cite{phase0}}
+  \label{tab:phase0}
+  \begin{tabular}{lrrrr}
+    \toprule
+    地点 & $t_{\mathrm{eq}}$ [cm] & $X_v$ [g/cm$^2$] & $\phi$ [n/cm$^2$/s] & 旧理論比 \\
+    \midrule
+    地上 & 0 & 0 & $3.07\times10^{-3}$ & 1 \\
+    PF & 105 & 241.5 & $4.03\times10^{-3}$ & 19 \\
+    BT & 189 & 435 & $4.07\times10^{-4}$ & 17 \\
+    Linac3 & 300 & 690 & $4.30\times10^{-4}$ & $3\times10^{2}$ \\
+    KEKB & 525 & 1209 & $2.48\times10^{-4}$ & $5\times10^{4}$ \\
+    linacIRON & 728 & 1675 & $1.52\times10^{-3}$ & $6\times10^{7}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+特徴は次の三点である\cite{S1}。
+\begin{enumerate}
+  \item PF で d2 wall が地上超え（peak ROI は地上比 0.54 と減少）。
+  \item $t_{\mathrm{eq}}\approx190$--$525$\,cm で $\phi\approx(2.5$--$4.6)\times10^{-4}$ に平坦化。
+  \item linacIRON で再上昇（開口幾何＋鉄透過）。
+\end{enumerate}
+地上絶対値は EXPACS/PARMA・PHITS・昨年度と $\pm20\%$ で整合するため，
+問題は\textbf{深度関数}にある\cite{S0,Sato2015}。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\linewidth]{../figures/19_全地点_フラックス_絶対_検出器比較_神岡_連続_誤差棒_片対数.png}
+  \caption{図19。紫線が完全理論（多成分）。マゼンタ混合形・黒の $\mu$ 起源曲線は比較用。
+  金星は神岡地下（覆土 $\approx1000$\,m）の文献参考点 $\phi\approx7.8\times10^{-6}\,\mathrm{n/cm^2/s}$\cite{kamioka}。}
+  \label{fig:fig19}
+\end{figure}
+
+%======================================================================
+\section{リサーチ体制と記録}
+%======================================================================
+
+theory\_research では要因を並列調査し統合した（2026-08-24）。
+
+\begin{table}[htbp]
+  \centering
+  \caption{サブレポートと主成果}
+  \begin{tabular}{llp{7.2cm}}
+    \toprule
+    ID & 担当 & 主成果 \\
+    \midrule
+    S0 & 昨年度整合 & 演習9班\_v4・地上 $\pm20\%$・教材 $\lambda$ の適用範囲 \\
+    S1 & 宇宙線・$\mu$ & 多成分輸送骨格，A1--A5 寄与\% \\
+    S2 & 横軸・幾何 & $x_{\mathrm{eff}}=1.5 X_v$，linacIRON $X_\mu$，$G_{\mathrm{fast}}$ \\
+    S3 & He-3 応答 & wall/peak/total，RESP 係数 \\
+    S4 & 較正鎖 & 米内パイル，$\varepsilon S$ 系統 \\
+    S5 & 解析系統 & PF 8/20 vs 8/22，側帯背景 \\
+    S6 & PHITS & PARMA 源，地点別説明率 \\
+    S7 & 統合 fit & \texttt{build\_complete\_theory.py}，図19 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+生ログは \texttt{reports/S*.md}，
+\texttt{factor\_inventory.md}，
+\texttt{tables/} 配下 CSV に残す\cite{CONTEXT}。
+
+%======================================================================
+\section{文献データと物理根拠}
+%======================================================================
+
+\subsection{一次ハドロン減衰（A1）}
+
+地表からの高エネルギー核子・シャワー核の透過は
+\begin{equation}
+  \Phi_n^{(\mathrm{had})}(x)
+  \approx F_0\,e^{-x/\Lambda_h},
+  \qquad
+  \Lambda_h \approx 100\text{--}130\,\mathrm{g/cm^2}
+\end{equation}
+で近似される\cite{Gaisser2016,Gudima1983}。
+Cascade-Exciton Model（CEM）/SHIELD は核内カスケードと蒸発を記述し\cite{Gudima1983,Toneev1983}，
+地下実験のハドロン輸送の標準的枠組みである。
+
+KEK つくば地表の絶対規格は PARMA/EXPACS\cite{Sato2015,Sato2016}
+（緯度 $36.15^\circ$N，経度 $140.08^\circ$E，標高 $\approx30$\,m，
+PHITS \texttt{e-type=25}, \texttt{icenv=5}）で拘束する。
+地上全中性子は実測 $A_0\approx3.1\times10^{-3}$，
+PHITS 開空 $\approx3.7\times10^{-3}$，昨年度 EXPACS 系 $\approx3.4\times10^{-3}$
+と同オーダーである\cite{S0,S6}。
+
+旧理論の $\Lambda_c=90.2\,\mathrm{g/cm^2}$ を $\Lambda_h\approx134\,\mathrm{g/cm^2}$ に置き換えるだけで，
+指数項は地点ごとに $5$--$10^{2}$ 倍緩和するが，
+Linac3 以深の $10^{2}$--$10^{7}$ 倍残差は説明しきれない\cite{S1}。
+
+\subsection{ミューオン起源中性子（A2）}
+
+地表ミューオン強度の深度依存は Gaisser 型\cite{Gaisser2016}
+\begin{equation}
+  I_\mu(E_\mu,\theta,x)
+  \approx I_\mu^0(E_\mu)\,
+  \exp\!\Bigl(-\frac{x}{\Lambda_\mu(E_\mu)\cos\theta}\Bigr)
+\end{equation}
+で表される。物質中のミューオン誘起中性子収量は
+Malgin--Ryazhskaya の普遍式\cite{Malgin2013,Malgin2016}
+\begin{equation}
+  Y_n(E_\mu,A)
+  = b_n\, A^\beta\, E_\mu^\alpha,
+  \qquad
+  \alpha\approx0.78,\ 
+  \beta\approx0.95,\ 
+  b_n\approx4.4\times10^{-7}\,\mathrm{cm^2/g}
+\end{equation}
+に従う。生成率 $R_n=I_\mu Y_n$ を局所減衰長 $\ell_n$ で割ると，
+二次中性子フラックスは
+\begin{equation}
+  \Phi_n^{(\mu)}(x)
+  \approx \frac{R_n(x)}{\rho\,\ell_n}
+  \approx C_\mu\, I_\mu(x)
+  \label{eq:phi-mu}
+\end{equation}
+と書ける\cite{Wang2001,Heusser2006}。
+深部では一次ハドロン項が消え，$\Phi_n$ は $I_\mu(x)$ に追随して\textbf{平坦化}する。
+
+PHITS \texttt{linac\_cosmic}（PARMA，5000 ヒストリー）では，
+コンクリート $2.5$\,m 下でも $\mu^\pm$ は開空の約 $72\%$ 残存し，
+中性子は $1/43$ まで落ちつつ $\mu$ 起源の床が形成される\cite{S6}。
+
+図19の黒線「$\mu$ 起源総生成」は Malgin 型の経験形
+\begin{equation}
+  y_{\mathrm{total}}(x_{\mathrm{mwe}})
+  = 2.0\,(1+x_{\mathrm{mwe}}/11.5)^{-2.2}
+\end{equation}
+（$x_{\mathrm{mwe}}=d\cdot\rho$，$d$ はコンクリート換算深さ [m]）を
+地上で規格化した比較曲線であり\cite{Malgin2013}，完全理論の紫線とは別である。
+
+\subsection{天頂角加重（B2 / S2）}
+
+水平スラブ厚 $X_v$ を斜めに貫く粒子の質量厚は $X(\theta)=X_v/\cos\theta$。
+地表宇宙線の角分布を $I(\theta)\propto\cos^n\theta$（$n=2$，地表 $\mu$ の典型\cite{Gaisser2016}）とすると
+\begin{equation}
+  x_{\mathrm{eff}}
+  = \frac{\displaystyle\int_0^{\pi/2} (X_v/\cos\theta)\,\cos^n\theta\,\sin\theta\,d\theta}
+         {\displaystyle\int_0^{\pi/2} \cos^n\theta\,\sin\theta\,d\theta}
+  = X_v\,\frac{n+1}{n}
+  = 1.5\,X_v
+  \label{eq:xeff-der}
+\end{equation}
+となる\cite{S2}。これが完全理論の深さ変数である。
+$X_v=\rho_c t_{\mathrm{eq}}$（$\rho_c=2.30$）より $x_{\mathrm{eff}}=3.45\,t_{\mathrm{eq}}$。
+
+\subsection{環境放射能床（A6）}
+
+コンクリート中の U/Th による $(\alpha,n)$・自発核分裂は，
+深さに依らない熱中性子床 $\phi_{\mathrm{rad}}\sim10^{-6}\,\mathrm{n/cm^2/s}$ を与える\cite{Malins2017,Wulandari2004}。
+Gran Sasso 再訪解析では壁コンクリートが fast neutron の主源と報告されている\cite{Wulandari2004}。
+
+\subsection{He-3 壁効果窓（C1 / S3）}
+
+反応 $^3\mathrm{He}(n,p)^3\mathrm{H}$（$Q=764$\,keV）では，
+壁効果により 191--764\,keV に連続スペクトルが広がる\cite{Knoll}。
+したがって $\phi_{\mathrm{wall}}$ は全エネルギー積分 $\phi_{\mathrm{total}}$ ではなく，
+熱・エピ・高速の\textbf{加重和}である。
+米内ほか\cite{yoneuchi2002}のパイル較正（$Q=2.26\times10^{6}\,\mathrm{n/s}$，
+$\phi/Q=9.44\times10^{-6}$ @30\,cm）が $\varepsilon S$ の絶対基準である。
+
+%======================================================================
+\section{完全理論の導出}
+%======================================================================
+
+\subsection{高速成分の分解}
+
+一次透過（A1）とミューオン二次（A2）を線形結合し，地点幾何 $G_{\mathrm{fast}}$ をかける\cite{S1,S2}。
+\begin{equation}
+  \phi_{\mathrm{fast}}(x)
+  = \bigl[ F_0\,e^{-x/\Lambda_h} + C_\mu\,I_\mu(x) \bigr]
+    \,G_{\mathrm{fast}}(\mathrm{site})
+  \label{eq:fast}
+\end{equation}
+ミューオン強度は浅部の停止寄与と深部の貫通寄与の二指数で近似する（Gaisser の深度関数の実用形\cite{Gaisser2016,S1}）。
+\begin{equation}
+  I_\mu(x)
+  = (1-f_{\mathrm{stop}})\,e^{-x/\Lambda_{\mu 2}}
+    + f_{\mathrm{stop}}\,e^{-x/\Lambda_{\mu 1}},
+  \qquad I_\mu(0)=1
+  \label{eq:imu}
+\end{equation}
+$\Lambda_{\mu 1}\sim400\,\mathrm{g/cm^2}$ が浅部急減，$\Lambda_{\mu 2}\sim10^{3}$--$10^{4}\,\mathrm{g/cm^2}$ が深部緩減衰に対応する。
+図19の連続曲線では $G_{\mathrm{fast}}=1$。
+
+\eqref{eq:phi-mu} から $C_\mu$ は「地上規格の $\mu$ 起源 fast 源強度」であり，
+フィットで $1.6\times10^{-4}\,\mathrm{n/cm^2/s}$ 程度となる（文献 prior $6\times10^{-5}$ の近傍\cite{S1}）。
+
+\subsection{熱・エピへの変換（局所平衡）}
+
+検出器近傍では減速・熱化が局所平衡に達すると仮定し，
+施設 class（open / indoor / hall\_slab / tunnel / iron\_tunnel）ごとに
+\begin{equation}
+  \phi_{\mathrm{th}}
+  = k_{\mathrm{th}}\,\phi_{\mathrm{fast}} + \phi_{\mathrm{rad}},
+  \qquad
+  \phi_{\mathrm{epi}}
+  = k_{\mathrm{epi}}\,\phi_{\mathrm{fast}}
+  \label{eq:th-epi}
+\end{equation}
+と置く\cite{S1,S3}。係数は PHITS \texttt{linac\_cosmic} の帯域比と実測 wall/peak から固定した。
+
+\begin{table}[htbp]
+  \centering
+  \caption{CLASS\_DB（$k_{\mathrm{th}}$, $k_{\mathrm{epi}}$）\cite{S3}}
+  \begin{tabular}{lll}
+    \toprule
+    class & $k_{\mathrm{th}}$ & $k_{\mathrm{epi}}$ \\
+    \midrule
+    open & 0.070 & 0.150 \\
+    indoor & 0.575 & 0.516 \\
+    hall\_slab（PF） & 0.60 & 0.55 \\
+    tunnel（図19曲線） & 0.85 & 0.90 \\
+    iron\_tunnel & 0.60 & 1.50 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{壁効果窓への写像}
+
+観測量は\cite{S3}
+\begin{equation}
+  \phi_{\mathrm{wall}}
+  = \phi_{\mathrm{th}}
+    + r_{\mathrm{epi}}\,\phi_{\mathrm{epi}}
+    + r_{\mathrm{fast,net}}\,\phi_{\mathrm{fast}}
+  \label{eq:wall}
+\end{equation}
+である。$r_{\mathrm{epi}}$ はエピサーマルの壁窓効率，
+$r_{\mathrm{fast,net}}$ は高速反跳連続と側帯背景減算の正味寄与である。
+大径裸管（D1/D2）では右側帯が連続を過剰減算するため $r_{\mathrm{fast,net}}<0$，
+小径＋PE（d2）では PE 減速後に連続が窓へ入るため $r_{\mathrm{fast,net}}>0$\cite{Knoll,S3}。
+
+\begin{table}[htbp]
+  \centering
+  \caption{RESP（検出器応答係数）\cite{S3}}
+  \begin{tabular}{lrrr}
+    \toprule
+    検出器 & $r_{\mathrm{epi}}$ & $r_{\mathrm{fast,net}}$ & $r_{\mathrm{fast,pk}}$ \\
+    \midrule
+    D1 & 0.55 & $-0.06$ & 0.00 \\
+    D2 & 0.80 & $-0.10$ & 0.05 \\
+    d1 & 0.55 & $+0.02$ & 0.00 \\
+    d2 & 0.80 & $+0.06$ & 0.05 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+図19の紫線は \textbf{D1・wall・tunnel class} で描く。
+\eqref{eq:th-epi} を \eqref{eq:wall} に代入すると
+\begin{align}
+  \phi_{\mathrm{wall}}
+  &= (k_{\mathrm{th}} + r_{\mathrm{epi}} k_{\mathrm{epi}} + r_{\mathrm{fast,net}})
+     \phi_{\mathrm{fast}}
+     + \phi_{\mathrm{rad}} \nonumber\\
+  &= (0.85 + 0.55\times0.90 - 0.06)\,\phi_{\mathrm{fast}} + \phi_{\mathrm{rad}}
+   = 1.285\,\phi_{\mathrm{fast}} + \phi_{\mathrm{rad}}
+  \label{eq:wall-closed}
+\end{align}
+
+\subsection{地上アンカー}
+
+輸送パラメータの絶対スケールには較正系統が残るため，
+プロットでは $t_{\mathrm{eq}}=0$ で D1 地上実測に一致させる\cite{plotfig}。
+\begin{equation}
+  y(t_{\mathrm{eq}})
+  = \phi_{\mathrm{wall}}\bigl(x(t_{\mathrm{eq}})\bigr)
+    \cdot
+    \frac{\phi_{\mathrm{D1,地上}}}{\phi_{\mathrm{wall}}(0)}
+  \label{eq:anchor}
+\end{equation}
+
+\subsection{図19の閉じた表式}
+
+\eqref{eq:xeff-der}--\eqref{eq:anchor} をまとめ，$G_{\mathrm{fast}}=1$ とすると
+\begin{equation}
+\begin{aligned}
+  \phi_{\mathrm{wall}}(t_{\mathrm{eq}})
+  &= 1.285\Biggl[
+    F_0\,e^{-x/\Lambda_h}
+    + C_\mu\Bigl\{
+      (1-f_{\mathrm{stop}})\,e^{-x/\Lambda_{\mu 2}}
+      + f_{\mathrm{stop}}\,e^{-x/\Lambda_{\mu 1}}
+    \Bigr\}
+  \Biggr]
+  + \phi_{\mathrm{rad}},
+  \\[0.35em]
+  x &= 3.45\,t_{\mathrm{eq}}
+\end{aligned}
+\label{eq:complete-fig19}
+\end{equation}
+浅部は $F_0 e^{-x/\Lambda_h}$，中深部は $C_\mu I_\mu$，最深部は $\phi_{\mathrm{rad}}$ が支配する。
+
+\subsection{フィットパラメータ（現行）}
+
+\texttt{tables/theory\_parameters.csv}（S7，物理 prior 付き log フィット）より:
+
+\begin{table}[htbp]
+  \centering
+  \caption{完全理論パラメータと prior 出典}
+  \label{tab:params}
+  \begin{tabular}{llll}
+    \toprule
+    記号 & フィット値 & 単位 & prior / 出典 \\
+    \midrule
+    $F_0$ & $2.792\times10^{-3}$ & n/cm$^2$/s & PHITS/EXPACS $\sim3\times10^{-3}$ \\
+    $\Lambda_h$ & $134$ & g/cm$^2$ & Gaisser $\sim120$ \\
+    $C_\mu$ & $1.568\times10^{-4}$ & n/cm$^2$/s & Malgin 系 $6\times10^{-5}$ \\
+    $\Lambda_{\mu 1}$ & $386.5$ & g/cm$^2$ & Gaisser 浅部 \\
+    $f_{\mathrm{stop}}$ & $0.172$ & --- & prior $0.35$ \\
+    $\Lambda_{\mu 2}$ & $6231$ & g/cm$^2$ & Gaisser 深部 \\
+    $\phi_{\mathrm{rad}}$ & $4.84\times10^{-6}$ & n/cm$^2$/s & Malins $\sim10^{-6}$ \\
+    \midrule
+    $\log_{10}$ RMS（旧） & $3.02$ & dex & --- \\
+    $\log_{10}$ RMS（完全） & $0.31$ & dex & wall+peak \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+%======================================================================
+\section{要因寄与の定量（リサーチ記録）}
+%======================================================================
+
+旧理論残差を要因別に分解した概算（d2 wall，S1）を表\ref{tab:contrib}に示す。
+数値は独立仮定のオーダー見積もりであり，厳密な直交分解ではない\cite{S1}。
+
+\begin{table}[htbp]
+  \centering
+  \caption{旧理論乖離に対する主因の寄与（概算）}
+  \label{tab:contrib}
+  \begin{tabular}{lrrr}
+    \toprule
+    地点 & A1（$\Lambda_h$ 修正） & A2（$\mu$ 床） & 残差の主因 \\
+    \midrule
+    PF & $\sim80\%$ & $\sim15$--$20\%$ & 窓・幾何（S3/S5） \\
+    BT & $\sim90\%$ & 平坦化開始 & --- \\
+    Linac3 & 一次項は小 & $\sim97\%$ & --- \\
+    KEKB & 無視可 & $\gtrsim99\%$ & $\phi_{\mathrm{rad}}$ 等 \\
+    linacIRON & 無視可 & $\gtrsim99.9\%$ & 開口 $G_{\mathrm{fast}}$・鉄 epi \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+その他の系統（inventory より）:
+\begin{itemize}
+  \item \textbf{A5 太陽変調}: 全深度共通 $\pm15$--$25\%$ スケール。深度依存乖離の主因ではない\cite{Sato2015}。
+  \item \textbf{E2 PF d2}: 小径 d2 の PF 測定（8/20・8/22）は解析不使用。PF は D1（rebin 補正）および D2 のみ。
+  \item \textbf{D1--D4 較正}: 熱場外挿・単一点転送で深部に $\pm15$--$70\%$ の系統が残りうる\cite{S4}。
+\end{itemize}
+
+%======================================================================
+\newpage
+\begin{thebibliography}{99}
+
+\bibitem{yoneuchi2002}
+米内ほか,
+「黒鉛パイルを用いた熱中性子検出器の校正」，
+保健物理 \textbf{37}(2) 118--127 (2002).
+
+\bibitem{Gaisser2016}
+T.K. Gaisser, R. Engel, E. Resconi,
+\textit{Cosmic Rays and Particle Physics}, 2nd ed.,
+Cambridge Univ.\ Press (2016).
+
+\bibitem{Gudima1983}
+K.K. Gudima, S.G. Mashnik, V.D. Toneev,
+Nucl.\ Phys.\ A \textbf{401}, 329 (1983).
+
+\bibitem{Toneev1983}
+V.D. Toneev, K.K. Gudima,
+Nucl.\ Phys.\ A \textbf{400}, 173c (1983).
+
+\bibitem{Sato2015}
+T. Sato, PLOS ONE \textbf{10}(12), e0144679 (2015).
+
+\bibitem{Sato2016}
+T. Sato, PLOS ONE \textbf{11}(8), e0160390 (2016).
+
+\bibitem{Malgin2013}
+A.S. Malgin, O.G. Ryazhskaya,
+Phys.\ Rev.\ D \textbf{87}, 113013 (2013).
+
+\bibitem{Malgin2016}
+A.S. Malgin, O.G. Ryazhskaya,
+Phys.\ Rev.\ C \textbf{96}, 014605 (2017).
+
+\bibitem{Wang2001}
+Y.F. Wang et al.,
+Phys.\ Rev.\ D \textbf{64}, 013012 (2001).
+
+\bibitem{Heusser2006}
+G. Heusser,
+Annu.\ Rev.\ Nucl.\ Part.\ Sci.\ \textbf{56}, 543 (2006).
+
+\bibitem{Malins2017}
+A. Malins et al.,
+EPJ Web Conf.\ \textbf{153}, 06001 (2017);
+JAEA PHITS $(\alpha,n)$ composite source (JENDL-5).
+
+\bibitem{Wulandari2004}
+H. Wulandari et al.,
+Astropart.\ Phys.\ \textbf{22}, 315 (2004).
+
+\bibitem{Knoll}
+G.F. Knoll,
+\textit{Radiation Detection and Measurement}, 4th ed., Wiley.
+
+\bibitem{kamioka}
+神岡地下実験室の中性子環境に関する PTEP 系報告に基づく参考値
+（図19プロット定数: 覆土 1000\,m，$\phi=7.8\times10^{-6}\,\mathrm{n/cm^2/s}$）.
+
+\end{thebibliography}
+
+\end{document}

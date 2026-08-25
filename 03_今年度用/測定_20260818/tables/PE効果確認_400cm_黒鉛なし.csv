@@ -1,3 +1,3 @@
 検出器,距離_cm,黒鉛,向き,live_s,dead_pct,ch0_frac,rate_total_cps,rate_roi_cps,備考
-D2,400.0,なし,vertical,150.861,2.33,0.4068,532.1786,246.1257,count=ch1+; orient=vertical; graphite=no; ch0=40.7%; 飽和/オーバーフロー — 絶対較正非推奨
+D2,400.0,なし,vertical,150.861,2.33,0.4068,532.1786,246.1257,count=ch1+; orient=vertical; graphite=no; ch0=40.7%; ch0過多 — 絶対較正はメーカー優先
 d2,400.0,なし,vertical,194.301,1.62,0.0000,117.3746,63.6797,count=all; orient=vertical; graphite=no

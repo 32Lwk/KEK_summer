@@ -1,0 +1,19 @@
+\contentsline {section}{\numberline {1}問題設定と旧理論の限界}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}観測量}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}旧理論}{2}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}実測との乖離（d2 wall，Phase~0）}{2}{subsection.1.3}%
+\contentsline {section}{\numberline {2}リサーチ体制と記録}{2}{section.2}%
+\contentsline {section}{\numberline {3}文献データと物理根拠}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}一次ハドロン減衰（A1）}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}ミューオン起源中性子（A2）}{4}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}天頂角加重（B2 / S2）}{4}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}環境放射能床（A6）}{4}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}He-3 壁効果窓（C1 / S3）}{5}{subsection.3.5}%
+\contentsline {section}{\numberline {4}完全理論の導出}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}高速成分の分解}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}熱・エピへの変換（局所平衡）}{5}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}壁効果窓への写像}{5}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}地上アンカー}{6}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}図19の閉じた表式}{6}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}フィットパラメータ（現行）}{6}{subsection.4.6}%
+\contentsline {section}{\numberline {5}要因寄与の定量（リサーチ記録）}{6}{section.5}%

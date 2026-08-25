@@ -31,9 +31,10 @@ from mca_common import (
     discover_raw_mca,
     discover_usb_mca,
     infer_serial,
+    is_pf_d2_mca,
     make_id,
     make_label,
-    parse_mca,
+    parse_mca_for_analysis,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -92,6 +93,32 @@ KNOWN_META = {
         "標高_m": 30,
         "メモ": "放射線棟 BT。検出器 d2（SN 2162）。CPS差は d 検出器の応答。ROIは共通窓。",
     },
+
+    "D1_20260823_1510_linac_testhole.mca": {
+        "屋内_屋外": "屋内",
+        "標高_m": 30,
+        "メモ": "linac テストホール。等価コンクリート 57 cm。検出器 D1（SN 1715）。",
+    },
+    "d1_20260823_1509_linac_testhole.mca": {
+        "屋内_屋外": "屋内",
+        "標高_m": 30,
+        "メモ": "linac テストホール。等価コンクリート 57 cm。検出器 d1（SN 2162）。",
+    },
+    "D1_20260823_1510_linac_testhole_error.mca": {
+        "屋内_屋外": "屋内",
+        "標高_m": 30,
+        "メモ": "linac テストホール（error・参考）。減衰曲線には載せない。検出器 D1。",
+    },
+    "d1_20260823_1509_linac_testhole_error.mca": {
+        "屋内_屋外": "屋内",
+        "標高_m": 30,
+        "メモ": "linac テストホール（error・短時間失敗）。減衰曲線には載せない。検出器 d1。LIVE≈27 s。",
+    },
+    "D1_20260820_0807_PF.mca": {
+        "屋内_屋外": "屋内",
+        "標高_m": 30,
+        "メモ": "PF 終夜。検出器 D1（SN 1715）。8/20 アンプD/d取り違え→D2@PF参照でrebin補正後に解析。",
+    },
 }
 
 
@@ -121,6 +148,8 @@ def unique_id(stem: str, used: set[str]) -> str:
 
 def summarize(run: dict, meta: dict) -> dict:
     counts = meta["counts"]
+    gain_info = meta.get("gain_correction") or {}
+    gain_note = str(gain_info.get("note") or "")
     live = float(meta["LIVE_TIME"])
     start = meta["START_TIME"]
     date = "2026-08-18"
@@ -134,6 +163,11 @@ def summarize(run: dict, meta: dict) -> dict:
     total = sum(counts)
     roi = analyze_roi(counts, serial=infer_serial(run["filename"], meta.get("serial", "")))
     wall = analyze_wall_window(counts, serial=infer_serial(run["filename"], meta.get("serial", "")))
+    roi_warning = roi.warning
+    wall_warning = wall.warning
+    if gain_note:
+        roi_warning = f"{gain_note}; {roi_warning}" if roi_warning else gain_note
+        wall_warning = f"{gain_note}; {wall_warning}" if wall_warning else gain_note
     roi_lo, roi_hi, roi_peak = roi.roi_lo, roi.roi_hi, roi.roi_peak
     roi_sum, roi_bg, roi_net_n, roi_net_err = roi.gross, roi.bg, roi.net, roi.err
     ch0 = counts[0]
@@ -176,7 +210,7 @@ def summarize(run: dict, meta: dict) -> dict:
         "roi_net_cps": roi_net_n / live,
         "roi_net_cps_err": roi_net_err / live,
         "roi_net_valid": int(roi.net_valid),
-        "roi_warning": roi.warning,
+        "roi_warning": roi_warning,
         "bg_mode": roi.bg_mode,
         "sb_lo": f"{roi.sb_lo_lo}–{roi.sb_lo_hi}",
         "sb_hi": f"{roi.sb_hi_lo}–{roi.sb_hi_hi}",
@@ -201,7 +235,7 @@ def summarize(run: dict, meta: dict) -> dict:
         "wall_net_valid": int(wall.net_valid),
         "wall_gross_cps": wall.gross / live,
         "wall_gross_cps_err": (wall.gross ** 0.5) / live if wall.gross > 0 else 0.0,
-        "wall_warning": wall.warning,
+        "wall_warning": wall_warning,
         "wall_bg_mode": wall.bg_mode,
         "wall_sb_lo": f"{wall.sb_lo_lo}–{wall.sb_lo_hi}" if wall.sb_lo_hi else "",
         "wall_sb_hi": f"{wall.sb_hi_lo}–{wall.sb_hi_hi}" if wall.sb_hi_hi else "",
@@ -261,7 +295,9 @@ def load_runs(files: list[Path]) -> list[dict]:
     used: set[str] = set()
     rows = []
     for path in files:
-        meta = parse_mca(path)
+        if is_pf_d2_mca(path.name):
+            continue
+        meta = parse_mca_for_analysis(path)
         stem = path.stem
         run = {
             "id": unique_id(stem, used),
@@ -279,6 +315,22 @@ def write_csv(path: Path, fieldnames: list[str], rows: list[dict]) -> None:
         w = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         w.writeheader()
         w.writerows(rows)
+
+
+def write_raw_channel_csvs(rows: list[dict]) -> None:
+    """raw/*.mca と同名の channel,counts CSV を書く（公開サイト用）。"""
+    RAW.mkdir(parents=True, exist_ok=True)
+    for r in rows:
+        fn = r.get("filename") or ""
+        counts = r.get("counts")
+        if not fn.endswith(".mca") or counts is None:
+            continue
+        out = RAW / fn.replace(".mca", ".csv")
+        with out.open("w", encoding="utf-8", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["channel", "counts"])
+            for ch, n in enumerate(counts):
+                w.writerow([ch, int(n)])
 
 
 def write_tables(rows: list[dict]) -> None:
@@ -688,7 +740,8 @@ def list_sources(use_usb: bool) -> None:
     raw = discover_raw_mca(RAW)
     if raw:
         for p in raw:
-            print(f"  {p.name}")
+            tag = "  [解析除外: PF d2]" if is_pf_d2_mca(p.name) else ""
+            print(f"  {p.name}{tag}")
     else:
         print("  （なし）")
     print("USB     :")
@@ -726,6 +779,7 @@ def main(argv: list[str] | None = None) -> None:
         return
     files = ingest(args.files, use_usb=not args.no_usb)
     rows = load_runs(files)
+    write_raw_channel_csvs(rows)
     write_tables(rows)
     xlsx = build_xlsx(rows)
     rec = TABLES / "測定記録.csv"

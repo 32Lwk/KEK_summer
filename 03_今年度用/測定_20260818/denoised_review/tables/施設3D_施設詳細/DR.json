@@ -1,0 +1,47 @@
+{
+  "id": "DR",
+  "name": "Positron Damping Ring (DR)",
+  "source_pdf": "05_施設図/DR.pdf",
+  "map_anchor": {
+    "x_pct": 35.0,
+    "y_pct": 48.0,
+    "棟No": "H12-H15"
+  },
+  "evaluation_points": [
+    {
+      "id": "E1",
+      "label": "DR E1"
+    },
+    {
+      "id": "E4",
+      "label": "SR E4"
+    }
+  ],
+  "cross_sections": [
+    {
+      "id": "DR_tunnel",
+      "name": "DR→SR 断面",
+      "source_pdf": "DR.pdf 表3.4",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 4.0,
+      "inner_height_m": 3.5,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 85,
+          "source": "DR.pdf 表3.4"
+        },
+        {
+          "material": "鉄",
+          "thickness_cm": 10,
+          "source": "DR.pdf 表3.4"
+        },
+        {
+          "material": "土",
+          "thickness_cm": 500,
+          "source": "DR.pdf 表3.4"
+        }
+      ]
+    }
+  ]
+}

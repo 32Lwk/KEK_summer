@@ -1,0 +1,79 @@
+layer_id,facility,part,source_point,eval_point,material,thickness,unit,source_ref,notes,color
+SH001,BT,LER_ring,S1,E1,コンクリート,50,cm,BT.pdf 表2.1 p.34,LER側 S1→E1,#95a5a6
+SH002,BT,LER_ring,S1,E1,土,640,cm,BT.pdf 表2.1 p.34,LER側 S1→E1,#8B6914
+SH003,BT,LER_ring,S2,E2,コンクリート,50,cm,BT.pdf 表2.1 p.34,,#95a5a6
+SH004,BT,LER_ring,S2,E2,土,480,cm,BT.pdf 表2.1 p.34,,#8B6914
+SH005,BT,LER_ring,S3,E3,コンクリート,40,cm,BT.pdf 表2.1 p.34,,#95a5a6
+SH006,BT,LER_ring,S3,E3,土,213,cm,BT.pdf 表2.1 p.34,,#8B6914
+SH007,BT,HER_ring,S1,E1,コンクリート,50,cm,BT.pdf 表2.1 p.34,HER側,#95a5a6
+SH008,BT,HER_ring,S1,E1,土,640,cm,BT.pdf 表2.1 p.34,,#8B6914
+SH009,BT,HER_ring,S3,E3,コンクリート,40,cm,BT.pdf 表2.1 p.34,,#95a5a6
+SH010,BT,HER_ring,S7,E7,コンクリート,43,cm,BT.pdf 表2.1 p.34,,#95a5a6
+SH011,BT,HER_ring,S8,E8,コンクリート,100,cm,BT.pdf 表2.1 p.34,距離22.5m+土15m,#95a5a6
+SH012,BT,HER_ring,S10,E10,コンクリート,50,cm,BT.pdf 表2.1 p.34,,#95a5a6
+SH013,BT,HER_ring,S11,E11,鉄,3,cm,BT.pdf 表2.1 p.34,,#566573
+SH014,BT,HER_ring,S12,E12,コンクリート,200,cm,BT.pdf 表2.1 p.34,距離35m,#95a5a6
+SH015,BT,PF-AR,S15,E15A,コンクリート,80,cm,BT.pdf 表2.1 p.34,図1.18,#95a5a6
+SH016,BT,LER_ring,S4,E4,コンクリート,100,cm,BT.pdf 表2.2 p.35,,#95a5a6
+SH017,BT,LER_ring,S4,E4,土,50,cm,BT.pdf 表2.2 p.35,,#8B6914
+SH018,BT,LER_ring,S5,E5,コンクリート,60,cm,BT.pdf 表2.2 p.35,,#95a5a6
+SH019,BT,LER_ring,S5,E5,土,90,cm,BT.pdf 表2.2 p.35,,#8B6914
+SH020,BT,LER_ring,S6,E6,コンクリート,60,cm,BT.pdf 表2.2 p.35,,#95a5a6
+SH021,BT,LER_ring,S6,E6,土,220,cm,BT.pdf 表2.2 p.35,,#8B6914
+SH022,BT,HER_ring,S13,E13,コンクリート,65,cm,BT.pdf 表2.2 p.35,図1.15,#95a5a6
+SH023,BT,HER_ring,S13,E13,土,705,cm,BT.pdf 表2.2 p.35,,#8B6914
+SH024,BT,HER_ring,S13,E13,鉄,24,cm,BT.pdf 表2.2 p.35,,#566573
+SH025,BT,LER_ring,S14,E14,コンクリート,65,cm,BT.pdf 表2.2 p.35,,#95a5a6
+SH026,BT,LER_ring,S14,E14,土,705,cm,BT.pdf 表2.2 p.35,,#8B6914
+SH027,BT,LER_ring,S14,E14,鉄,19,cm,BT.pdf 表2.2 p.35,,#566573
+SH028,BT,PF-AR,S15,E15B,コンクリート,60,cm,BT.pdf 表2.2 p.35,図1.16,#95a5a6
+SH029,BT,PF-AR,S15,E15B,土,96,cm,BT.pdf 表2.2 p.35,,#8B6914
+SH030,BT,PF-AR,S15,E15C,コンクリート,170,cm,BT.pdf 表2.2 p.35,図1.17,#95a5a6
+SH031,BT,PF-AR,S15,E15D,コンクリート,140,cm,BT.pdf 表2.2 p.35,図1.19,#95a5a6
+SH032,PS,FEL,S1,E4,コンクリート,70,cm,PS.pdf 表2-1-1 p.35,第1 25度偏向電磁石,#95a5a6
+SH033,PS,FEL,S1,E4,鉛,20,cm,PS.pdf 表2-1-1 p.35,,#2c3e50
+SH034,PS,FEL,S2,E5,コンクリート,70,cm,PS.pdf 表2-1-1 p.35,,#95a5a6
+SH035,PS,FEL,S2,E5,鉛,20,cm,PS.pdf 表2-1-1 p.35,,#2c3e50
+SH036,PS,FEL,S3,E6,コンクリート,70,cm,PS.pdf 表2-1-1 p.35,最大 0.99 µSv/h,#95a5a6
+SH037,PS,FEL,S3,E6,鉛,20,cm,PS.pdf 表2-1-1 p.35,,#2c3e50
+SH038,PS,FEL,S1,E9,コンクリート,50,cm,PS.pdf 表2-1-1 p.35,,#95a5a6
+SH039,PS,FEL,S1,E1,コンクリート,65,cm,PS.pdf 表2-1-2 p.36,,#95a5a6
+SH040,PS,FEL,S1,E1,鉛,30,cm,PS.pdf 表2-1-2 p.36,,#2c3e50
+SH041,PS,FEL,S1,E13,コンクリート,65,cm,PS.pdf 表2-1-2 p.36,,#95a5a6
+SH042,PS,FEL,S1,E13,鉄,15,cm,PS.pdf 表2-1-2 p.36,,#566573
+SH043,PS,FEL,S1,E13,鉛,5,cm,PS.pdf 表2-1-2 p.36,,#2c3e50
+SH044,PF,storage_ring,injection,E_side,コンクリート,70,cm,PF.pdf 表2-1 p.41,入射点側面,#95a5a6
+SH045,PF,storage_ring,injection,G_front,コンクリート,200,cm,PF.pdf 表2-1 p.41,入射点前方,#95a5a6
+SH046,PF,storage_ring,slit,M_lab,コンクリート,33,cm,PF.pdf 表2-1 p.41,有効厚,#95a5a6
+SH047,PF,storage_ring,slit,M_lab,鉄,8.8,cm,PF.pdf 表2-1 p.41,有効厚,#566573
+SH048,PF,storage_ring,dump,A5,コンクリート,190,cm,PF.pdf 表2-2 p.42,有効厚,#95a5a6
+SH049,PF,storage_ring,dump,A5,鉄,54,cm,PF.pdf 表2-2 p.42,有効厚,#566573
+SH050,PF,storage_ring,beamline,H,鉛,20,cm,PF.pdf p.36,ビームライン周囲,#2c3e50
+SH051,PF,RI,storage,A-B,コンクリート,16,cm,PF.pdf p.46-47,線源保管室隣室,#95a5a6
+SH052,PF,RI,storage,C-D,コンクリート,36,cm,PF.pdf p.47,16+20cm 合算,#95a5a6
+SH053,DR,ring,tunnel,E1,コンクリート,85,cm,DR.pdf 表3.4 p.49,DR棟 EV→SR,#95a5a6
+SH054,DR,ring,tunnel,E1,鉄,10,cm,DR.pdf 表3.4 p.49,,#566573
+SH055,DR,ring,tunnel,E1,土,500,cm,DR.pdf 表3.4 p.49,,#8B6914
+SH056,DR,ring,SR_hall,E4,コンクリート,40,cm,DR.pdf 表3.5 p.50,40×40 cm,#95a5a6
+SH057,DR,ring,LTR,A-B,コンクリート,100,cm,DR.pdf p.39,LTR/RTL 上部,#95a5a6
+SH058,DR,ring,LTR,A-B,土,210,cm,DR.pdf p.39,床面下,#8B6914
+SH059,ATF,linac,target,section,コンクリート,300,cm,ATF.pdf 図1.8 p.12,3m 加速管区間,#95a5a6
+SH060,ATF,linac,target,section,鉛,5,cm,ATF.pdf 図1.8 p.12,加速管,#2c3e50
+SH061,ATF,linac,target,section,鉛,20,cm,ATF.pdf 図1.8 p.12,,#2c3e50
+SH062,ATF,linac,target,section,鉛,10,cm,ATF.pdf 図1.8 p.12,,#2c3e50
+SH063,ATF,linac,target,section,鉄,50,cm,ATF.pdf 図1.8 p.12,厚さ50,#566573
+SH064,Linac,H02,tunnel_std,beam,コンクリート,250,cm,Linac.pdf 図1.27 PDF p.41(本文34頁),第1セクター以降: トンネル室天井＝ギャラリー床。GL→天井 2.5 m（図面記入値）,#95a5a6
+SH065,Linac,H02,tunnel_std,beam_side,コンクリート,150,cm,Linac.pdf 図1.27 PDF p.41,側壁。外側は土中（本文 PDF p.55）,#95a5a6
+SH066,Linac,H02,tunnel_up,beam,コンクリート,150,cm,Linac.pdf 本文 PDF p.55 / 図1.21,A〜Cセクター: 天井 1.5 m、その上はクライストロンギャラリー,#95a5a6
+SH067,Linac,H02,tunnel_up,beam_side,コンクリート,150,cm,Linac.pdf 本文 PDF p.55 / 図1.21,側面 1.5 m、外側はテストホール,#95a5a6
+SH068,Linac,H02,building,1F_gallery_roof,コンクリート,30,cm,Linac.pdf 図1.27 PDF p.41(実測),クライストロンギャラリー屋根 ≈0.29 m（±10 cm）。1F 測定点の頭上遮蔽はこれだけ,#95a5a6
+SH069,Linac,H02,building,1F_gallery_wall,コンクリート,20,cm,Linac.pdf 本文 PDF p.55,ギャラリー外壁（南側 0.2 m と明記）,#95a5a6
+SH070,Linac,H02,sy3,beam,コンクリート,150,cm,Linac.pdf 本文 PDF p.59 / 図1.28,第3スイッチヤード天井。ビームライン〜地表最上部 8.6 m,#95a5a6
+SH071,Linac,H02,sy3,beam,土,250,cm,Linac.pdf 本文 PDF p.59 / 図1.28,第3スイッチヤード天井の盛土（2.5 m 以上）,#8B6914
+SH072,Linac,H02,sy3,east,コンクリート,100,cm,Linac.pdf 本文 PDF p.59,東側面,#95a5a6
+SH073,Linac,H02,sy3,east,土,800,cm,Linac.pdf 本文 PDF p.59,東側面の盛土（ビームライン〜道路で土 8 m 以上）,#8B6914
+SH074,SKEKB,KEKB_ring,LER,S1-E1,コンクリート,50,cm,SKEKB.pdf / BT.pdf 表2.1,LER 側壁,#95a5a6
+SH075,SKEKB,KEKB_ring,HER,S8-E8,コンクリート,100,cm,SKEKB.pdf / BT.pdf 表2.1,,#95a5a6
+SH076,SKEKB,KEKB_ring,HER,S12-E12,コンクリート,200,cm,SKEKB.pdf / BT.pdf 表2.1,,#95a5a6
+SH077,先端計測,N15,B1,wall,コンクリート,30,cm,先端計測実験棟.pdf,地下1階平面図（様式3）外壁推定,#95a5a6
+SH078,先端計測,N15,B2,wall,コンクリート,30,cm,先端計測実験棟.pdf,地下2階,#95a5a6

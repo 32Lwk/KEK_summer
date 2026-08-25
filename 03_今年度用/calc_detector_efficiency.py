@@ -7,15 +7,18 @@
   - 外部校正点の熱中性子束 φ/Q = 9.44×10^-6 n/(s·cm²·Q)
 
 較正に使う測定（絶対効率）:
-  - d1 @ 30 cm / 80 cm（管軸水平・黒鉛あり・PE なし・非飽和）のみ
-  - D1 はパイル 30/80 cm が飽和のため、現場転送（管理棟2階 D1/d1 ROI 比×d1 εS）
-    → `calc_D1_efficiency_transfer.py` が効率表の D1 行を更新
+  - 裸管の εS_total はメーカー感度（d1=123, D1=450 cps/nv、公称 ±5%）
+  - 黒鉛パイルは窓比 f = R_window/R_total のみ（d1 @ 30/80 cm）
+  - D1 は 450 × d1 の窓比 → `calc_D1_efficiency_transfer.py`
 
 使わない / 別扱い:
-  - D1 @ 30/80 cm … 飽和のためパイル直接較正は不可（転送で代替）
+  - D1 パイル … 主結果はメーカー感度（パイルは照合のみ）
   - D2/d2 @ 400 cm … 黒鉛なし・線源〜検出器の直線距離 400 cm・Am-Be + PE
     → 熱中性子 φ(d) 公式は適用不可（PE 効果の相対比較用）
-  - 現場の絶対 φ は d1 および転送済み D1。D2/d2 は地点間相対比較。
+  - 現場の絶対 φ はメーカー整合の εS_wall。D2/d2 は地点間相対比較。
+
+MCA はピーク積算モードのため dead time は較正判定・補正に使わない
+（計数率は net/LIVE_TIME）。
 """
 
 from __future__ import annotations
@@ -31,11 +34,11 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-from mca_common import analyze_roi, infer_serial, parse_mca  # noqa: E402
+from mca_common import analyze_roi, infer_serial, is_pf_d2_mca, parse_mca  # noqa: E402
 
 SIM_ROOT = ROOT.parent / "04_PHITS_sim" / "equiv_concrete_sites"
 sys.path.insert(0, str(SIM_ROOT))
-from detector_specs import DETECTORS  # noqa: E402
+from detector_specs import DETECTORS, he3_geometric_areas  # noqa: E402
 
 MEAS_DIR = ROOT / "測定_20260818"
 RAW = MEAS_DIR / "raw"
@@ -116,8 +119,8 @@ def count_rates(path: Path) -> CountResult:
     tot = float(c.sum())
     ch0_frac = float(c[0] / tot) if tot > 0 else 0.0
     overflow_ch0 = ch0_frac > 0.05  # 5% 超で ch0 溜まりありとみなす
-    # dead が小さくても ch0 が多い場合はオーバーフロー扱い
-    saturated = dead > 0.15 or ch0_frac > 0.25
+    # MCA ピーク積算モードのため dead time では飽和判定しない（ch0 過多のみ）
+    saturated = ch0_frac > 0.25
 
     if ch0_frac > 0.05:
         use = c[1:]
@@ -141,7 +144,7 @@ def count_rates(path: Path) -> CountResult:
     if overflow_ch0:
         notes += f"; ch0={ch0_frac*100:.1f}%"
     if saturated:
-        notes += "; 飽和/オーバーフロー — 絶対較正非推奨"
+        notes += "; ch0過多 — 絶対較正はメーカー優先"
 
     return CountResult(
         filename=path.name,
@@ -163,9 +166,8 @@ def count_rates(path: Path) -> CountResult:
 
 
 def dead_time_correct(rate: float, dead_frac: float) -> float:
-    if dead_frac >= 0.99:
-        return float("nan")
-    return rate / (1.0 - dead_frac)
+    """計数率はすでに net/LIVE_TIME。MCA ピーク積算モードのため DT 補正はしない。"""
+    return rate
 
 
 def thermal_flux(d_cm: float, q: float = Q_AMBE, r_half: float = R_HALF_CM) -> float:
@@ -175,17 +177,8 @@ def thermal_flux(d_cm: float, q: float = Q_AMBE, r_half: float = R_HALF_CM) -> f
 
 
 def geometric_areas(det_key: str) -> dict[str, float]:
-    spec = DETECTORS.get(det_key)
-    if spec is None:
-        return {}
-    r = spec.r_in_cm
-    la = spec.active_length_cm
-    return {
-        "S_end_cm2": math.pi * r * r,
-        "S_side_cm2": 2.0 * math.pi * r * la,
-        "L_active_cm": la,
-        "r_in_cm": r,
-    }
+    """He-3 感知面積（detector_specs.he3_geometric_areas に委譲）。"""
+    return he3_geometric_areas(det_key)
 
 
 def main() -> None:
@@ -211,7 +204,7 @@ def main() -> None:
     print(f"  φ/Q = {PHI_OVER_Q:.3e}, Q = {args.q:.3e} n/s, R_half = {args.r_half} cm")
     print("  絶対較正: d1 @ 30/80 cm（水平・黒鉛あり）のみ")
     print("  D2/d2 @ 400 cm: 線源〜検出器直線距離・黒鉛なし → PE 相対比較のみ（ε×S なし）")
-    print("  方針: 絶対 φ は d1（パイル）+ D1（転送）/ D2・d2 は相対比較")
+    print("  方針: 絶対 φ は d1（パイル）+ D1（メーカー感度スケール）/ D2・d2 は相対比較")
     print("=" * 72)
 
     for r in cal_rows:
@@ -241,26 +234,30 @@ def main() -> None:
         and not r.saturated
     ]
     if len(d1_pair) >= 2:
-        eps_list = []
-        for r in d1_pair:
-            rc = dead_time_correct(pick_rate(r), r.dead_frac)
-            phi = thermal_flux(r.dist_cm, args.q, args.r_half)  # type: ignore[arg-type]
-            eps_list.append(rc / phi)
-        eps_mean = float(np.mean(eps_list))
-        eps_std = float(np.std(eps_list))
-        geom = geometric_areas("d1")
+        mfr = DETECTORS["d1"].manufacturer_sensitivity_cps_nv
         ref = next(r for r in d1_pair if r.dist_cm == 30.0)
-        pr = pick_rate(ref)
-        f_roi = ref.rate_roi_net / pr if pr > 0 else float("nan")
+        f_roi = ref.rate_roi_net / ref.rate_total if ref.rate_total > 0 else float("nan")
+        pile_eps = [
+            dead_time_correct(pick_rate(r), r.dead_frac)
+            / thermal_flux(r.dist_cm, args.q, args.r_half)  # type: ignore[arg-type]
+            for r in d1_pair
+        ]
+        pile_mean = float(np.mean(pile_eps))
+        pile_std = float(np.std(pile_eps))
+        geom = geometric_areas("d1")
+        s_iso = geom["S_he3_isotropic_cm2"]
         eff["d1"] = {
-            "epsilon_S_cm2": eps_mean,
-            "epsilon_S_std_cm2": eps_std,
-            "epsilon_S_ROI_cm2": eps_mean * f_roi,
+            "epsilon_S_cm2": mfr,
+            "epsilon_S_std_cm2": 0.05 * mfr,
+            "epsilon_S_ROI_cm2": mfr * f_roi,
             "f_roi_over_total": f_roi,
-            "epsilon_end": eps_mean / geom["S_end_cm2"],
-            "epsilon_side_norm": eps_mean / geom["S_side_cm2"],
+            "epsilon_end": mfr / geom["S_end_cm2"],
+            "epsilon_side_norm": mfr / geom["S_side_cm2"],
             **geom,
-            "note": "30&80cm 黒鉛あり・水平・非飽和",
+            "note": (
+                f"メーカー {mfr:.0f} cps/nv（±5%）· パイルは f_ROI={f_roi:.3f} のみ"
+                f"（R/φ照合 {pile_mean:.1f}±{pile_std:.1f}）"
+            ),
         }
         r30 = next(r for r in d1_pair if r.dist_cm == 30.0)
         r80 = next(r for r in d1_pair if r.dist_cm == 80.0)
@@ -269,8 +266,15 @@ def main() -> None:
         )
         pred = thermal_flux(30.0, 1.0, args.r_half) / thermal_flux(80.0, 1.0, args.r_half)
         print(
-            f"\n[d1] ε×S(total) = {eps_mean:.1f} ± {eps_std:.1f} cm²  "
-            f"ε×S(ROI) = {eps_mean * f_roi:.1f} cm²"
+            f"\n[d1] ε×S(total) = {mfr:.1f} cm²（メーカー ±5%）  "
+            f"ε×S(ROI) = {mfr * f_roi:.1f} cm²  f_ROI={f_roi:.3f}"
+        )
+        print(
+            f"     S_iso=S_surf/4 = {s_iso:.1f} cm²  ε_mfr={mfr/s_iso:.3f}"
+        )
+        print(
+            f"     照合 パイル R/φ = {pile_mean:.1f} ± {pile_std:.1f} cm²"
+            f"（点束×長い円筒のためメーカーとは比較しない）"
         )
         print(f"     R30/R80 観測={obs:.2f}  予測={pred:.2f}（水平・黒鉛あり）")
     else:
@@ -298,11 +302,11 @@ def main() -> None:
         print(f"  D2/d2 計数比 = {rd/rs:.2f}（幾何側面積比 ≈ 3.4 と比較用）")
         print("  ※ Am-Be 高速中性子 + PE 減速場。熱中性子 ε×S には使わない。")
 
-    # D1 飽和メモ（転送較正は別スクリプト）
-    d1_sat = [r for r in cal_rows if r.detector == "D1" and r.dist_cm in (30.0, 80.0)]
-    if d1_sat:
-        print("\n[D1] 30/80 cm は飽和 → パイル直接較正不可")
-        print("     → calc_D1_efficiency_transfer.py（管理棟2階 D1/d1 転送）を使用")
+    # D1 パイルは照合のみ（主結果はメーカー）
+    d1_pile = [r for r in cal_rows if r.detector == "D1" and r.dist_cm in (30.0, 80.0)]
+    if d1_pile:
+        print("\n[D1] パイルは照合のみ（MCA ピーク積算のため DT は不問）")
+        print("     → calc_D1_efficiency_transfer.py（メーカー 450 cps/nv × d1 窓比）")
 
     # 既存の転送較正 D1 / d2 / D2 行を保持（本スクリプト再実行で消さない）
     d1_transfer: dict[str, str] | None = None
@@ -321,7 +325,7 @@ def main() -> None:
 
     # --- 現場フラックス（主窓 191–764 keV）---
     eff_wall_path = TABLES / "検出器効率_壁効果191_764keV.csv"
-    eps_wall: dict[str, float] = {"d1": 74.2, "D1": 134.6}
+    eps_wall: dict[str, float] = {"d1": 109.5, "D1": 400.7}
     if eff_wall_path.exists():
         for r in csv.DictReader(eff_wall_path.open(encoding="utf-8")):
             det = (r.get("検出器") or "").strip()
@@ -374,6 +378,8 @@ def main() -> None:
 
     for rec in recs:
         fn = rec.get("filename") or rec.get("ファイル名") or ""
+        if is_pf_d2_mca(fn):
+            continue
         serial = str(rec.get("シリアル") or "")
         det = detector_key(fn, serial)
         rate_wall = float(rec.get("wall_net_cps") or 0)
@@ -389,7 +395,7 @@ def main() -> None:
             note = "d1 熱中性子絶対較正（黒鉛 30/80 cm）· 191–764 keV"
         elif det == "D1" and d1_transfer:
             eps = eps_wall.get("D1")
-            note = "D1 転送較正（管理棟2階 D1/d1×d1εS_wall）· 191–764 keV"
+            note = "D1 メーカー450 cps/nv × d1 wall/total · 191–764 keV"
         elif det == "d2" and eps_wall.get("d2"):
             eps = eps_wall["d2"]
             note = "d2 転送較正（地上 d2/D1×D1εS_wall）· 191–764 keV"
@@ -439,6 +445,12 @@ def main() -> None:
             "epsilon_S_std_cm2",
             "epsilon_S_ROI_cm2",
             "f_roi_over_total",
+            "r_he3_cm",
+            "l_sensitive_cm",
+            "S_he3_projected_cm2",
+            "S_he3_lateral_cm2",
+            "S_he3_end_cm2",
+            "S_he3_horizontal_cm2",
             "S_end_cm2",
             "S_side_cm2",
             "Q_n_s",
@@ -456,6 +468,12 @@ def main() -> None:
                     "epsilon_S_std_cm2": f"{e['epsilon_S_std_cm2']:.4g}",
                     "epsilon_S_ROI_cm2": f"{e['epsilon_S_ROI_cm2']:.4g}",
                     "f_roi_over_total": f"{e['f_roi_over_total']:.4g}",
+                    "r_he3_cm": f"{e.get('r_he3_cm', e.get('r_in_cm', '')):.3g}",
+                    "l_sensitive_cm": f"{e.get('l_sensitive_cm', e.get('L_active_cm', '')):.3g}",
+                    "S_he3_projected_cm2": f"{e.get('S_he3_projected_cm2', ''):.3g}",
+                    "S_he3_lateral_cm2": f"{e.get('S_he3_lateral_cm2', e.get('S_side_cm2', '')):.3g}",
+                    "S_he3_end_cm2": f"{e.get('S_he3_end_cm2', e.get('S_end_cm2', '')):.3g}",
+                    "S_he3_horizontal_cm2": f"{e.get('S_he3_horizontal_cm2', ''):.3g}",
                     "S_end_cm2": f"{e['S_end_cm2']:.3g}",
                     "S_side_cm2": f"{e['S_side_cm2']:.3g}",
                     "Q_n_s": f"{args.q:.6g}",

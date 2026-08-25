@@ -18,10 +18,10 @@ from mca_common import (
     HE3_MARK_KEV,
     HE3_WALL_LO_KEV,
     PEAK_HALF_WIDTH,
-    SIDEBAND_WIDTH,
     detector_fs_suffix,
     equiv_decay_csv_name,
     he3_wall_channels,
+    is_pf_d2_mca,
     peak_clip as roi_peak_clip,
     resolve_he3_energy_cal,
 )
@@ -115,7 +115,7 @@ def shade_wall_window(ax, wlo: int, whi: int, label: str | None = None) -> None:
 
 
 def shade_wall_sideband(ax, s: dict) -> None:
-    """右側帯のみ（主値の背景推定と一致）。"""
+    """ピーク麓より右の全チャンネル（主値の背景推定と一致）。"""
     sb_lo = int(s.get("wall_sb_hi_lo") or 0)
     sb_hi = int(s.get("wall_sb_hi_hi") or 0)
     if sb_hi >= sb_lo > 0:
@@ -130,6 +130,8 @@ def load_spectrum() -> dict:
     ch = np.array([int(r["channel"]) for r in spec])
     series = []
     for i, rec in enumerate(recs):
+        if is_pf_d2_mca(rec.get("filename") or rec.get("id") or ""):
+            continue
         sid = rec["id"]
         c = np.array([float(r[f"counts_{sid}"]) for r in spec])
         live = float(rec["live_s"])
@@ -148,10 +150,7 @@ def load_spectrum() -> dict:
             peak_ch = cal.peak_ch if cal else roi_peak
             if peak_ch > 0:
                 wall_sb_hi_lo = min(len(cps) - 1, max(whi, peak_ch + PEAK_HALF_WIDTH) + 1)
-                wall_sb_hi_hi = min(
-                    len(cps) - 1,
-                    wall_sb_hi_lo + max(SIDEBAND_WIDTH, 10) - 1,
-                )
+                wall_sb_hi_hi = len(cps) - 1
         else:
             wlo, whi = None, None
         clip = roi_peak_clip(
@@ -806,7 +805,7 @@ def _equiv_legend(ax, fontsize: float = 9, *, logy: bool = False) -> None:
     )
 
 # 施設地点比較に使う場所ラベル（等価コンクリート図の横軸）
-FACILITY_SITES = ("地上", "PF", "linac", "Linac3", "BT", "KEKB", "linacIRON")
+FACILITY_SITES = ("地上", "testhole", "PF", "linac", "Linac3", "BT", "PS", "KEKB", "linacIRON")
 
 # 検出器別のマーカー／色（4パターン比較用）
 DETECTOR_STYLE = {
@@ -840,11 +839,17 @@ def _facility_site_from_place(place: str) -> str | None:
         return None
     if "管理棟" in place or "kanri" in place.lower():
         return None
-    # linacIRON / Linac3 は linac より先に判定（名前が linac を含むため）
+    if "_error" in place.lower() or place.lower().endswith("error"):
+        return None
+    # linacIRON / Linac3 / testhole は linac より先に判定（名前が linac を含むため）
+    if "testhole" in place.lower():
+        return "testhole"
     if "linacIRON" in place or "linaciron" in place.lower():
         return "linacIRON"
     if "linac3" in place.lower():
         return "Linac3"
+    if re.search(r"(^|[_＿])PS($|[_＿])", place) or "_PS" in place or place.endswith("_PS"):
+        return "PS"
     if "地上" in place or "ground" in place.lower():
         return "地上"
     if re.search(r"(^|[_＿])PF($|[_＿])", place) or place.endswith("_PF") or "_PF_" in place:
@@ -874,6 +879,8 @@ def load_facility_cps_by_detector(
             if str(row.get("roi_net_valid", "1")) not in ("1", "True", "true"):
                 continue
             place = row.get("場所") or ""
+            if is_pf_d2_mca(place) or is_pf_d2_mca(row.get("filename") or ""):
+                continue
             det = _detector_from_place(place)
             site = _facility_site_from_place(place)
             if not det or not site:
@@ -1104,40 +1111,48 @@ def _equiv_label_offset(
         if logy:
             table = {
                 "地上": (18, 8, "left", "bottom"),
+                "testhole": (14, -14, "left", "top"),
                 "PF": (10, 14, "left", "bottom"),
                 "linac": (14, 14, "left", "bottom"),
                 "Linac3": (14, -20, "left", "top"),
                 "BT": (-14, 14, "right", "bottom"),
+                "PS": (-14, -18, "right", "top"),
                 "KEKB": (-14, 12, "right", "bottom"),
                 "linacIRON": (-12, -22, "right", "top"),
             }
         else:
             table = {
                 "地上": (12, 10, "left", "bottom"),
+                "testhole": (12, -12, "left", "top"),
                 "PF": (-12, 14, "right", "bottom"),
                 "linac": (14, 8, "left", "bottom"),
                 "Linac3": (14, 8, "left", "bottom"),
                 "BT": (-12, 10, "right", "bottom"),
+                "PS": (-12, -16, "right", "top"),
                 "KEKB": (-12, 8, "right", "bottom"),
                 "linacIRON": (10, -18, "left", "top"),
             }
     elif logy:
         table = {
             "地上": (18, 8, "left", "bottom"),
+            "testhole": (14, -14, "left", "top"),
             "PF": (10, 14, "left", "bottom"),
             "linac": (14, 14, "left", "bottom"),
             "Linac3": (14, -20, "left", "top"),
             "BT": (-14, 14, "right", "bottom"),
+            "PS": (-14, -18, "right", "top"),
             "KEKB": (-14, 12, "right", "bottom"),
             "linacIRON": (-12, -22, "right", "top"),
         }
     else:
         table = {
             "地上": (12, 10, "left", "bottom"),
+            "testhole": (12, -12, "left", "top"),
             "PF": (-12, 14, "right", "bottom"),
             "linac": (14, 8, "left", "bottom"),
             "Linac3": (14, 8, "left", "bottom"),
             "BT": (-12, 10, "right", "bottom"),
+            "PS": (-12, -16, "right", "top"),
             "KEKB": (-14, 10, "right", "bottom"),
             "linacIRON": (10, -28, "left", "top"),
         }
@@ -1182,6 +1197,13 @@ def _site_layers() -> list[dict]:
     """地点ごとの遮蔽層厚（検出器共通）。"""
     return [
         {"label": "地上", "concrete_cm": 0.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": "基準（屋外）"},
+        {
+            "label": "testhole",
+            "concrete_cm": 57.0,
+            "soil_cm": 0.0,
+            "iron_cm": 0.0,
+            "note": "linac テストホール（等価コンクリート 57 cm）",
+        },
         {"label": "PF", "concrete_cm": 105.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": ""},
         {"label": "linac", "concrete_cm": 150.0, "soil_cm": 0.0, "iron_cm": 0.0, "note": ""},
         {
@@ -1197,6 +1219,13 @@ def _site_layers() -> list[dict]:
             "soil_cm": 220.0,
             "iron_cm": 0.0,
             "note": "土はロームのみ（220 cm < 3.5 m）",
+        },
+        {
+            "label": "PS",
+            "concrete_cm": 480.0,
+            "soil_cm": 0.0,
+            "iron_cm": 0.0,
+            "note": "PS FEL 測定点（等価コンクリート 4.8 m）",
         },
         {
             "label": "KEKB",
@@ -2034,10 +2063,12 @@ FLUX_SUMMARY_CSV = TABLES / "フラックス_地点まとめ.csv"
 # フラックス表の地点名 → 遮蔽層プロファイル（_site_layers の label）
 FLUX_SITE_LAYER: dict[str, str] = {
     "地上": "地上",
+    "testhole": "testhole",
     "PF": "PF",
     "linac": "Linac3",
     "linac_IRON": "linacIRON",
     "放射線棟BT": "BT",
+    "PS": "PS",
     "KEKB": "KEKB",
 }
 FLUX_INDOOR_SITES = frozenset({"管理棟2階", "管理棟1階"})
@@ -2046,43 +2077,51 @@ FLUX_INDOOR_SITES = frozenset({"管理棟2階", "管理棟1階"})
 FLUX_LABEL_OFFSET: dict[str, dict[str, tuple[int, int, str, str]]] = {
     "linear": {
         "地上": (-22, -10, "right", "top"),
+        "testhole": (14, -12, "left", "top"),
         "管理棟2階": (18, 26, "left", "bottom"),
         "管理棟1階": (18, -22, "left", "top"),
         "PF": (-14, 12, "right", "bottom"),
         "Linac3": (14, -16, "left", "top"),
         "BT": (-14, 10, "right", "bottom"),
+        "PS": (-14, -16, "right", "top"),
         "KEKB": (-14, 8, "right", "bottom"),
         "linacIRON": (14, -18, "left", "top"),
         "linac": (14, 12, "left", "bottom"),
     },
     "logy": {
         "地上": (-20, 6, "right", "center"),
+        "testhole": (14, -12, "left", "top"),
         "管理棟2階": (18, -26, "left", "top"),
         "管理棟1階": (18, 18, "left", "bottom"),
         "PF": (12, 14, "left", "bottom"),
         "Linac3": (14, -18, "left", "top"),
         "BT": (-14, 12, "right", "bottom"),
+        "PS": (-14, -16, "right", "top"),
         "KEKB": (-14, 10, "right", "bottom"),
         "linacIRON": (-14, -20, "right", "top"),
         "linac": (-14, 10, "right", "bottom"),
     },
     "errorbar": {
         "地上": (-22, -12, "right", "top"),
+        "testhole": (14, -12, "left", "top"),
         "管理棟2階": (18, 28, "left", "bottom"),
         "管理棟1階": (18, -24, "left", "top"),
         "PF": (-14, 14, "right", "bottom"),
         "Linac3": (14, -18, "left", "top"),
         "BT": (-14, 12, "right", "bottom"),
+        "PS": (-14, -16, "right", "top"),
         "KEKB": (-14, 10, "right", "bottom"),
         "linacIRON": (14, -20, "left", "top"),
     },
     "errorbar_logy": {
         "地上": (-20, 8, "right", "center"),
+        "testhole": (14, -12, "left", "top"),
         "管理棟2階": (18, -28, "left", "top"),
         "管理棟1階": (18, 20, "left", "bottom"),
         "PF": (12, 14, "left", "bottom"),
         "Linac3": (14, -20, "left", "top"),
         "BT": (-14, 14, "right", "bottom"),
+        "PS": (-14, -16, "right", "top"),
         "KEKB": (-14, 12, "right", "bottom"),
         "linacIRON": (-14, -22, "right", "top"),
     },
@@ -2484,7 +2523,7 @@ def fig_all_sites_flux_absolute(
     print(f"figure: {out_name}.png  φ₀(地上)={phi0:.4g} n/cm²/s")
 
 
-def fig_all_sites_flux_relative_compare(*, logy: bool = False) -> None:
+def fig_all_sites_flux_relative_compare(*, logy: bool = False, errorbar: bool = False) -> None:
     """図18: 4検出器の相対フラックス（D1 地上 = 1）を同一軸に重ねる。
 
     d1 は地上測定が無いため、絶対 φ を D1 地上で正規化して比較する。
@@ -2520,16 +2559,34 @@ def fig_all_sites_flux_relative_compare(*, logy: bool = False) -> None:
     for det in plotted:
         pts = _build_flux_points_ground_norm(det, flux=flux)
         st = DETECTOR_STYLE[det]
-        ax.plot(
-            [p["x"] for p in pts],
-            [p["y"] for p in pts],
-            linestyle="none",
-            marker=st["marker"],
-            color=st["color"],
-            ms=st["ms"],
-            zorder=3,
-            label=st["label"],
-        )
+        xs = [p["x"] for p in pts]
+        ys = [p["y"] for p in pts]
+        if errorbar:
+            ax.errorbar(
+                xs,
+                ys,
+                xerr=[p["x_err"] for p in pts],
+                yerr=[p["y_err"] for p in pts],
+                fmt=st["marker"],
+                color=st["color"],
+                ms=st["ms"] - 1,
+                linestyle="none",
+                capsize=2.5,
+                elinewidth=0.9,
+                zorder=3,
+                label=st["label"],
+            )
+        else:
+            ax.plot(
+                xs,
+                ys,
+                linestyle="none",
+                marker=st["marker"],
+                color=st["color"],
+                ms=st["ms"],
+                zorder=3,
+                label=st["label"],
+            )
         all_compare_pts.extend(pts)
 
     _annotate_flux_site_names(ax, all_compare_pts, logy=logy)
@@ -2538,10 +2595,12 @@ def fig_all_sites_flux_relative_compare(*, logy: bool = False) -> None:
     ax.set_xlabel(r"等価コンクリート厚さ [cm]（$t_{\mathrm{eq}}=X/\rho_c$）")
     ax.set_ylabel("相対フラックス（D1 地上 = 1）")
     out_name = "18_全地点_フラックス_相対_検出器比較"
+    if errorbar:
+        out_name += "_誤差棒"
     if logy:
         out_name += "_片対数"
         ax.set_yscale("log")
-        ax.set_ylim(1e-6, EQUIV_Y_PAD_LOGY)
+        ax.set_ylim(1e-2, EQUIV_Y_PAD_LOGY)
         ax.yaxis.set_major_locator(LogLocator(base=10.0))
         ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs=np.arange(2, 10) * 0.1))
     else:
@@ -2566,6 +2625,8 @@ def fig_all_sites_flux_all() -> None:
         fig_all_sites_flux_absolute(logy=True, errorbar=True, detector=det)
     fig_all_sites_flux_relative_compare(logy=False)
     fig_all_sites_flux_relative_compare(logy=True)
+    fig_all_sites_flux_relative_compare(logy=False, errorbar=True)
+    fig_all_sites_flux_relative_compare(logy=True, errorbar=True)
 
 
 def cleanup_unsafe_detector_artifacts() -> None:

@@ -1,0 +1,174 @@
+[ Title ]
+Deep cavity at 12 mwe under soil only, full cosmic source (n + mu+ + mu- + photon)
+S6 theory_research: 深部平坦化の MC 検証。01_open_sky と同じ地層・線源で、
+空洞を KEKB 相当深さ（天井 -7.5 m, 直上 X = 405+330+462.5 = 1197.5 g/cm2 = 12.0 mwe）へ。
+空洞は x 300..800 に横オフセット（深さプロファイル柱 x -250..250 は乱さない）。
+11_deep_nonly（中性子源のみ）との差が「ミューオン起源中性子」の寄与。
+
+[ Parameters ]
+ icntl    =        8
+ maxcas   =      500
+ maxbch   =       10
+ e-mode   =        2
+ irqmd    =        1
+ negs     =        2
+ mdbatima =     3000
+ maxbnk   =   100000
+ iMeVperU =        1
+ emin(12) =      1.0
+ emin(13) =      1.0
+
+$ 球は3枚: モデル球 c3 ＜ 線源球 c1 ＜ 世界球 c2（crucial_notice.txt 参照）
+set: c1[1600.]           $ 線源球の半径
+set: c2[2200.]           $ 世界球の半径
+set: c3[1500.]           $ モデル球の半径
+
+[ Source ]
+  totfact = -pi*c1**2    $ 負値: 各粒子から等数サンプリング（[/cm2/s] 規格化）
+ infl:{source.inp}
+     proj = neutron
+ infl:{source.inp}
+     proj = muon+
+ infl:{source.inp}
+     proj = muon-
+ infl:{source.inp}
+     proj = photon
+
+[ Material ]
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+mat[3]
+     H  -0.0448
+     O  -0.6336
+    Si  -0.1386
+    Al  -0.0870
+    Fe  -0.0600
+    Ca  -0.0096
+    Mg  -0.0078
+     K  -0.0054
+    Na  -0.0048
+    Ti  -0.0078
+mat[4]
+     H  -0.0224
+     O  -0.5488
+    Si  -0.1848
+    Al  -0.1160
+    Fe  -0.0800
+    Ca  -0.0128
+    Mg  -0.0104
+     K  -0.0072
+    Na  -0.0064
+    Ti  -0.0104
+mat[5]
+     H  -0.0224
+     O  -0.5488
+    Si  -0.1848
+    Al  -0.1160
+    Fe  -0.0800
+    Ca  -0.0128
+    Mg  -0.0104
+     K  -0.0072
+    Na  -0.0064
+    Ti  -0.0104
+
+[ Mat Name Color ]
+   mat     name       size  color
+     1     Air         1.0  yellowgreen
+     3     Loam        1.0  orangeyellow
+     4     Clay        1.0  mossgreen
+     5     Shimousa    1.0  mossgreen
+
+[ Surface ]
+  10   so   c3                                    $ モデル球
+  12   so   c2                                    $ 世界球
+  20   pz   0.0                                   $ GL
+  21   pz   -300.0                                $ 関東ローム底（-3 m）
+  22   pz   -500.0                                $ 常総粘土底（-5 m）
+  42   rpp   300.0 800.0  -600.0 600.0  -1050.0  -750.0   $ 深部空洞（天井 -7.5 m = 12.0 mwe）
+  50   rpp  -200.0 200.0  -600.0  600.0    50.0   250.0   $ 地上検出器 GL+0.5-2.5 m
+  51   rpp   350.0 750.0  -450.0  450.0  -1000.0  -800.0  $ 空洞内検出器
+
+[ Cell ]
+  111    1 -1.205e-3  -50                 $ 地上（開空）検出器
+  220    1 -1.205e-3  -42  51             $ 空洞内空気
+  221    1 -1.205e-3  -51                 $ 空洞内検出器（12 mwe）
+  310    1 -1.205e-3  -10   20  50        $ GL より上の大気
+  400    3 -1.35      -10  -20  21  42    $ 関東ローム    0 〜 -3 m
+  410    4 -1.65      -10  -21  22  42    $ 常総粘土     -3 〜 -5 m
+  420    5 -1.85      -10  -22      42    $ 下総層群     -5 m 以深
+  900    0             10 -12             $ 真空シェル
+  999   -1             12                 $ outer void
+
+[ Volume ]
+   reg          vol
+   111    9.600e+07
+   220    3.780e+07
+   221    7.200e+07
+
+[ T-Track ]
+    title = Flux spectra, deep cavity 12 mwe [1/cm2/s]
+     mesh =  reg
+      reg =  111 221 220
+   e-type =    3
+       ne =   75
+     emin =  1.0e-9
+     emax =  1.0e+6
+     unit =    1
+     axis =  eng
+     file = spectrum_reg.out
+     part =  neutron photon ( muon+ muon- )
+   epsout =    1
+
+[ T-Track ]
+    title = Neutron flux vs depth, undisturbed soil column
+     mesh =  xyz
+   x-type =    2
+       nx =    1
+     xmin = -250.0
+     xmax =  250.0
+   y-type =    2
+       ny =    1
+     ymin = -300.0
+     ymax =  300.0
+   z-type =    2
+       nz =   80
+     zmin = -1400.0
+     zmax =   600.0
+   e-type =    1
+       ne =    3
+            1.0e-9  1.0e-6  1.0e-1  1.0e+6
+     unit =    1
+     axis =    z
+     file = depth_profile.out
+     part =  neutron
+   epsout =    1
+
+[ T-Track ]
+    title = Cosmic-ray neutron flux, xz section, deep cavity
+     mesh =  xyz
+   x-type =    2
+       nx =   60
+     xmin = -1200.0
+     xmax =  1200.0
+   y-type =    2
+       ny =    1
+     ymin = -300.0
+     ymax =  300.0
+   z-type =    2
+       nz =   55
+     zmin = -1400.0
+     zmax =   800.0
+   e-type =    2
+       ne =    1
+     emin =  1.0e-9
+     emax =  1.0e+6
+     unit =    1
+     axis =   xz
+     file = map_xz.out
+     part =  neutron
+    gshow =    1
+   epsout =    1
+
+[ End ]

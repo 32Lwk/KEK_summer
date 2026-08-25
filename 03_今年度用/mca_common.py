@@ -12,8 +12,26 @@ import numpy as np
 
 USB_ROOT = Path("/Volumes")
 
+
+def is_pf_d2_mca(name: str) -> bool:
+    """小径 d2 の PF 測定か。解析・図・フラックスから除外する（生ファイルは raw/ に残す）。
+
+    大径 D2@PF は対象外。8/20（ゲイン異常）と 8/22 の両方を含める。
+    """
+    stem = Path(name).stem
+    if re.search(r"(^|_)D2($|_)", stem) or stem.startswith("D2"):
+        return False
+    is_d2 = (
+        stem.startswith("d2")
+        or "smalld2" in stem.lower()
+        or bool(re.search(r"(^|_)d2($|_)", stem))
+    )
+    is_pf = bool(re.search(r"(^|_)PF($|_)", stem) or stem.endswith("_PF") or "_PF" in stem)
+    return is_d2 and is_pf
+
+
 # --- 解析窓（2026–）---
-# 主窓: 191–764 keV … 右側帯背景 → NET（ROI あり）
+# 主窓: 191–764 keV … ピーク麓より右の全 ch を水平背景 → NET（ROI あり）
 # 副窓: 固定 ch peak ROI … キャンペーン内地点比較・昨年表との突合用（analyze_roi）
 # 公式 φ・ε×S は主窓へ移行。peak ROI はゲイン変動で物理窓とずれるため参照用。
 
@@ -24,8 +42,10 @@ ROI_BY_SERIAL: dict[str, dict[str, int]] = {
 }
 # 終夜 D1 の σ≈8 ch → ピーク除外 ≈±2σ。側帯は除外帯の外側。
 PEAK_HALF_WIDTH = 16
-SIDEBAND_WIDTH = 15
+SIDEBAND_WIDTH = 15  # peak ROI の左右側帯幅。壁窓右側背景は麓より右の全 ch
 SIDEBAND_GAP = 0
+WALL_PLATEAU_MIN_WIDTH = 20  # 平坦部背景推定に必要な最小幅 [ch]
+WALL_NET_GROSS_MIN = 0.25  # 右側帯 NET/gross がこれ未満なら平坦部背景を検討
 WALL_LEFT_SB_MIN_CH = 10  # 壁窓左側帯の下限（ch0 付近を避ける）
 ROI_EDGE = 6  # 参考用（旧・端点台形）
 PEAK_OUTSIDE_WARN_CH = 15
@@ -47,7 +67,7 @@ HE3_CAL_BY_SERIAL: dict[str, list[dict]] = {
             "peak_ref": 245,
             "lo": 220,
             "hi": 280,
-            "note": "D1 低ゲイン帯（PF / gain≈500 付近 ch≈245）",
+            "note": "D1 PF 8/20 アンプ取り違え（ch≈242）→ rebin 補正後は D_std_hi 相当",
         },
         {
             "id": "D_std_lo",
@@ -194,7 +214,16 @@ def make_label(stem: str) -> str:
     return stem
 
 
-def parse_mca(path: Path) -> dict:
+def live_count_rate(net: float, live_s: float) -> float:
+    """計数率 [cps]。MCA の LIVE_TIME は dead time 除外済みなので、これ以上補正しない。"""
+    live = float(live_s)
+    if live <= 0:
+        return float("nan")
+    return float(net) / live
+
+
+def parse_mca(path: Path, *, apply_gain_correction: bool = True) -> dict:
+    """MCA を読む。解析用は既定で GAIN_AMP_CORRECTIONS の rebin を適用する。"""
     text = path.read_text(encoding="utf-8", errors="replace")
     meta: dict = {"path": path}
     for key in ("LIVE_TIME", "REAL_TIME", "START_TIME", "GAIN", "THRESHOLD"):
@@ -221,6 +250,14 @@ def parse_mca(path: Path) -> dict:
     meta["mcac"] = int(mcac.group(1)) if mcac else len(counts)
     gaia = re.search(r"GAIA=(\d+);", text)
     meta["gaia"] = int(gaia.group(1)) if gaia else None
+    if apply_gain_correction:
+        corrected, info = apply_gain_amp_correction(
+            Path(path).name, meta["counts"], Path(path).parent
+        )
+        if info:
+            meta["counts_raw"] = meta["counts"]
+            meta["counts"] = corrected
+            meta["gain_correction"] = info
     return meta
 
 
@@ -371,16 +408,30 @@ def centered_roi(peak: int, width: int, n: int) -> tuple[int, int]:
     return int(lo), int(hi)
 
 
+def refine_peak_local(counts, peak: int, *, half: int = 20, min_ch: int = 1) -> int:
+    """平滑 argmax 付近で生スペクトルの局所 argmax に refine する（広い山用）。"""
+    c = np.asarray(counts, dtype=float)
+    n = len(c)
+    if peak <= 0 or n < 3:
+        return peak
+    lo = max(min_ch, peak - half)
+    hi = min(n - 1, peak + half)
+    if hi <= lo:
+        return peak
+    return int(lo + np.argmax(c[lo : hi + 1]))
+
+
 def high_ch_peak(counts, serial: str) -> int:
-    """ピーク ch。1715 は低 ch 斜面の argmax を避け高 ch 側も確認する。"""
+    """ピーク ch。1715 / 2162 は低 ch 斜面の argmax を避け高 ch 側も確認する。"""
     search_lo = search_lo_for_serial(serial)
     peak = find_peak(counts, search_lo)
-    if serial != "1715":
-        return peak
-    peak_hi = find_peak(counts, 300)
     c = np.asarray(counts, dtype=float)
-    if peak_hi >= 300 and (peak < 200 or c[peak_hi] >= 0.5 * c[peak]):
-        return peak_hi
+    if serial in ("1715", "2162"):
+        peak_hi = find_peak(counts, 300)
+        if peak_hi >= 300 and (peak < 200 or c[peak_hi] >= 0.5 * c[peak]):
+            peak = peak_hi
+    if serial in ("1715", "2162") and peak >= 300:
+        peak = refine_peak_local(c, peak, half=20, min_ch=300)
     return peak
 
 
@@ -555,6 +606,57 @@ def analyze_roi(counts, serial: str = "") -> RoiAnalysis:
     )
 
 
+def _wall_right_sideband_lo(
+    counts,
+    integrate_lo: int,
+    integrate_hi: int,
+    peak: int,
+    n: int,
+    *,
+    peak_half: int = PEAK_HALF_WIDTH,
+    width: int = SIDEBAND_WIDTH,
+    gap: int = SIDEBAND_GAP,
+) -> tuple[int, int, int]:
+    """壁窓の右側帯。ピーク麓（peak+peak_half）より右の全チャンネル。
+
+    width は peak ROI 側帯との呼び出し互換のため残し、壁窓では使わない。
+    戻り値の第3要素（旧シフト量）は常に 0。
+    """
+    del counts, width
+    lo = max(1, min(integrate_lo, n - 1))
+    hi = max(lo, min(integrate_hi, n - 1))
+    excl_hi = peak + peak_half
+    sb_lo = min(n - 1, max(hi, excl_hi) + gap + 1)
+    sb_hi = n - 1
+    return int(sb_lo), int(sb_hi), 0
+
+
+def _wall_plateau_bg_per_ch(
+    counts,
+    lo: int,
+    hi: int,
+    peak: int,
+    *,
+    peak_half: int = PEAK_HALF_WIDTH,
+    min_width: int = WALL_PLATEAU_MIN_WIDTH,
+) -> float | None:
+    """壁窓内ピーク下側の平坦連続部（中央値）を背景 cps/ch 相当で返す。"""
+    c = np.asarray(counts, dtype=float)
+    excl_lo = peak - peak_half
+    plat_hi = max(lo, excl_lo - 5)
+    plat_lo = lo + 10
+    if plat_hi - plat_lo + 1 < min_width:
+        plat_lo = lo
+        plat_hi = max(lo, min(hi, peak - peak_half - 1))
+    if plat_hi <= plat_lo + 2:
+        return None
+    return float(np.median(c[plat_lo : plat_hi + 1]))
+
+
+def _peak_near_wall_hi(peak: int, hi: int, *, peak_half: int = PEAK_HALF_WIDTH) -> bool:
+    return peak + peak_half >= hi - 3
+
+
 def wall_sideband_ranges(
     integrate_lo: int,
     integrate_hi: int,
@@ -563,8 +665,9 @@ def wall_sideband_ranges(
     peak_half: int = PEAK_HALF_WIDTH,
     width: int = SIDEBAND_WIDTH,
     gap: int = SIDEBAND_GAP,
+    counts=None,
 ) -> tuple[tuple[int, int], tuple[int, int]]:
-    """壁効果窓用側帯: 左は 191 keV 窓下端より低 ch、右はピーク外側。"""
+    """壁効果窓用側帯: 左は 191 keV 窓下端より低 ch、右はピーク麓より右の全 ch。"""
     lo = max(1, min(integrate_lo, n - 1))
     hi = max(lo, min(integrate_hi, n - 1))
     excl_hi = peak + peak_half
@@ -574,8 +677,13 @@ def wall_sideband_ranges(
     left_lo = max(WALL_LEFT_SB_MIN_CH, left_lo)
     left_hi = max(left_lo, min(left_hi, n - 1))
 
-    right_lo = min(n - 1, max(hi, excl_hi) + gap + 1)
-    right_hi = min(n - 1, right_lo + max(width, 10) - 1)
+    if counts is not None:
+        right_lo, right_hi, _ = _wall_right_sideband_lo(
+            counts, lo, hi, peak, n, peak_half=peak_half, width=width, gap=gap
+        )
+    else:
+        right_lo = min(n - 1, max(hi, excl_hi) + gap + 1)
+        right_hi = n - 1
 
     if left_hi < left_lo + 2:
         left_lo, left_hi = 0, 0
@@ -599,7 +707,7 @@ def wall_net_sideband(
     lo = max(1, min(integrate_lo, n - 1))
     hi = max(lo, min(integrate_hi, n - 1))
     (sb0_lo, sb0_hi), (sb1_lo, sb1_hi) = wall_sideband_ranges(
-        lo, hi, peak, n, peak_half=peak_half, width=sideband, gap=gap
+        lo, hi, peak, n, peak_half=peak_half, width=sideband, gap=gap, counts=c
     )
 
     left = c[sb0_lo : sb0_hi + 1] if sb0_hi >= sb0_lo > 0 else np.array([])
@@ -668,7 +776,7 @@ def analyze_wall_window(
     e_hi_kev: float = HE3_Q_KEV,
     sideband: int = SIDEBAND_WIDTH,
 ) -> RoiAnalysis:
-    """壁効果連続帯 NET（191–764 keV）。背景は右側帯水平（主値）。
+    """壁効果連続帯 NET（191–764 keV）。背景はピーク麓より右の全 ch の水平平均（主値）。
 
     191 keV 未満左＋右の直線背景は analyze_wall_window_linear（比較用）。
     """
@@ -737,7 +845,7 @@ def analyze_wall_window_right_only(
     e_hi_kev: float = HE3_Q_KEV,
     sideband: int = SIDEBAND_WIDTH,
 ) -> RoiAnalysis:
-    """壁窓 NET（旧: 右側帯のみ水平背景）。比較・検証用。"""
+    """壁窓 NET。背景はピーク麓より右の全 ch の水平平均；ピーク上端付近は平坦部へフォールバック。"""
     serial = str(serial or "")
     lo, hi, peak, auto_lo, auto_hi, search_lo = _wall_window_bounds(
         counts, serial, e_lo_kev, e_hi_kev
@@ -748,8 +856,9 @@ def analyze_wall_window_right_only(
     gross = float(y.sum())
     n_win = hi - lo + 1
 
-    sb1_lo = min(n - 1, max(hi, peak + PEAK_HALF_WIDTH) + 1)
-    sb1_hi = min(n - 1, sb1_lo + max(sideband, 10) - 1)
+    sb1_lo, sb1_hi, sb_shift = _wall_right_sideband_lo(
+        c, lo, hi, peak, n, width=sideband
+    )
     right = c[sb1_lo : sb1_hi + 1]
     right_ok = len(right) >= 3
     if right_ok:
@@ -765,6 +874,28 @@ def analyze_wall_window_right_only(
     warnings: list[str] = []
     if peak <= 0:
         warnings.append("ピーク未検出のためエネルギー校正不可")
+    if sb_shift > 0:
+        warnings.append(f"右側帯を+{sb_shift}ch 右へずらし（ピーク裾回避）")
+
+    plateau_bg = _wall_plateau_bg_per_ch(c, lo, hi, peak)
+    peak_near_hi = _peak_near_wall_hi(peak, hi)
+    if plateau_bg is not None:
+        net_plateau = gross - plateau_bg * n_win
+        use_plateau = False
+        if bg_mode == "none_gross" and net_plateau > 0:
+            use_plateau = True
+        elif peak_near_hi and net_plateau > 0 and (
+            net <= 0 or net_plateau > net or (gross > 0 and net / gross < WALL_NET_GROSS_MIN)
+        ):
+            use_plateau = True
+        if use_plateau:
+            bg_per_ch = plateau_bg
+            bg = bg_per_ch * n_win
+            net = net_plateau
+            err = float(np.sqrt(max(gross + bg, 0.0)))
+            bg_mode = "plateau"
+            warnings.append("平坦部背景に切替（ピーク上端・側帯不可）")
+
     if net <= 0:
         warnings.append("NET<=0（壁効果窓または右側帯背景を確認）")
     if bg_mode == "none_gross":
@@ -815,6 +946,73 @@ def roi_net(counts, lo: int, hi: int, edge: int = 6) -> tuple[float, float, floa
     net = tot - bg_sum
     err = float(np.sqrt(tot + bg_sum))
     return tot, bg_sum, net, err
+
+
+# アンプ D/d 取り違え等: 参照 MCA の 764 keV ピーク位置で線形 rebin 補正
+GAIN_AMP_CORRECTIONS: dict[str, str] = {
+    "D1_20260820_0807_PF.mca": "D2_20260822_115234_PF.mca",
+}
+
+
+def rebin_counts_linear(counts, scale: float) -> list[int]:
+    """面積保存の線形チャンネル rebin（scale>1 で右方向へ伸長）。"""
+    if scale <= 0 or abs(scale - 1.0) < 1e-6:
+        return list(counts)
+    src = np.asarray(counts, dtype=float)
+    n = len(src)
+    dst = np.zeros(n, dtype=float)
+    for i, v in enumerate(src):
+        if v == 0:
+            continue
+        j = i * scale
+        j0 = int(np.floor(j))
+        j1 = j0 + 1
+        w1 = j - j0
+        w0 = 1.0 - w1
+        if 0 <= j0 < n:
+            dst[j0] += v * w0
+        if 0 <= j1 < n:
+            dst[j1] += v * w1
+    return dst.astype(np.int64).tolist()
+
+
+def apply_gain_amp_correction(
+    filename: str,
+    counts: list[int],
+    raw_dir: Path,
+) -> tuple[list[int], dict]:
+    """参照 MCA のピーク ch でゲイン rebin。補正不要なら (counts, {})。"""
+    ref_name = GAIN_AMP_CORRECTIONS.get(filename)
+    if not ref_name:
+        return counts, {}
+    ref_path = raw_dir / ref_name
+    if not ref_path.exists():
+        raise FileNotFoundError(f"ゲイン補正参照 MCA がありません: {ref_path}")
+    ref_meta = parse_mca(ref_path, apply_gain_correction=False)
+    serial = infer_serial(filename, "")
+    search = search_lo_for_serial(serial)
+    peak_src = find_peak(counts, search_lo=search)
+    peak_ref = find_peak(ref_meta["counts"], search_lo=search)
+    if peak_src <= 0 or peak_ref <= 0:
+        raise ValueError(f"ゲイン補正: ピーク未検出 ({filename}: {peak_src}, ref: {peak_ref})")
+    scale = peak_ref / peak_src
+    corrected = rebin_counts_linear(counts, scale)
+    note = (
+        f"アンプD/d取り違え補正: rebin×{scale:.4f} "
+        f"(peak {peak_src}→{peak_ref}, 参照={ref_name})"
+    )
+    return corrected, {
+        "reference": ref_name,
+        "peak_src": peak_src,
+        "peak_ref": peak_ref,
+        "scale": scale,
+        "note": note,
+    }
+
+
+def parse_mca_for_analysis(path: Path) -> dict:
+    """parse_mca の別名（ゲイン補正込み）。"""
+    return parse_mca(path, apply_gain_correction=True)
 
 
 def peak_clip(counts, lo: int, hi: int, pad: float = 10.0) -> float:

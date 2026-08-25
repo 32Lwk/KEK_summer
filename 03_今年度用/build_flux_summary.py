@@ -1,43 +1,53 @@
 #!/usr/bin/env python3
 """検出器ごとのフラックスまとめ表を作る。
 
-主窓: 191–764 keV（³He 壁効果連続帯）· 右側帯背景 → NET（ROI あり）
-副窓: peak ROI（固定 ch、参考列 peak_ROI_net_CPS）
+主窓: 191–764 keV（³He 壁効果連続帯）· 側帯/平坦部背景 → NET
+副窓: peak ROI（参考列 peak_ROI_net_CPS）
 
 絶対 φ [n/cm²/s]:
-  - d1 … 黒鉛パイル（wall ε×S）
-  - D1 … 管理棟2階 D1/d1 転送（wall）
-  - d2 / D2 … 地上 d2/D1・D2/D1 転送（wall；D2 地上は wall NET≤0 のため linac で ε×S 決定）
+  φ = R_wall_NET / εS_wall
+
+εS_wall は `calc_window_comparison.py` → `flux_calibration.py` が
+`tables/検出器効率_壁効果191_764keV.csv` に書き込む値を唯一のソースとする。
+先に calc_window_comparison.py を実行すること。
 """
 
 from __future__ import annotations
 
 import csv
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
+from flux_calibration import eps_wall_dict, load_wall_efficiencies_csv  # noqa: E402
+from mca_common import is_pf_d2_mca  # noqa: E402
+
 TABLES = ROOT / "測定_20260818" / "tables"
 RECORD = TABLES / "測定記録.csv"
-EFF_WALL = TABLES / "検出器効率_壁効果191_764keV.csv"
 OUT_LONG = TABLES / "フラックス_地点まとめ.csv"
 OUT_WIDE = TABLES / "フラックス_検出器別相対.csv"
-
-EPS_S_WALL_DEFAULTS = {
-    "d1": 74.2,
-    "D1": 134.6,
-}
 
 SITES_ORDER = [
     "地上",
     "管理棟2階",
     "管理棟1階",
+    "testhole",
     "PF",
     "linac",
+    "PS",
     "linac_IRON",
     "放射線棟BT",
     "KEKB",
 ]
+
+CALIB_TAG = {
+    "d1": "メーカー123×パイル窓比",
+    "D1": "メーカー450×d1窓比",
+    "d2": "d2/D1転送@地上",
+    "D2": "D2/D1転送@linac",
+}
 
 
 def detector_key(filename: str, serial: str) -> str:
@@ -66,6 +76,12 @@ def site_label(place: str, filename: str) -> str:
         return "管理棟1階"
     if "iron" in low or "IRON" in s:
         return "linac_IRON"
+    if "error" in low:
+        return "その他"
+    if "testhole" in low:
+        return "testhole"
+    if re.search(r"(^|[_\s])ps($|[_\s])", low) or "_PS" in s:
+        return "PS"
     if "linac" in low:
         return "linac"
     if re.search(r"(^|[_\s])pf($|[_\s])", low) or "PF_" in s or "_PF" in s:
@@ -77,7 +93,7 @@ def site_label(place: str, filename: str) -> str:
     return "その他"
 
 
-def prefer_score(filename: str, live_s: float) -> float:
+def prefer_score(filename: str, live_s: float, *, wall_valid: bool = True, bg_mode: str = "") -> float:
     stem = Path(filename).stem
     score = live_s
     if stem.startswith("2026"):
@@ -86,44 +102,34 @@ def prefer_score(filename: str, live_s: float) -> float:
         score -= 1e6
     if stem.startswith("D2_20260822"):
         score -= 5e5
+    if not wall_valid:
+        score -= 5e6
+    if bg_mode == "none_gross":
+        score -= 1e6
+    if "error" in stem.lower():
+        score -= 1e7
     return score
 
 
-def load_eps_wall(best: dict[tuple[str, str], dict]) -> dict[str, float]:
-    """191–764 keV 窓の ε×S [cm²]。"""
-    out = dict(EPS_S_WALL_DEFAULTS)
-    if EFF_WALL.exists():
-        for r in csv.DictReader(EFF_WALL.open(encoding="utf-8")):
-            det = (r.get("検出器") or "").strip()
-            v = (r.get("epsilon_S_wall_cm2") or "").strip()
-            if det in out and v:
-                out[det] = float(v)
-
-    def wall_cps(det: str, site: str) -> float | None:
-        p = best.get((det, site))
-        if not p or not p.get("wall_valid") or p["wall_net_cps"] <= 0:
-            return None
-        return p["wall_net_cps"]
-
-    d1_g = wall_cps("D1", "地上")
-    d2_g = wall_cps("d2", "地上")
-    if d1_g and d2_g and "D1" in out:
-        out["d2"] = out["D1"] * d2_g / d1_g
-
-    d1_l = wall_cps("D1", "linac")
-    d2_l = wall_cps("D2", "linac")
-    if d1_l and d2_l and "D1" in out:
-        out["D2"] = out["D1"] * d2_l / d1_l
-
-    return out
-
-
 def main() -> None:
+    wall_eff = load_wall_efficiencies_csv()
+    eps_wall = eps_wall_dict(wall_eff)
+    missing = [d for d in ("d1", "D1", "d2", "D2") if d not in eps_wall]
+    if missing:
+        print(
+            f"ERROR: εS_wall 未較正: {missing}\n"
+            "  先に python calc_window_comparison.py を実行してください。",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     rows = list(csv.DictReader(RECORD.open(encoding="utf-8")))
 
     parsed: list[dict] = []
     for r in rows:
         fn = r.get("filename") or ""
+        if is_pf_d2_mca(fn):
+            continue
         serial = str(r.get("シリアル") or "")
         det = detector_key(fn, serial)
         if det == "?":
@@ -151,11 +157,17 @@ def main() -> None:
                 "wall_net_cps": wall,
                 "wall_net_cps_err": wall_err,
                 "wall_valid": wall_valid,
+                "wall_bg_mode": (r.get("wall_bg_mode") or "").strip(),
                 "peak_net_cps": peak,
                 "peak_net_cps_err": peak_err,
                 "peak_valid": peak_valid,
                 "live_s": live,
-                "score": prefer_score(fn, live),
+                "score": prefer_score(
+                    fn,
+                    live,
+                    wall_valid=wall_valid and wall > 0,
+                    bg_mode=(r.get("wall_bg_mode") or "").strip(),
+                ),
             }
         )
 
@@ -164,8 +176,6 @@ def main() -> None:
         key = (p["検出器"], p["地点"])
         if key not in best or p["score"] > best[key]["score"]:
             best[key] = p
-
-    eps_wall = load_eps_wall(best)
 
     ref_cps: dict[str, float] = {}
     ref_site: dict[str, str] = {}
@@ -176,6 +186,11 @@ def main() -> None:
                 ref_cps[det] = hit["wall_net_cps"]
                 ref_site[det] = site
                 break
+
+    phi0_d1_ground: float | None = None
+    d1_ground = best.get(("D1", "地上"))
+    if d1_ground and d1_ground["wall_valid"] and d1_ground["wall_net_cps"] > 0:
+        phi0_d1_ground = d1_ground["wall_net_cps"] / eps_wall["D1"]
 
     def sort_key(item: tuple[str, str]) -> tuple:
         det, site = item
@@ -191,27 +206,14 @@ def main() -> None:
         peak_err = p["peak_net_cps_err"]
         notes: list[str] = []
 
-        if det in eps_wall:
-            e = eps_wall[det]
-            if p["wall_valid"] and wall > 0:
-                phi_abs = f"{wall / e:.6g}"
-                phi_err = f"{wall_err / e:.6g}"
-                tag = (
-                    "パイル"
-                    if det == "d1"
-                    else (
-                        "D1/d1転送"
-                        if det == "D1"
-                        else ("d2/D1転送" if det == "d2" else "D2/D1転送(linac)")
-                    )
-                )
-                notes.append(f"絶対φ=NET/(εS_191-764={e:.4g} cm²,{tag})")
-            else:
-                phi_abs = phi_err = ""
-                notes.append("wall NET 無効または≤0")
+        e = eps_wall[det]
+        if p["wall_valid"] and wall > 0:
+            phi_abs = f"{wall / e:.6g}"
+            phi_err = f"{wall_err / e:.6g}"
+            notes.append(f"絶対φ=NET/(εS_wall={e:.4g},{CALIB_TAG[det]})")
         else:
             phi_abs = phi_err = ""
-            notes.append("絶対φなし（εS未較正）")
+            notes.append("wall NET 無効または≤0")
 
         if det in ref_cps and p["wall_valid"] and wall > 0:
             rel = f"{wall / ref_cps[det]:.4g}"
@@ -221,6 +223,13 @@ def main() -> None:
             rel = rel_err = ""
             if det in ref_cps:
                 notes.append(f"相対基準={ref_site[det]}（当該地点 wall 不可）")
+
+        if phi0_d1_ground and p["wall_valid"] and wall > 0:
+            phi_val = wall / e
+            rel_d1 = f"{phi_val / phi0_d1_ground:.4g}"
+            rel_d1_err = f"{wall_err / e / phi0_d1_ground:.4g}"
+        else:
+            rel_d1 = rel_d1_err = ""
 
         if not p["wall_valid"] or wall <= 0:
             notes.append("主窓191–764keV NET 無効（参考: peak ROI）")
@@ -238,6 +247,8 @@ def main() -> None:
                 "相対_基準地点": ref_site.get(det, ""),
                 "相対フラックス": rel,
                 "相対フラックス_err": rel_err,
+                "相対_D1地上": rel_d1,
+                "相対_D1地上_err": rel_d1_err,
                 "絶対phi_n_cm2_s": phi_abs,
                 "絶対phi_err": phi_err,
                 "備考": "; ".join(notes),
@@ -250,8 +261,10 @@ def main() -> None:
 
     ref_note = "; ".join(f"{d}基準={ref_site[d]}" for d in ("d1", "D1", "d2", "D2") if d in ref_site)
     ref_note += "; " + "; ".join(
-        f"{d} εS_191-764={eps_wall[d]:.4g} cm²" for d in ("d1", "D1", "d2", "D2") if d in eps_wall
+        f"{d} εS_wall={eps_wall[d]:.4g} cm²" for d in ("d1", "D1", "d2", "D2")
     )
+    if phi0_d1_ground:
+        ref_note += f"; D1地上φ={phi0_d1_ground:.4g} n/cm²/s"
 
     wide_rows: list[dict] = []
     for site in SITES_ORDER:
@@ -263,10 +276,12 @@ def main() -> None:
                 any_hit = True
                 wr[f"{det}_NET"] = cell["NET_CPS_191_764keV"]
                 wr[f"{det}_相対"] = cell["相対フラックス"]
+                wr[f"{det}_相対D1地上"] = cell["相対_D1地上"]
                 wr[f"{det}_絶対phi"] = cell["絶対phi_n_cm2_s"]
             else:
                 wr[f"{det}_NET"] = ""
                 wr[f"{det}_相対"] = ""
+                wr[f"{det}_相対D1地上"] = ""
                 wr[f"{det}_絶対phi"] = ""
         if any_hit:
             wr["注"] = ref_note
@@ -280,7 +295,7 @@ def main() -> None:
     with OUT_WIDE.open("w", newline="", encoding="utf-8") as f:
         fields = ["地点"]
         for det in ("d1", "D1", "d2", "D2"):
-            fields += [f"{det}_NET", f"{det}_相対", f"{det}_絶対phi"]
+            fields += [f"{det}_NET", f"{det}_相対", f"{det}_相対D1地上", f"{det}_絶対phi"]
         fields.append("注")
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
@@ -289,16 +304,18 @@ def main() -> None:
     print("=" * 72)
     print("フラックス地点まとめ（主窓 191–764 keV · NET）")
     for d in ("d1", "D1", "d2", "D2"):
-        if d in eps_wall:
-            print(f"  {d} ε×S_191-764 = {eps_wall[d]:.4g} cm²")
-    print(f"  相対基準: {ref_site}")
+        print(f"  {d} ε×S_wall = {eps_wall[d]:.4g} cm²  ({CALIB_TAG[d]})")
+    print(f"  相対基準（検出器別）: {ref_site}")
+    if phi0_d1_ground:
+        print(f"  図18 正規化: D1 地上 φ = {phi0_d1_ground:.4g} n/cm²/s")
     print("=" * 72)
-    print(f"{'検出器':4s} {'地点':12s} {'NET191-764':>12s} {'相対':>8s} {'φ[n/cm2/s]':>14s}")
+    print(f"{'検出器':4s} {'地点':12s} {'NET191-764':>12s} {'相対':>8s} {'D1地上':>8s} {'φ[n/cm2/s]':>14s}")
     for row in summary:
         print(
             f"{row['検出器']:4s} {row['地点']:12s} "
             f"{(row['NET_CPS_191_764keV'] or '—'):>12s} "
             f"{(row['相対フラックス'] or '—'):>8s} "
+            f"{(row['相対_D1地上'] or '—'):>8s} "
             f"{(row['絶対phi_n_cm2_s'] or '—'):>14s}"
         )
     print(f"\n出力: {OUT_LONG}")

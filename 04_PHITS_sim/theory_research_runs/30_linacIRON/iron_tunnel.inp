@@ -1,0 +1,52 @@
+[ Title ]
+linacIRON iron tunnel with one open face (Q2 geometry)
+S6 theory_research: 土100+コンクリ200+鉄150 垂直、側方鉄150、1面開口
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =     5000
+ maxbch   =       10
+ e-mode   =        2
+ negs     =        2
+ maxbnk   =   100000
+
+set: c1[800.]
+
+[ Source ]
+  totfact = -pi*c1**2
+ infl:{source.inp}
+     proj = neutron
+
+[ Material ]
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+mat[2]
+     H  -0.0224
+     O  -0.5488
+    Si  -0.1848
+    Al  -0.1160
+    Fe  -0.0800
+    Ca  -0.0128
+mat[3]
+     O  -0.0217
+    Si  -0.4675
+    Ca  -0.1295
+    Al  -0.0494
+    Fe  -0.0196
+mat[4]
+    Fe 70
+    Cr 18
+    Ni  9
+    Mn  2
+    Si  1
+
+[T-Track]
+  neutron
+  reg = 1
+  a-type = 2
+  e-type = 4
+  e-min = 1.0e-9
+  e-max = 1.0e4
+  unit = 1

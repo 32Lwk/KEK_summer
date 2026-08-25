@@ -1,5 +1,5 @@
 method,epsilon_S_ROI_cm2,epsilon_S_ROI_std_cm2,epsilon_S_total_cm2,D1_over_d1_ratio,note
-field_transfer_kanri2f_overnight,210.9,8.758,375.6,4.199,主結果。終夜D1 / d1 @管理棟2階
-field_transfer_kanri2f_short,198.5,,353.6,3.952,チェック用（短時間D1）
-geometry_side_area_scale,171.3,,305.1,3.41,参考。同一ε・側面支配を仮定
-pile_D1_80cm_deadtime_only_REJECTED,93.75,,,,不採用。ch0溢れ残り・R30/R80異常
+manufacturer_scale_450,252.7,,450,3.659,主結果。450 × (d1窓/123)
+field_transfer_kanri2f_overnight_REF_ONLY,290,,516.5,4.199,参考。宇宙線場の実効比。熱中性子εSには不使用
+geometry_projected_area_scale,188.6,,335.9,2.731,参考。同一ε・等方面積 S_iso
+pile_D1_80cm_live_CROSSCHECK,106.6,,,,照合。net/live ÷ φ(80cm)。主結果はメーカー（DT 不問）
