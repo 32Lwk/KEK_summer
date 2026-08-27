@@ -10,3 +10,6 @@ __pycache__/
 # Regenerable EGSnrc cross-section dumps (large)
 pegs5.dat
 **/__pycache__/
+
+.pptx_venv/
+.venv_pptx/

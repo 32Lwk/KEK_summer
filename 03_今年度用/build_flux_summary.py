@@ -21,13 +21,21 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-from flux_calibration import eps_wall_dict, load_wall_efficiencies_csv  # noqa: E402
+from flux_calibration import (  # noqa: E402
+    eps_peak_dict,
+    eps_wall_dict,
+    load_wall_efficiencies_csv,
+)
 from mca_common import is_pf_d2_mca  # noqa: E402
 
 TABLES = ROOT / "測定_20260818" / "tables"
 RECORD = TABLES / "測定記録.csv"
 OUT_LONG = TABLES / "フラックス_地点まとめ.csv"
 OUT_WIDE = TABLES / "フラックス_検出器別相対.csv"
+
+# wall: φ = NET_191–764 / εS_wall
+# peak: φ = peak ROI NET / εS_peak（本解析採用: peak764_cut200）
+FLUX_WINDOW = "peak"
 
 SITES_ORDER = [
     "地上",
@@ -37,10 +45,12 @@ SITES_ORDER = [
     "PF",
     "linac",
     "PS",
-    "linac_IRON",
     "放射線棟BT",
     "KEKB",
 ]
+
+# 本解析のフラックスまとめから除外（測定記録には残る）
+ANALYSIS_EXCLUDE_SITES = frozenset({"linac_IRON", "linacIRON"})
 
 CALIB_TAG = {
     "d1": "メーカー123×パイル窓比",
@@ -90,6 +100,8 @@ def site_label(place: str, filename: str) -> str:
         return "放射線棟BT"
     if "KEKB" in s or "kekb" in low:
         return "KEKB"
+    if "ep1" in low or "k2k" in low:
+        return "K2KBL"
     return "その他"
 
 
@@ -112,8 +124,10 @@ def prefer_score(filename: str, live_s: float, *, wall_valid: bool = True, bg_mo
 
 
 def main() -> None:
+    use_peak = FLUX_WINDOW.strip().lower() == "peak"
     wall_eff = load_wall_efficiencies_csv()
     eps_wall = eps_wall_dict(wall_eff)
+    eps_peak = eps_peak_dict(wall_eff)
     missing = [d for d in ("d1", "D1", "d2", "D2") if d not in eps_wall]
     if missing:
         print(
@@ -122,6 +136,15 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
+    if use_peak:
+        missing_p = [d for d in ("d1", "D1", "d2", "D2") if d not in eps_peak]
+        if missing_p:
+            print(
+                f"ERROR: εS_peak 未較正: {missing_p}\n"
+                "  先に python calc_window_comparison.py を実行してください。",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
     rows = list(csv.DictReader(RECORD.open(encoding="utf-8")))
 
@@ -136,7 +159,7 @@ def main() -> None:
             continue
         place = r.get("場所") or ""
         site = site_label(place, fn)
-        if site.startswith("熱中性子") or site == "その他":
+        if site.startswith("熱中性子") or site == "その他" or site in ANALYSIS_EXCLUDE_SITES:
             continue
         try:
             wall = float(r["wall_net_cps"])
@@ -148,6 +171,20 @@ def main() -> None:
         live = float(r.get("live_s") or r.get("測定時間_s") or 0)
         wall_valid = str(r.get("wall_net_valid", "1")) not in ("0", "False", "false")
         peak_valid = str(r.get("roi_net_valid", "1")) not in ("0", "False", "false")
+        if use_peak:
+            score = prefer_score(
+                fn,
+                live,
+                wall_valid=peak_valid and peak > 0,
+                bg_mode="",
+            )
+        else:
+            score = prefer_score(
+                fn,
+                live,
+                wall_valid=wall_valid and wall > 0,
+                bg_mode=(r.get("wall_bg_mode") or "").strip(),
+            )
         parsed.append(
             {
                 "検出器": det,
@@ -162,12 +199,7 @@ def main() -> None:
                 "peak_net_cps_err": peak_err,
                 "peak_valid": peak_valid,
                 "live_s": live,
-                "score": prefer_score(
-                    fn,
-                    live,
-                    wall_valid=wall_valid and wall > 0,
-                    bg_mode=(r.get("wall_bg_mode") or "").strip(),
-                ),
+                "score": score,
             }
         )
 
@@ -177,20 +209,27 @@ def main() -> None:
         if key not in best or p["score"] > best[key]["score"]:
             best[key] = p
 
+    eps_use = eps_peak if use_peak else eps_wall
+    net_key = "peak_net_cps" if use_peak else "wall_net_cps"
+    err_key = "peak_net_cps_err" if use_peak else "wall_net_cps_err"
+    valid_key = "peak_valid" if use_peak else "wall_valid"
+    eps_label = "εS_peak" if use_peak else "εS_wall"
+    window_label = "peak ROI NET" if use_peak else "191–764 keV NET"
+
     ref_cps: dict[str, float] = {}
     ref_site: dict[str, str] = {}
     for det in ("d1", "D1", "d2", "D2"):
         for site in ("地上", "管理棟2階", "linac"):
             hit = best.get((det, site))
-            if hit and hit["wall_valid"] and hit["wall_net_cps"] > 0:
-                ref_cps[det] = hit["wall_net_cps"]
+            if hit and hit[valid_key] and hit[net_key] > 0:
+                ref_cps[det] = hit[net_key]
                 ref_site[det] = site
                 break
 
     phi0_d1_ground: float | None = None
     d1_ground = best.get(("D1", "地上"))
-    if d1_ground and d1_ground["wall_valid"] and d1_ground["wall_net_cps"] > 0:
-        phi0_d1_ground = d1_ground["wall_net_cps"] / eps_wall["D1"]
+    if d1_ground and d1_ground[valid_key] and d1_ground[net_key] > 0:
+        phi0_d1_ground = d1_ground[net_key] / eps_use["D1"]
 
     def sort_key(item: tuple[str, str]) -> tuple:
         det, site = item
@@ -204,35 +243,38 @@ def main() -> None:
         wall_err = p["wall_net_cps_err"]
         peak = p["peak_net_cps"]
         peak_err = p["peak_net_cps_err"]
+        net = p[net_key]
+        net_err = p[err_key]
+        valid = bool(p[valid_key] and net > 0)
         notes: list[str] = []
 
-        e = eps_wall[det]
-        if p["wall_valid"] and wall > 0:
-            phi_abs = f"{wall / e:.6g}"
-            phi_err = f"{wall_err / e:.6g}"
-            notes.append(f"絶対φ=NET/(εS_wall={e:.4g},{CALIB_TAG[det]})")
+        e = eps_use[det]
+        if valid:
+            phi_abs = f"{net / e:.6g}"
+            phi_err = f"{net_err / e:.6g}"
+            notes.append(f"絶対φ={window_label}/({eps_label}={e:.4g},{CALIB_TAG[det]})")
         else:
             phi_abs = phi_err = ""
-            notes.append("wall NET 無効または≤0")
+            notes.append(f"{window_label} 無効または≤0")
 
-        if det in ref_cps and p["wall_valid"] and wall > 0:
-            rel = f"{wall / ref_cps[det]:.4g}"
-            rel_err = f"{wall_err / ref_cps[det]:.4g}"
+        if det in ref_cps and valid:
+            rel = f"{net / ref_cps[det]:.4g}"
+            rel_err = f"{net_err / ref_cps[det]:.4g}"
             notes.append(f"相対基準={ref_site[det]}")
         else:
             rel = rel_err = ""
             if det in ref_cps:
-                notes.append(f"相対基準={ref_site[det]}（当該地点 wall 不可）")
+                notes.append(f"相対基準={ref_site[det]}（当該地点 NET 不可）")
 
-        if phi0_d1_ground and p["wall_valid"] and wall > 0:
-            phi_val = wall / e
+        if phi0_d1_ground and valid:
+            phi_val = net / e
             rel_d1 = f"{phi_val / phi0_d1_ground:.4g}"
-            rel_d1_err = f"{wall_err / e / phi0_d1_ground:.4g}"
+            rel_d1_err = f"{net_err / e / phi0_d1_ground:.4g}"
         else:
             rel_d1 = rel_d1_err = ""
 
         if not p["wall_valid"] or wall <= 0:
-            notes.append("主窓191–764keV NET 無効（参考: peak ROI）")
+            notes.append("参考: wall NET 無効")
 
         summary.append(
             {
@@ -260,9 +302,15 @@ def main() -> None:
         by_det_site.setdefault(row["検出器"], {})[row["地点"]] = row
 
     ref_note = "; ".join(f"{d}基準={ref_site[d]}" for d in ("d1", "D1", "d2", "D2") if d in ref_site)
-    ref_note += "; " + "; ".join(
-        f"{d} εS_wall={eps_wall[d]:.4g} cm²" for d in ("d1", "D1", "d2", "D2")
-    )
+    if use_peak:
+        ref_note += "; " + "; ".join(
+            f"{d} εS_peak={eps_peak[d]:.4g} cm²" for d in ("d1", "D1", "d2", "D2")
+        )
+        ref_note += "; FLUX_WINDOW=peak"
+    else:
+        ref_note += "; " + "; ".join(
+            f"{d} εS_wall={eps_wall[d]:.4g} cm²" for d in ("d1", "D1", "d2", "D2")
+        )
     if phi0_d1_ground:
         ref_note += f"; D1地上φ={phi0_d1_ground:.4g} n/cm²/s"
 
@@ -274,7 +322,9 @@ def main() -> None:
             cell = by_det_site.get(det, {}).get(site)
             if cell:
                 any_hit = True
-                wr[f"{det}_NET"] = cell["NET_CPS_191_764keV"]
+                wr[f"{det}_NET"] = (
+                    cell["peak_ROI_net_CPS"] if use_peak else cell["NET_CPS_191_764keV"]
+                )
                 wr[f"{det}_相対"] = cell["相対フラックス"]
                 wr[f"{det}_相対D1地上"] = cell["相対_D1地上"]
                 wr[f"{det}_絶対phi"] = cell["絶対phi_n_cm2_s"]
@@ -302,18 +352,27 @@ def main() -> None:
         w.writerows(wide_rows)
 
     print("=" * 72)
-    print("フラックス地点まとめ（主窓 191–764 keV · NET）")
-    for d in ("d1", "D1", "d2", "D2"):
-        print(f"  {d} ε×S_wall = {eps_wall[d]:.4g} cm²  ({CALIB_TAG[d]})")
+    if use_peak:
+        print("フラックス地点まとめ（764 keV peak ROI · NET）")
+        for d in ("d1", "D1", "d2", "D2"):
+            print(f"  {d} ε×S_peak = {eps_peak[d]:.4g} cm²  ({CALIB_TAG[d]})")
+        net_col = "peak_ROI_net_CPS"
+        net_hdr = "NET_peak"
+    else:
+        print("フラックス地点まとめ（主窓 191–764 keV · NET）")
+        for d in ("d1", "D1", "d2", "D2"):
+            print(f"  {d} ε×S_wall = {eps_wall[d]:.4g} cm²  ({CALIB_TAG[d]})")
+        net_col = "NET_CPS_191_764keV"
+        net_hdr = "NET191-764"
     print(f"  相対基準（検出器別）: {ref_site}")
     if phi0_d1_ground:
         print(f"  図18 正規化: D1 地上 φ = {phi0_d1_ground:.4g} n/cm²/s")
     print("=" * 72)
-    print(f"{'検出器':4s} {'地点':12s} {'NET191-764':>12s} {'相対':>8s} {'D1地上':>8s} {'φ[n/cm2/s]':>14s}")
+    print(f"{'検出器':4s} {'地点':12s} {net_hdr:>12s} {'相対':>8s} {'D1地上':>8s} {'φ[n/cm2/s]':>14s}")
     for row in summary:
         print(
             f"{row['検出器']:4s} {row['地点']:12s} "
-            f"{(row['NET_CPS_191_764keV'] or '—'):>12s} "
+            f"{(row[net_col] or '—'):>12s} "
             f"{(row['相対フラックス'] or '—'):>8s} "
             f"{(row['相対_D1地上'] or '—'):>8s} "
             f"{(row['絶対phi_n_cm2_s'] or '—'):>14s}"

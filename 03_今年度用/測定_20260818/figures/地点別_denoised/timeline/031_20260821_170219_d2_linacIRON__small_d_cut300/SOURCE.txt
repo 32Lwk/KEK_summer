@@ -1,0 +1,3 @@
+run=small_d_cut300
+stem=d2_20260821_170219_linacIRON
+path=/Users/yuto/KEK_summer/03_今年度用/測定_20260818/denoised_runs/small_d_cut300/figures/地点別/d2_20260821_170219_linacIRON

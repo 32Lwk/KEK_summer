@@ -286,6 +286,16 @@ def eps_wall_dict(eff: dict[str, WallEfficiency] | None = None) -> dict[str, flo
     return {k: v.epsilon_S_wall_cm2 for k, v in eff.items()}
 
 
+def eps_peak_dict(eff: dict[str, WallEfficiency] | None = None) -> dict[str, float]:
+    """peak ROI 用 ε×S。無い検出器はスキップ。"""
+    eff = eff or load_wall_efficiencies_csv()
+    out: dict[str, float] = {}
+    for k, v in eff.items():
+        if v.epsilon_S_peakROI_cm2 and v.epsilon_S_peakROI_cm2 > 0:
+            out[k] = float(v.epsilon_S_peakROI_cm2)
+    return out
+
+
 def write_manufacturer_comparison_csv(
     eff: dict[str, WallEfficiency],
     path: Path | None = None,

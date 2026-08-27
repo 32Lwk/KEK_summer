@@ -1,0 +1,3 @@
+run=peak764_cut200
+stem=D1_20260819_1530_地上
+path=/Users/yuto/KEK_summer/03_今年度用/測定_20260818/denoised_runs/peak764_cut200/figures/地点別/D1_20260819_1530_地上

@@ -1,0 +1,11 @@
+id,name,棟No,type,x_pct,y_pct,width_m,depth_m,height_m,elev_bottom_m,rot_deg,color,zone,source,notes
+L01,管理棟,L01,box,57.2,55.8,42,28,8.0,0,0,#5dade2,L,Campus_Map,2階≈+4m。測定点2件
+H02,電子陽電子入射器棟,H02,box,20.5,74.0,22,135,14.0,-2,0,#7f8c8d,H,Campus_Map+Linac,Zone H 南北長尺。地下にビームトンネル
+H04,PF光源棟,H04,box,24.0,50.0,58,40,16.0,0,0,#bdc3c7,H,Campus_Map,
+G12,電子陽電子加速器コントロール棟,G12,box,28.0,52.0,32,22,9.0,0,0,#f39c12,G,Campus_Map,
+M04,放射線管理棟,M04,box,48.0,78.0,34,24,11.0,0,0,#e67e22,M,Campus_Map,
+M01,研究本館,M01,box,55.0,72.0,52,38,13.0,0,0,#d35400,M,Campus_Map,
+N02,国際交流センター,N02,box,62.0,82.0,40,30,10.0,0,0,#1abc9c,N,Campus_Map,
+KEKB_ring,KEKBリング,,torus,47.0,40.0,88,5.0,0,-8,0,#2980b9,E,BT Fig1.2+Campus,major R=88m minor=5m 床面y=-8m
+PFAR_ring,PF-ARリング,,torus,35.0,38.0,50,4.0,0,-5,0,#9b59b6,G,Campus_Map,major R=50m 床面y=-5m
+linac_beam,Linacビームトンネル,,box,21.0,68.0,10,95,8.0,-4,0,#566573,H,Linac.pdf,入射器地下部（推定深さ4m）

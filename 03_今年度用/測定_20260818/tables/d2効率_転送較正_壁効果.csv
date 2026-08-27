@@ -1,2 +1,2 @@
 method,epsilon_S_wall_cm2,D2_over_D1_ratio,D1_epsilon_S_wall_cm2,note
-field_transfer_d2_wall,306.6,0.7461,410.9,転送: linac 同日 D2/D1 壁窓比=0.746×D1εS_wall（PE 付き）
+field_transfer_d2_wall,298.2,0.7257,410.9,転送: linac 同日 D2/D1 壁窓比=0.726×D1εS_wall（PE 付き）

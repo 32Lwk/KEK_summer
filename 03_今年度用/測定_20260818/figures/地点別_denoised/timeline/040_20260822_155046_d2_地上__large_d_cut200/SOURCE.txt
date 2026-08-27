@@ -1,0 +1,3 @@
+run=large_d_cut200
+stem=d2_20260822_155046_地上
+path=/Users/yuto/KEK_summer/03_今年度用/測定_20260818/denoised_runs/large_d_cut200/figures/地点別/d2_20260822_155046_地上

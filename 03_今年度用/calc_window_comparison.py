@@ -87,6 +87,8 @@ def site_label(name: str) -> str:
         return "放射線棟BT"
     if "KEKB" in s:
         return "KEKB"
+    if "ep1" in s.lower() or "k2k" in s.lower():
+        return "K2KBL"
     return "その他"
 
 

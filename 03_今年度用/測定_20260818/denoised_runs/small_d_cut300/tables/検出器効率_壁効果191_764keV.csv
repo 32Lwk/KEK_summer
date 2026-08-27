@@ -1,0 +1,5 @@
+検出器,epsilon_S_wall_cm2,epsilon_S_wall_std_cm2,epsilon_S_peakROI_cm2,wall_over_peak_cal,manufacturer_cps_nv,epsilon_S_total_cm2,f_wall,wall_over_mfr,S_he3_isotropic_cm2,ε_mfr,S_he3_projected_cm2,備考
+d1,112.3,2.118,70.05,1.604,123,123,0.9132,0.9132,167.9,0.7328,200.8,"メーカー 123 cps/nv × f_wall=0.913（S_iso: L=39.53 cm, 直径=5.08 cm, ε_mfr=0.733）・パイル30&80cm"
+D1,410.9,,256.3,1.604,450,450,0.9132,0.9132,458.4,0.9816,537.6,"メーカー 450 cps/nv × f_wall=0.913（S_iso: L=56.00 cm, 直径=9.60 cm, ε_mfr=0.982）；照合 D1@80cm R/φ=264.1（参考・主結果はメーカー）"
+d2,136.4,,27.25,5.008,123,,,1.109,167.9,0.7328,200.8,転送: 地上 d2/D1 壁窓比=0.332×D1εS_wall（PE 付き）
+D2,306.6,,178.5,1.717,450,,,0.6814,458.4,0.9816,537.6,転送: linac 同日 D2/D1 壁窓比=0.746×D1εS_wall（PE 付き）

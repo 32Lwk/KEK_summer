@@ -1,0 +1,68 @@
+{
+  "id": "Linac",
+  "name": "電子陽電子 Linear Accelerator",
+  "source_pdf": "05_施設図/Linac.pdf",
+  "map_anchor": {
+    "x_pct": 20.5,
+    "y_pct": 74.0,
+    "棟No": "H02"
+  },
+  "building": {
+    "width_m": 9.0,
+    "depth_m": 135,
+    "height_m": 5.8,
+    "yBottom_m": 0.0
+  },
+  "tunnel": {
+    "type": "box",
+    "width_m": 5.0,
+    "depth_m": 95,
+    "height_m": 3.14,
+    "yBottom_m": -5.64
+  },
+  "evaluation_points": [
+    {
+      "id": "E10A",
+      "label": "E10A クライストロンギャラリー",
+      "notes": "図1.27 の評価点（地上・GL）"
+    },
+    {
+      "id": "S10",
+      "label": "S10 トンネル室ビームライン",
+      "notes": "GL -4.30 m"
+    }
+  ],
+  "cross_sections": [
+    {
+      "id": "Linac_tunnel_std",
+      "name": "下流部標準断面（第1セクター以降）",
+      "source_pdf": "Linac.pdf 図1.27 PDF p.41",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 5.0,
+      "inner_height_m": 3.14,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 250,
+          "source": "Linac.pdf 図1.27（図面記入値 2500 mm）"
+        }
+      ]
+    },
+    {
+      "id": "Linac_tunnel_up",
+      "name": "上流部断面（A〜Cセクター）",
+      "source_pdf": "Linac.pdf 図1.21 PDF p.35",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 5.6,
+      "inner_height_m": 4.2,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 150,
+          "source": "Linac.pdf 本文 PDF p.55"
+        }
+      ]
+    }
+  ],
+  "notes": "GL=クライストロンギャラリー床。ギャラリー内寸 8.65 m(W) x 5.49 m(H)、屋根 ≈0.3 m。1F（ギャラリー）の頭上遮蔽は屋根だけで、2.5 m コンクリートは床側にある。"
+}

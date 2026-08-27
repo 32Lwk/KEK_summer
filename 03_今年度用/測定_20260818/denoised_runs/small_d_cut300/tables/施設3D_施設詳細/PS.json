@@ -1,0 +1,49 @@
+{
+  "id": "PS",
+  "name": "陽子シンクロトロン施設 (PS)",
+  "source_pdf": "05_施設図/PS.pdf",
+  "map_anchor": {
+    "x_pct": 50.0,
+    "y_pct": 45.0,
+    "棟No": "K01-K32 区域"
+  },
+  "evaluation_points": [
+    {
+      "id": "E4",
+      "label": "FEL E4",
+      "dose_uSv_h": 0.77
+    },
+    {
+      "id": "E6",
+      "label": "FEL E6",
+      "dose_uSv_h": 0.99
+    },
+    {
+      "id": "L",
+      "label": "評価点 L"
+    }
+  ],
+  "cross_sections": [
+    {
+      "id": "PS_FEL",
+      "name": "FEL 加速器室",
+      "source_pdf": "PS.pdf 図1-12",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 5.0,
+      "inner_height_m": 4.0,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 70,
+          "source": "PS.pdf 表2-1-1"
+        },
+        {
+          "material": "鉛",
+          "thickness_cm": 20,
+          "source": "PS.pdf 表2-1-1"
+        }
+      ]
+    }
+  ],
+  "notes": "ビームライントンネルは鉄筋コンクリート製 (PS.pdf p.35)"
+}

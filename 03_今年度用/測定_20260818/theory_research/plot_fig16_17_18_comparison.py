@@ -65,7 +65,7 @@ MIX_COMP_LABELS = (
     r"平衡 $\frac{9}{10}(1-e^{-x/\lambda})$",
 )
 OLD_LAM = (39.2, 60.0, 141.5)
-FACILITY_SITES = ("地上", "testhole", "PF", "linac", "Linac3", "BT", "PS", "KEKB", "linacIRON")
+FACILITY_SITES = pm.FACILITY_SITES
 
 # 文献参考点: 神岡（神岡）地下 laboratory（覆土深 1000 m, PTEP 系文献値）
 KAMIOKA_REF = {
@@ -304,8 +304,8 @@ def _annotate_sites_short(ax, points: list[dict]) -> None:
         "linac": (8, -16, "left", "top"),
         "Linac3": (8, -16, "left", "top"),
         "BT": (-8, 12, "right", "bottom"),
-        "PS": (8, 10, "left", "bottom"),
-        "KEKB": (-8, -14, "right", "top"),
+        "PS": (10, 14, "left", "bottom"),
+        "KEKB": (-10, -16, "right", "top"),
         "linacIRON": (-8, 12, "right", "bottom"),
         "神岡": (10, -14, "left", "top"),
     }
@@ -365,22 +365,41 @@ def _setup_linear_x(
     ax.tick_params(axis="x", which="major", direction="out", labelsize=9)
 
 
-SYMLIN_X_LINTHRESH = 100.0
+# 連続版横軸: 0–KEKB を画面幅のこの割合以上にする（残りは神岡側を圧縮）
+FIG19_KEK_AXIS_FRAC = 0.60
 
 
-def _symlog_teq_ticks(x_max: float, *, linthresh: float = SYMLIN_X_LINTHRESH) -> list[float]:
-    """symlog 横軸用 major tick（重なりを抑える疎な目盛り）。"""
+def _symlog_linthresh() -> float:
+    """KEKB までを symlog の線形域に含める（0–KEKB が等間隔になる）。"""
+    return pm._kek_axis_x_max()
+
+
+def _symlog_linscale(x_max: float, *, linthresh: float, kek_frac: float = FIG19_KEK_AXIS_FRAC) -> float:
+    """0–linthresh が横軸の kek_frac 以上になるよう linscale を決める。
+
+    matplotlib symlog: 線形域の表示幅 ∝ linscale、対数域 ∝ log10(xmax/linthresh)。
+    """
+    lin = max(float(linthresh), 1.0)
+    xmax = max(float(x_max), lin * 1.01)
+    log_decades = float(np.log10(xmax / lin))
+    f = min(max(float(kek_frac), 0.51), 0.85)
+    return log_decades * f / (1.0 - f)
+
+
+def _symlog_teq_ticks(x_max: float, *, linthresh: float | None = None) -> list[float]:
+    """symlog 横軸用 major tick（KEK 域は 100 cm 等間隔、深部は疎）。"""
+    lin = _symlog_linthresh() if linthresh is None else float(linthresh)
     ticks: list[float] = []
-    for t in (0, 100, 200, 300, 400, 500, 600, 700, 800):
-        if t <= x_max + 1e-9:
+    t = 0.0
+    while t <= lin + 1e-9:
+        ticks.append(t)
+        t += 100.0
+    # 深部は省略気味（神岡付近だけ）
+    for t in (10000, 30000, 50000, 80000, 100000):
+        if t > lin * 1.5 and t <= x_max * 1.001:
             ticks.append(float(t))
-    for t in (1000, 2000, 5000):
-        if t <= x_max + 1e-9:
-            ticks.append(float(t))
-    v = 10000.0
-    while v <= x_max * 1.001:
-        ticks.append(v)
-        v += 20000.0
+    if x_max > lin and all(abs(x_max - t) > 2000 for t in ticks):
+        ticks.append(float(x_max))
     return sorted(set(ticks))
 
 
@@ -394,15 +413,16 @@ def _format_teq_cm(x: float, _pos) -> str:
     return f"{int(round(x))}"
 
 
-def _setup_symlog_x(ax, x_max: float, *, linthresh: float = SYMLIN_X_LINTHRESH) -> None:
-    """fig19 連続版: symlog 横軸と明示目盛り。"""
-    ax.set_xscale("symlog", linthresh=linthresh, linscale=0.35)
+def _setup_symlog_x(ax, x_max: float, *, linthresh: float | None = None) -> None:
+    """fig19 連続版: symlog 横軸と明示目盛り。
+
+    0–KEKB は線形（100 cm 等間隔）かつ横幅の過半。神岡側は対数圧縮。
+    """
+    lin = _symlog_linthresh() if linthresh is None else float(linthresh)
+    linscale = _symlog_linscale(x_max, linthresh=lin)
+    ax.set_xscale("symlog", linthresh=lin, linscale=linscale)
     ax.set_xlim(0, x_max)
-    ticks = _symlog_teq_ticks(x_max, linthresh=linthresh)
-    ticks = [
-        t for t in ticks
-        if t < 900 or t in (1000, 10000, 30000, 50000, 70000) or t >= x_max * 0.98
-    ]
+    ticks = _symlog_teq_ticks(x_max, linthresh=lin)
     ax.xaxis.set_major_locator(FixedLocator(ticks))
     ax.xaxis.set_major_formatter(FuncFormatter(_format_teq_cm))
     ax.xaxis.set_minor_locator(FixedLocator([]))
@@ -467,7 +487,7 @@ def _fig19_draw_data(
         _plot_kamioka_ref(ax, pt)
 
 
-FIG19_X_KEK = 850.0       # 左パネル上限 [cm]
+FIG19_X_KEK = pm._kek_axis_x_max()  # 左パネル上限 [cm]（KEKB まで統一）
 FIG19_X_DEEP_LO = 8000.0  # 右パネル下限 [cm]（中断部）
 
 
@@ -476,6 +496,7 @@ def _fig19_prepare(
     *,
     absolute: bool,
     flux_data: dict | None = None,
+    detectors: tuple[str, ...] | None = None,
 ):
     """fig19 共通: データ点・x 範囲を準備。不足時は None。"""
     flux = flux_data if flux_data is not None else pm.load_flux_summary()
@@ -485,26 +506,28 @@ def _fig19_prepare(
         print(f"skip fig19 {'absolute' if absolute else 'relative'}")
         return None
 
+    det_order = detectors or ("D1", "D2", "d1", "d2")
     plotted: list[str] = []
     all_pts: list[dict] = []
-    for det in ("D1", "D2", "d1", "d2"):
+    for det in det_order:
         if absolute:
             pts = pm._build_flux_points(det, absolute=True, flux=flux)
         else:
             pts = pm._build_flux_points_ground_norm(det, flux=flux)
         pts = [pt for pt in pts if pt.get("label") in FACILITY_SITES or pt["site"] == "地上"]
-        if len(pts) >= 2:
+        if len(pts) >= 1:
             plotted.append(det)
             all_pts.extend(pts)
 
-    if len(plotted) < 2:
+    if len(plotted) < 1 or not all_pts:
         print("skip fig19: 検出器不足")
         return None
 
     kamioka = _kamioka_ref_point(flux, absolute=absolute)
     kek_pts = list(all_pts)
     all_pts.append(kamioka)
-    x_max = max(kamioka["x"], max(pt["x"] + pt.get("x_err", 0.0) for pt in kek_pts)) * 1.02
+    kek_x_max = pm._kek_axis_x_max()
+    x_max = max(kamioka["x"], kek_x_max) * 1.02
     return flux, phi0, plotted, kek_pts, kamioka, all_pts, x_max
 
 
@@ -535,13 +558,13 @@ def _setup_ax(
 ) -> None:
     ax.set_xlabel(r"等価コンクリート厚 $t_{\rm eq}$ [cm]（$X/\rho_c$）")
     if symlog_x:
-        ax.set_xscale("symlog", linthresh=100.0, linscale=0.35)
-        ax.set_xlim(0, x_max)
-        ax.xaxis.set_major_locator(MaxNLocator(nbins=8))
+        _setup_symlog_x(ax, x_max)
     else:
+        # KEKB までの線形軸は 100 cm 等間隔（全図統一）
         ax.set_xlim(x_left if not logy else 0, x_max)
-        ax.xaxis.set_major_locator(MultipleLocator(100 if x_max > 400 else 50))
-        ax.xaxis.set_minor_locator(MultipleLocator(20))
+        step = 100.0 if x_max >= 400 else 50.0
+        ax.xaxis.set_major_locator(MultipleLocator(step))
+        ax.xaxis.set_minor_locator(MultipleLocator(step / 5.0))
     ax.tick_params(which="both", direction="out")
     if logy:
         ax.axvline(0, color="#DDDDDD", lw=0.6, zorder=0)
@@ -592,7 +615,7 @@ def fig16_cps(p: TransportParams, *, absolute: bool, detector: str = "d2") -> No
             "x_err": float(sys["dteq_cm"]), "y_err": y_err,
         })
 
-    x_max = max(pt["x"] + pt["x_err"] for pt in points) * 1.03
+    x_max = pm._kek_axis_x_max()
     x_c = np.linspace(0, x_max, 400)
 
     fig, ax = plt.subplots(figsize=(9.0, 6.2))
@@ -634,7 +657,7 @@ def fig17_flux(p: TransportParams, *, detector: str = "d2") -> None:
         return
 
     phi0 = pm._flux_phi0_ground(flux)
-    x_max = max(pt["x"] + pt.get("x_err", 0.0) for pt in points) * 1.03
+    x_max = pm._kek_axis_x_max()
     x_c = np.linspace(0, x_max, 400)
 
     fig, ax = plt.subplots(figsize=(9.0, 6.2))
@@ -717,46 +740,77 @@ def _fig18_theory_ys(x_c: np.ndarray, y_c: np.ndarray, *, scale: float) -> list[
     ]
 
 
-def fig18_compare(p: TransportParams, *, absolute: bool) -> None:
+# 図18 分割: 熱中性子（裸管）/ MeV（PE）
+FIG18_THERMAL_DETS = ("D1", "d1")
+FIG18_MEV_DETS = ("D2", "d2")
+FIG18_DET_LABELS = {
+    "D1": "D1（熱・大径・SN1715）",
+    "d1": "d1（熱・小径・SN2162）",
+    "D2": "D2（MeV・大径・SN1715）",
+    "d2": "d2（MeV・小径・SN2162）",
+}
+
+
+def _fig18_anchor_phi0(flux: dict, detectors: tuple[str, ...]) -> float:
+    """理論曲線スケール用 φ0。グループ先頭検出器の地上、なければ D1 地上。"""
+    for det in detectors:
+        phi = _meas_phi(det, "地上", flux)
+        if phi and phi > 0:
+            return phi
+    return pm._flux_phi0_ground(flux)
+
+
+def fig18_compare(
+    p: TransportParams,
+    *,
+    absolute: bool,
+    detectors: tuple[str, ...] = ("D1", "D2", "d1", "d2"),
+    name_suffix: str = "",
+    title: str | None = None,
+    det_labels: dict[str, str] | None = None,
+) -> None:
+    """図18: 絶対/相対 φ の検出器比較。detectors で系列を絞れる。"""
     flux = pm.load_flux_summary()
     try:
-        phi0 = pm._flux_phi0_ground(flux)
+        phi0 = _fig18_anchor_phi0(flux, detectors) if absolute else pm._flux_phi0_ground(flux)
     except KeyError:
-        print(f"skip fig18 {'absolute' if absolute else 'relative'}")
+        print(f"skip fig18 {'absolute' if absolute else 'relative'}{name_suffix}")
         return
 
     plotted: list[str] = []
     all_pts: list[dict] = []
-    for det in ("D1", "D2", "d1", "d2"):
+    for det in detectors:
         if absolute:
             pts = pm._build_flux_points(det, absolute=True, flux=flux)
         else:
             pts = pm._build_flux_points_ground_norm(det, flux=flux)
         pts = [pt for pt in pts if pt.get("label") in FACILITY_SITES or pt["site"] == "地上"]
-        if len(pts) >= 2:
+        if pts:
             plotted.append(det)
             all_pts.extend(pts)
 
-    if len(plotted) < 2:
-        print("skip fig18: 検出器不足")
+    if len(all_pts) < 2:
+        print(f"skip fig18{name_suffix}: 測定点不足")
         return
 
-    x_max = max(pt["x"] + pt.get("x_err", 0.0) for pt in all_pts) * 1.03
+    x_max = pm._kek_axis_x_max()
     x_c = np.linspace(0, x_max, 400)
     theory_scale = phi0 if absolute else 1.0
+    theory_det = next((d for d in detectors if _meas_phi(d, "地上", flux)), "D1")
 
     fig, ax = plt.subplots(figsize=(10.6, 6.4))
-    fig.subplots_adjust(left=0.11, right=0.97, top=0.94, bottom=0.12)
+    fig.subplots_adjust(left=0.11, right=0.97, top=0.90 if title else 0.94, bottom=0.12)
 
     _plot_old_theory(ax, x_c, theory_scale, relative=not absolute, compact=True)
     if absolute:
-        t_c, y_c = _complete_flux("D1", p, flux)
+        t_c, y_c = _complete_flux(theory_det, p, flux)
     else:
-        t_c, y_c = _complete_flux("D1", p, flux, norm=phi0)
+        t_c, y_c = _complete_flux(theory_det, p, flux, norm=phi0)
     ax.plot(t_c, y_c, color=COMPLETE_COLOR, lw=COMPLETE_LW, label=COMPLETE_LABEL, zorder=2)
     _plot_mix_theory(ax, x_c, scale=theory_scale, components=False)
     _plot_muon_induced_theory(ax, x_c, scale=theory_scale, components=False)
 
+    labels = det_labels or {}
     for det in plotted:
         if absolute:
             pts = pm._build_flux_points(det, absolute=True, flux=flux)
@@ -769,7 +823,7 @@ def fig18_compare(p: TransportParams, *, absolute: bool) -> None:
             xerr=[pt["x_err"] for pt in pts], yerr=[pt["y_err"] for pt in pts],
             fmt=st["marker"], color=st["color"], ms=st["ms"] - 1,
             linestyle="none", capsize=2.5, elinewidth=0.8, zorder=4,
-            label=st["label"],
+            label=labels.get(det, st["label"]),
         )
 
     if absolute:
@@ -791,12 +845,33 @@ def fig18_compare(p: TransportParams, *, absolute: bool) -> None:
         ax.set_ylabel(r"中性子フラックス $\phi$ [n/cm$^2$/s]")
     else:
         ax.set_ylabel("相対フラックス（D1 地上 = 1）")
+    if title:
+        ax.set_title(title, fontsize=12, pad=8)
     _annotate_sites_once(ax, all_pts)
     _legend(ax, logy=True)
 
     kind = "絶対" if absolute else "相対"
-    _save(fig, f"18_全地点_フラックス_{kind}_検出器比較_誤差棒_片対数")
+    _save(fig, f"18_全地点_フラックス_{kind}_検出器比較_誤差棒_片対数{name_suffix}")
 
+
+def fig18_thermal_mev_split(p: TransportParams, *, absolute: bool = True) -> None:
+    """図18を熱中性子（D1,d1）と MeV（D2,d2）に分割。"""
+    fig18_compare(
+        p,
+        absolute=absolute,
+        detectors=FIG18_THERMAL_DETS,
+        name_suffix="_熱中性子_D1d1",
+        title="熱中性子（D1, d1）",
+        det_labels=FIG18_DET_LABELS,
+    )
+    fig18_compare(
+        p,
+        absolute=absolute,
+        detectors=FIG18_MEV_DETS,
+        name_suffix="_MeV_D2d2",
+        title="MeV 中性子（D2, d2）",
+        det_labels=FIG18_DET_LABELS,
+    )
 
 def fig19_deep_compare(p: TransportParams, *, absolute: bool) -> None:
     """図19: fig18 + 神岡文献点。横軸は KEK / 深部の二分割。"""
@@ -807,9 +882,11 @@ def fig19_deep_compare(p: TransportParams, *, absolute: bool) -> None:
     x_c = np.linspace(0, x_max, 900)
     theory_scale = phi0 if absolute else 1.0
 
+    # 左(KEKB)を過半・右(神岡)は省略気味に圧縮
+    kek_w = FIG19_KEK_AXIS_FRAC / (1.0 - FIG19_KEK_AXIS_FRAC)
     fig, (ax_ke, ax_dp) = plt.subplots(
         1, 2, sharey=True, figsize=(13.2, 6.5),
-        gridspec_kw=dict(width_ratios=[1.05, 1.0], wspace=0.08),
+        gridspec_kw=dict(width_ratios=[kek_w, 1.0], wspace=0.06),
     )
     fig.subplots_adjust(left=0.08, right=0.97, top=0.94, bottom=0.14)
 
@@ -869,14 +946,20 @@ def fig19_deep_compare_continuous(
     *,
     absolute: bool,
     s_area_scale: float = 1.0,
+    detectors: tuple[str, ...] | None = None,
+    name_suffix: str = "",
 ) -> None:
-    """図19 連続版: 神岡点あり、横軸 symlog（軸分割なし）。
+    """図19 連続版: 神岡点あり、横軸 symlog（0–KEKB 線形 + 深部対数）。
 
     s_area_scale: フラックス計算の検出器面積倍率（2 → φ は 1/2、理論曲線は不変）。
+    detectors: 重ねる検出器（例: ("D1","d1") 裸管同型、("D2","d2") PE同型）。
+    name_suffix: 保存名末尾（例: "_同型裸管_D1d1"）。
     """
     flux_theory = pm.load_flux_summary()
     flux_data = _scale_flux_area(flux_theory, s_area_scale)
-    prep = _fig19_prepare(p, absolute=absolute, flux_data=flux_data)
+    prep = _fig19_prepare(
+        p, absolute=absolute, flux_data=flux_data, detectors=detectors,
+    )
     if prep is None:
         return
     _, phi0, plotted, _kek_pts, kamioka, all_pts, x_max = prep
@@ -913,7 +996,26 @@ def fig19_deep_compare_continuous(
     _legend(ax, logy=True)
 
     kind = "絶対" if absolute else "相対"
-    _save(fig, f"19_全地点_フラックス_{kind}_検出器比較_神岡_連続_誤差棒_片対数")
+    _save(
+        fig,
+        f"19_全地点_フラックス_{kind}_検出器比較_神岡_連続_誤差棒_片対数{name_suffix}",
+    )
+
+
+def fig19_same_type_continuous(p: TransportParams, *, absolute: bool = True) -> None:
+    """同型同士（裸管 D1–d1 / PE D2–d2）の図19連続版。"""
+    fig19_deep_compare_continuous(
+        p,
+        absolute=absolute,
+        detectors=("D1", "d1"),
+        name_suffix="_同型裸管_D1d1",
+    )
+    fig19_deep_compare_continuous(
+        p,
+        absolute=absolute,
+        detectors=("D2", "d2"),
+        name_suffix="_同型PE_D2d2",
+    )
 
 
 def fig18_relative(p: TransportParams) -> None:
@@ -931,10 +1033,14 @@ def _cleanup_obsolete() -> None:
         "17_全地点_フラックス_絶対_d2_誤差棒_片対数.png",
         "18_全地点_フラックス_相対_検出器比較_誤差棒_片対数.png",
         "18_全地点_フラックス_絶対_検出器比較_誤差棒_片対数.png",
+        "18_全地点_フラックス_絶対_検出器比較_誤差棒_片対数_熱中性子_D1d1.png",
+        "18_全地点_フラックス_絶対_検出器比較_誤差棒_片対数_MeV_D2d2.png",
         "19_全地点_フラックス_相対_検出器比較_神岡_誤差棒_片対数.png",
         "19_全地点_フラックス_絶対_検出器比較_神岡_誤差棒_片対数.png",
         "19_全地点_フラックス_相対_検出器比較_神岡_連続_誤差棒_片対数.png",
         "19_全地点_フラックス_絶対_検出器比較_神岡_連続_誤差棒_片対数.png",
+        "19_全地点_フラックス_絶対_検出器比較_神岡_連続_誤差棒_片対数_同型裸管_D1d1.png",
+        "19_全地点_フラックス_絶対_検出器比較_神岡_連続_誤差棒_片対数_同型PE_D2d2.png",
     }
     removed = 0
     for f in list(FIG_DIR.glob("*.png")):
@@ -963,6 +1069,7 @@ def main() -> None:
         fig17_flux(p, detector=det)
     fig18_relative(p)
     fig18_compare(p, absolute=True)
+    fig18_thermal_mev_split(p, absolute=True)
     fig19_deep_compare(p, absolute=False)
     fig19_deep_compare(p, absolute=True)
     fig19_deep_compare_continuous(p, absolute=False)
