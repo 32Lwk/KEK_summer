@@ -1,0 +1,33 @@
+{
+  "id": "先端計測",
+  "name": "先端計測実験棟",
+  "source_pdf": "05_施設図/先端計測実験棟.pdf",
+  "map_anchor": {
+    "x_pct": 55.0,
+    "y_pct": 52.0,
+    "棟No": "I15/N15"
+  },
+  "building": {
+    "width_m": 30,
+    "depth_m": 20,
+    "height_m": 12,
+    "yBottom_m": -7
+  },
+  "cross_sections": [
+    {
+      "id": "sentan_B1",
+      "name": "地下1階 RI測定室",
+      "source_pdf": "先端計測実験棟.pdf",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 8.38,
+      "inner_height_m": 7.25,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 30,
+          "source": "先端計測実験棟.pdf 地下1階平面図"
+        }
+      ]
+    }
+  ]
+}

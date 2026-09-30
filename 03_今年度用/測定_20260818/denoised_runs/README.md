@@ -5,7 +5,7 @@
 | run_id | 説明 |
 |--------|------|
 | `large_d_cut200` | large_d_cut200（適応型補正・d/D 統合・確認用） |
-| `peak764_cut200` | peak764_cut200（764 keV peak ROI フラックス・確認用） |
+| `peak764_cut200` | peak764_cut200（peak ROI 側帯 NET f · 02 地点別ロジック） |
 | `small_d_cut300` | small_d_cut300（d/D 統合・ch>=300 割合補正・確認用） |
 
 例:

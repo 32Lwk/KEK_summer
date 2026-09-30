@@ -1,0 +1,20 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1790748102_hkwth9lo) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Wed Sep 30 15:01:43 JST 2026
+Program is started                on 2026/09/30 at 15h 01m 43s
+ *** Warning! emin(14) is changed. Transport physics is distorted. Default emin(14) is encouraged
+Initialization is completed          on 2026/09/30 at 15h 01m 46s
+ Warning : Particle is split by          74 Check [Importance].
+ Warning : Particle is split by          36 Check [Importance].
+ Warning : Particle is split by          73 Check [Importance].
+ Warning : Particle is split by          36 Check [Importance].
+ Warning : Particle is split by          74 Check [Importance].
+ Warning : Particle is split by          35 Check [Importance].
+ This message is not shown anymore
+bat[       1] ncas =            700. on 2026/09/30 at 15h 03m 08s
+Program is finished               on 2026/09/30 at 15h 03m 08s
+[phits-web] PHITS finished normally in 87 s — 5 output file(s) on the server
+[phits-web] downloaded 4 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/site_models/runs/PF/had_s3004

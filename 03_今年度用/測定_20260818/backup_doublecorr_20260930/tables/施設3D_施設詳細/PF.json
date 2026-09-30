@@ -1,0 +1,69 @@
+{
+  "id": "PF",
+  "name": "放射光科学研究施設 (PF)",
+  "source_pdf": "05_施設図/PF.pdf",
+  "map_anchor": {
+    "x_pct": 24.0,
+    "y_pct": 50.0,
+    "棟No": "H04"
+  },
+  "building": {
+    "width_m": 58,
+    "depth_m": 40,
+    "height_m": 16,
+    "yBottom_m": 0
+  },
+  "ring": {
+    "type": "torus",
+    "majorR_m": 50,
+    "minorR_m": 4,
+    "yCenter_m": -5
+  },
+  "evaluation_points": [
+    {
+      "id": "E_side",
+      "label": "入射点側面"
+    },
+    {
+      "id": "M_lab",
+      "label": "光源棟実験室"
+    }
+  ],
+  "cross_sections": [
+    {
+      "id": "PF_injection",
+      "name": "入射点側面",
+      "source_pdf": "PF.pdf 図1-10",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 6.0,
+      "inner_height_m": 5.0,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 70,
+          "source": "PF.pdf 表2-1"
+        }
+      ]
+    },
+    {
+      "id": "PF_dump",
+      "name": "ダンプ A5",
+      "source_pdf": "PF.pdf 図2-1",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 8.0,
+      "inner_height_m": 6.0,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 190,
+          "source": "PF.pdf 表2-2 有効厚"
+        },
+        {
+          "material": "鉄",
+          "thickness_cm": 54,
+          "source": "PF.pdf 表2-2 有効厚"
+        }
+      ]
+    }
+  ]
+}

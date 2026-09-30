@@ -1,0 +1,5 @@
+method,epsilon_S_ROI_cm2,epsilon_S_ROI_std_cm2,epsilon_S_total_cm2,D1_over_d1_ratio,note
+manufacturer_scale_450,252.7,,450,3.659,主結果。450 × (d1窓/123)
+field_transfer_kanri2f_overnight_REF_ONLY,290,,516.5,4.199,参考。宇宙線場の実効比。熱中性子εSには不使用
+geometry_projected_area_scale,188.6,,335.9,2.731,参考。同一ε・等方面積 S_iso
+pile_D1_80cm_live_CROSSCHECK,106.6,,,,照合。net/live ÷ φ(80cm)。主結果はメーカー（DT 不問）

@@ -1,0 +1,11 @@
+ *** Warning! emin(14) is changed. Transport physics is distorted. Default emin(14) is encouraged
+ Warning : Particle is split by          74 Check [Importance].
+ Warning : Particle is split by          74 Check [Importance].
+ Warning : Particle is split by          74 Check [Importance].
+ Warning : Particle is split by          74 Check [Importance].
+ Warning : Particle is split by          74 Check [Importance].
+ Warning : Particle is split by          73 Check [Importance].
+ This message is not shown anymore
+  Warning : in prdgam, a photon production in a neutron reaction has failed due to random number.
+ warning in jamsfex:srt<emin1+emin2, repeat JAM
+bat[       1] ncas =          20000. : date = 2026-09-30 : time = 18h 26m 49s

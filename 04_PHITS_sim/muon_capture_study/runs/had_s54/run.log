@@ -1,0 +1,14 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1790722876_dbxa88wf) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Wed Sep 30 08:01:17 JST 2026
+Program is started                on 2026/09/30 at 08h 01m 17s
+ *** Warning! emin(14) is changed. Transport physics is distorted. Default emin(14) is encouraged
+Initialization is completed          on 2026/09/30 at 08h 01m 20s
+  Warning : in prdgam, a photon production in a neutron reaction has failed due to random number.
+bat[       1] ncas =           1700. on 2026/09/30 at 08h 03m 56s
+Program is finished               on 2026/09/30 at 08h 03m 56s
+[phits-web] PHITS finished normally in 162 s — 5 output file(s) on the server
+[phits-web] downloaded 4 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/muon_capture_study/runs/had_s54

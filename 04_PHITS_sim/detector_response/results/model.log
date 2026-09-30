@@ -1,0 +1,16 @@
+[標準（土は含水、Linac3=300 cm）]
+  r=1 固定 : k_bare=0.75±0.04 k_PE=2.21±0.18 chi2/ndf=101.3/13
+  r 自由   : k_bare=0.37±0.06 k_PE=0.99±0.18 r=3.21±0.67 chi2/ndf=55.0/12
+  一定成分 : k_bare=0.52±0.04 k_PE=1.43±0.20 B_large=0.0319±0.0034 B_small=0.0029±0.0009 chi2/ndf=59.1/11
+[土を乾燥組成]
+  r=1 固定 : k_bare=0.74±0.04 k_PE=2.32±0.20 chi2/ndf=117.8/13
+  r 自由   : k_bare=0.33±0.06 k_PE=0.94±0.20 r=3.97±0.97 chi2/ndf=62.7/12
+  一定成分 : k_bare=0.49±0.04 k_PE=1.29±0.18 B_large=0.0362±0.0031 B_small=0.0046±0.0007 chi2/ndf=59.1/11
+[Linac3=250 cm]
+  r=1 固定 : k_bare=0.74±0.04 k_PE=2.17±0.17 chi2/ndf=93.4/13
+  r 自由   : k_bare=0.39±0.06 k_PE=1.02±0.18 r=3.04±0.62 chi2/ndf=51.6/12
+  一定成分 : k_bare=0.53±0.04 k_PE=1.44±0.19 B_large=0.0303±0.0035 B_small=0.0025±0.0009 chi2/ndf=50.8/11
+/Users/yuto/KEK_summer/04_PHITS_sim/detector_response/results/model_fit.csv
+/Users/yuto/KEK_summer/04_PHITS_sim/detector_response/results/model_table_rows.tex
+/Users/yuto/KEK_summer/03_今年度用/最終レポート_20260925/figures/fig13_phits_model.png
+/Users/yuto/KEK_summer/03_今年度用/最終レポート_20260925/figures/fig13_response.png

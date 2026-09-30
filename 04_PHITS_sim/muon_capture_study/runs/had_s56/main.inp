@@ -1,0 +1,170 @@
+[ Title ]
+Semi-infinite concrete, cosmic neutron + proton (seed 56)
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =     1700
+ maxbch   =        1
+ rseed    =     56.0
+ negs     =        1
+ emin(12) =      5.0
+ emin(13) =      5.0
+ emin(14) =      5.0
+ ipnint   =        1
+ imuint   =        1
+ maxbnk   =   200000
+
+set: c1[1600.]
+set: c2[2200.]
+set: c3[1500.]
+set: c4[1550.]
+
+[ Source ]
+  totfact = -pi*c1**2
+ infl:{source.inp}
+     proj = neutron
+ infl:{source.inp}
+     proj = proton
+
+[ Material ]
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+mat[2]
+     H  -0.010
+     C  -0.001
+     O  -0.529
+    Na  -0.016
+    Mg  -0.002
+    Al  -0.034
+    Si  -0.337
+     K  -0.013
+    Ca  -0.044
+    Fe  -0.014
+
+[ Mat Name Color ]
+   mat     name       size  color
+     1     Air         1.0  yellowgreen
+     2     Concrete    1.0  lightgray
+
+[ Surface ]
+  10   so   c3
+  12   so   c2
+  13   so   c4
+  20   pz   0.0
+  21   pz     -50.0
+  22   pz    -100.0
+  23   pz    -150.0
+  24   pz    -200.0
+  25   pz    -250.0
+  26   pz    -300.0
+  27   pz    -350.0
+  28   pz    -400.0
+  29   pz    -450.0
+  30   pz    -500.0
+  31   pz    -550.0
+  32   pz    -600.0
+  33   pz    -650.0
+  34   pz    -700.0
+  35   pz    -750.0
+  36   pz    -800.0
+  37   pz    -850.0
+  38   pz    -900.0
+  50   rpp  -800.0 800.0  -800.0 800.0   50.0  250.0
+
+[ Cell ]
+  100    1 -1.205e-3  -10   20  50
+  111    1 -1.205e-3  -50
+  201    2 -2.30  -10  -20  21
+  202    2 -2.30  -10  -21  22
+  203    2 -2.30  -10  -22  23
+  204    2 -2.30  -10  -23  24
+  205    2 -2.30  -10  -24  25
+  206    2 -2.30  -10  -25  26
+  207    2 -2.30  -10  -26  27
+  208    2 -2.30  -10  -27  28
+  209    2 -2.30  -10  -28  29
+  210    2 -2.30  -10  -29  30
+  211    2 -2.30  -10  -30  31
+  212    2 -2.30  -10  -31  32
+  213    2 -2.30  -10  -32  33
+  214    2 -2.30  -10  -33  34
+  215    2 -2.30  -10  -34  35
+  216    2 -2.30  -10  -35  36
+  217    2 -2.30  -10  -36  37
+  218    2 -2.30  -10  -37  38
+  219    2 -2.30  -10  -38
+  900    0             10 -12   20
+  901    0             10 -13  -20
+  902    0             13 -12  -20
+  999   -1             12
+
+[ Volume ]
+   reg          vol
+   111    5.120e+08
+
+[ Importance ]
+ part = neutron proton
+  reg   imp
+  201   2.0
+  202   4.0
+  203   8.0
+  204   16.0
+  205   32.0
+  206   64.0
+  207   128.0
+  208   256.0
+  209   512.0
+  210   1024.0
+  211   2048.0
+  212   4096.0
+  213   8192.0
+  214   16384.0
+  215   32768.0
+  216   65536.0
+  217   131072.0
+  218   262144.0
+  219   262144.0
+  901   0.0
+
+[ T-Track ]
+    title = Flux spectrum in open air above ground
+     mesh =  reg
+      reg =  111
+   e-type =    3
+       ne =   60
+     emin =  1.0e-10
+     emax =  1.0e+5
+     unit =    1
+     axis =  eng
+     file = air_spec.out
+     part =  neutron  muon-  muon+  proton
+   epsout =    0
+
+[ T-Track ]
+    title = Flux spectra vs depth in concrete
+     mesh =  xyz
+   x-type =    2
+       nx =    1
+     xmin = -600.0
+     xmax =  600.0
+   y-type =    2
+       ny =    1
+     ymin = -600.0
+     ymax =  600.0
+   z-type =    2
+       nz =   35
+     zmin = -700.0
+     zmax =    0.0
+   e-type =    3
+       ne =   60
+     emin =  1.0e-10
+     emax =  1.0e+5
+     unit =    1
+     axis =  eng
+     file = depth_spec.out
+     part =  neutron  muon-  muon+  proton
+   epsout =    0
+
+[ End ]

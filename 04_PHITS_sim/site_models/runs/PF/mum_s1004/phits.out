@@ -1,0 +1,660 @@
+           _________________________________________________________
+          |                                                         |
+          |       _/_/_/_/                                          |
+          |      _/      _/                  _/_/_/_/_/_/           |
+          |     _/      _/  _/      _/   _/      _/      _/_/_/_/_/ |
+          |    _/_/_/_/    _/      _/   _/      _/      _/          |
+          |   _/          _/_/_/_/_/   _/      _/       _/_/_/_/    |
+          |  _/          _/      _/   _/      _/              _/    |
+          | _/          _/      _/   _/      _/      _/_/_/_/_/     |
+          |                                                         |
+          |                                                         |
+          |       Particle and Heavy Ion Transport code System      |
+          |                      Version =  3.360                   |
+          |                       developed by                      |
+          |                                                         |
+          |  Tatsuhiko SATO, Yosuke IWAMOTO, Shintaro HASHIMOTO,    |
+          |    Tatsuhiko OGAWA, Takuya FURUTA, Shinichiro ABE,      |
+          |    Takeshi KAI, Norihiro MATSUDA, Yusuke MATSUYA,       |
+          |      Yuho HIRATA, Takuya SEKIKAWA, Seiki Ohnish,        |
+          |                     Yao LAN (JAEA),                     |
+          |  Hiroshi IWASE, Yasuhito SAKAKI, Kenta SUGIHARA (KEK),  |
+          |           Nobuhiro SHIGYO (Kyushu University),          |
+          |     Hunter RATLIFF (Haukeland University Hospital),     |
+          |  Lembit SIHVER (University of Texas Rio Grande Valley), |
+          |                  and Koji NIITA (RIST)                  |
+          |                                                         |
+          |                 Last Revised  2026-03-24                |
+          |_________________________________________________________|
+
+                        Starting Date = 2026-09-30
+                        Starting Time = 13h 23m 14
+
+>>> Input Echo >>>=============================================================
+
+[ Title ]
+Site model PF: concrete 105 cm, room 3x3 m, case mum (seed 1004)
+
+[ Parameters ]
+ icntl    =           0     # (D=0) 3:ECH 5:NOR 6:SRC 7,8:GSH 11:DSH 12:DUMP
+ maxcas   =         450     # (D=10) number of particles per one batch
+ maxbch   =           1     # (D=10) number of batches
+ rseed    =  1.0040000000000000E+003    # (D=0.0) 0:original, /=0:this value
+ negs     =           1     # (D=-1) =-1:original, =0:No, =1:EGS, =2:EGS(HE)
+ emin(12) =  5.00000000     # (D=1.e+9) cut-off energy of electron (MeV)
+ emin(13) =  5.00000000     # (D=1.e+9) cut-off energy of positron (MeV)
+ emin(14) =  5.00000000     # (D=1.0e-3) cut-off energy of photon (MeV)
+ ipnint   =           1     # (D=0) 0: no, 1: consider photo-nuclear reaction
+ imuint   =           1     # (D=1) 0: no, 1: muon interaction
+ maxbnk   =      200000     # (D=10000) maximum bank memory length
+
+[ Source ]
+  totfact = -8.04248E+06    # (D=1.0) global factor
+$ totfact =  -63871.        # revised global factor by e-type = 25,26,28 or 29
+   s-type =   9             # spherical source
+     proj =  muon-          # kind of incident particle         
+       x0 =   0.0000        # (D=0.0) center position of x-axis [cm]
+       y0 =   0.0000        # (D=0.0) center position of y-axis [cm]
+       z0 =   0.0000        # (D=0.0) center position of z-axis [cm]
+       r1 =   1600.0        # inner radius [cm]
+       r2 =   1600.0        # outer radius [cm]
+      dir =  iso            # inner direction with uniform dis. by analog
+      ag1 =  -1.0000        # minimum zenith angle in cosine
+      ag2 =   1.0000        # maximum zenith angle in cosine
+      pg1 =   0.0000        # minimum azimuth angle in degree
+      pg2 =   360.00        # maximum azimuth angle in degree
+   e-type =  25             # Cosmic-ray source
+      eg1 =  1.00000E-02    # minimum cutoff energy [MeV]
+      eg2 =  1.00000E+08    # maximum cutoff energy [MeV]
+       nm = -200            # number of energy mesh
+                            # nm>0: lin, nm<0: log mesh and interpolation
+#   e-type = 21             # energy distribution given by data
+#      ne = -200            # number of energy bin
+#  e-lower      fluence(/cm2/s/(MeV/n))
+#  1.00000E-02  9.03812E-10
+#  1.12202E-02  1.00563E-09
+#  1.25893E-02  1.11892E-09
+#  1.41254E-02  1.24496E-09
+#  1.58489E-02  1.38519E-09
+#  1.77828E-02  1.54121E-09
+#  1.99526E-02  1.71479E-09
+#  2.23872E-02  1.90791E-09
+#  2.51189E-02  2.12276E-09
+#  2.81838E-02  2.36177E-09
+#  3.16228E-02  2.62766E-09
+#  3.54813E-02  2.92345E-09
+#  3.98107E-02  3.25249E-09
+#  4.46684E-02  3.61848E-09
+#  5.01187E-02  4.02559E-09
+#  5.62341E-02  4.47838E-09
+#  6.30957E-02  4.98198E-09
+#  7.07946E-02  5.54203E-09
+#  7.94328E-02  6.16483E-09
+#  8.91251E-02  6.85736E-09
+#  1.00000E-01  7.62735E-09
+#  1.12202E-01  8.48338E-09
+#  1.25893E-01  9.43497E-09
+#  1.41254E-01  1.04926E-08
+#  1.58489E-01  1.16680E-08
+#  1.77828E-01  1.29741E-08
+#  1.99526E-01  1.44251E-08
+#  2.23872E-01  1.60368E-08
+#  2.51189E-01  1.78265E-08
+#  2.81838E-01  1.98135E-08
+#  3.16228E-01  2.20189E-08
+#  3.54813E-01  2.44660E-08
+#  3.98107E-01  2.71802E-08
+#  4.46684E-01  3.01897E-08
+#  5.01187E-01  3.35251E-08
+#  5.62341E-01  3.72198E-08
+#  6.30957E-01  4.13105E-08
+#  7.07946E-01  4.58369E-08
+#  7.94328E-01  5.08420E-08
+#  8.91251E-01  5.63725E-08
+#  1.00000E+00  6.24785E-08
+#  1.12202E+00  6.92137E-08
+#  1.25893E+00  7.66356E-08
+#  1.41254E+00  8.48050E-08
+#  1.58489E+00  9.37862E-08
+#  1.77828E+00  1.03647E-07
+#  1.99526E+00  1.14456E-07
+#  2.23872E+00  1.26287E-07
+#  2.51189E+00  1.39212E-07
+#  2.81838E+00  1.53305E-07
+#  3.16228E+00  1.68640E-07
+#  3.54813E+00  1.85288E-07
+#  3.98107E+00  2.03317E-07
+#  4.46684E+00  2.22790E-07
+#  5.01187E+00  2.43765E-07
+#  5.62341E+00  2.66293E-07
+#  6.30957E+00  2.90416E-07
+#  7.07946E+00  3.16168E-07
+#  7.94328E+00  3.43577E-07
+#  8.91251E+00  3.72662E-07
+#  1.00000E+01  4.03442E-07
+#  1.12202E+01  4.35936E-07
+#  1.25893E+01  4.70172E-07
+#  1.41254E+01  5.06192E-07
+#  1.58489E+01  5.44065E-07
+#  1.77828E+01  5.83893E-07
+#  1.99526E+01  6.25820E-07
+#  2.23872E+01  6.70039E-07
+#  2.51189E+01  7.16794E-07
+#  2.81838E+01  7.66372E-07
+#  3.16228E+01  8.19091E-07
+#  3.54813E+01  8.75272E-07
+#  3.98107E+01  9.35211E-07
+#  4.46684E+01  9.99128E-07
+#  5.01187E+01  1.06712E-06
+#  5.62341E+01  1.13911E-06
+#  6.30957E+01  1.21481E-06
+#  7.07946E+01  1.29368E-06
+#  7.94328E+01  1.37492E-06
+#  8.91251E+01  1.45748E-06
+#  1.00000E+02  1.53520E-06
+#  1.12202E+02  1.60598E-06
+#  1.25893E+02  1.67310E-06
+#  1.41254E+02  1.73516E-06
+#  1.58489E+02  1.79091E-06
+#  1.77828E+02  1.83927E-06
+#  1.99526E+02  1.87939E-06
+#  2.23872E+02  1.91063E-06
+#  2.51189E+02  1.93263E-06
+#  2.81838E+02  1.94525E-06
+#  3.16228E+02  1.94851E-06
+#  3.54813E+02  1.94264E-06
+#  3.98107E+02  1.92796E-06
+#  4.46684E+02  1.90487E-06
+#  5.01187E+02  1.87384E-06
+#  5.62341E+02  1.83535E-06
+#  6.30957E+02  1.78991E-06
+#  7.07946E+02  1.73800E-06
+#  7.94328E+02  1.68012E-06
+#  8.91251E+02  1.61677E-06
+#  1.00000E+03  1.54845E-06
+#  1.12202E+03  1.47568E-06
+#  1.25893E+03  1.39902E-06
+#  1.41254E+03  1.31903E-06
+#  1.58489E+03  1.23638E-06
+#  1.77828E+03  1.15173E-06
+#  1.99526E+03  1.06583E-06
+#  2.23872E+03  9.79474E-07
+#  2.51189E+03  8.93479E-07
+#  2.81838E+03  8.08693E-07
+#  3.16228E+03  7.25962E-07
+#  3.54813E+03  6.46106E-07
+#  3.98107E+03  5.69891E-07
+#  4.46684E+03  4.98000E-07
+#  5.01187E+03  4.31007E-07
+#  5.62341E+03  3.69354E-07
+#  6.30957E+03  3.13341E-07
+#  7.07946E+03  2.63113E-07
+#  7.94328E+03  2.18666E-07
+#  8.91251E+03  1.79855E-07
+#  1.00000E+04  1.46415E-07
+#  1.12202E+04  1.17982E-07
+#  1.25893E+04  9.41221E-08
+#  1.41254E+04  7.43544E-08
+#  1.58489E+04  5.81814E-08
+#  1.77828E+04  4.51092E-08
+#  1.99526E+04  3.46663E-08
+#  2.23872E+04  2.64171E-08
+#  2.51189E+04  1.99701E-08
+#  2.81838E+04  1.49824E-08
+#  3.16228E+04  1.11605E-08
+#  3.54813E+04  8.25819E-09
+#  3.98107E+04  6.07262E-09
+#  4.46684E+04  4.43966E-09
+#  5.01187E+04  3.22844E-09
+#  5.62341E+04  2.33605E-09
+#  6.30957E+04  1.68265E-09
+#  7.07946E+04  1.20694E-09
+#  7.94328E+04  8.62416E-10
+#  8.91251E+04  6.14086E-10
+#  1.00000E+05  4.35871E-10
+#  1.12202E+05  3.08482E-10
+#  1.25893E+05  2.17751E-10
+#  1.41254E+05  1.53340E-10
+#  1.58489E+05  1.07750E-10
+#  1.77828E+05  7.55668E-11
+#  1.99526E+05  5.29033E-11
+#  2.23872E+05  3.69783E-11
+#  2.51189E+05  2.58102E-11
+#  2.81838E+05  1.79920E-11
+#  3.16228E+05  1.18633E-11
+#  3.54813E+05  7.88897E-12
+#  3.98107E+05  5.24058E-12
+#  4.46684E+05  3.47801E-12
+#  5.01187E+05  2.30631E-12
+#  5.62341E+05  1.52818E-12
+#  6.30957E+05  1.01191E-12
+#  7.07946E+05  6.69641E-13
+#  7.94328E+05  4.42903E-13
+#  8.91251E+05  2.92795E-13
+#  1.00000E+06  1.93478E-13
+#  1.12202E+06  1.27799E-13
+#  1.25893E+06  8.43872E-14
+#  1.41254E+06  5.57043E-14
+#  1.58489E+06  3.67604E-14
+#  1.77828E+06  2.42529E-14
+#  1.99526E+06  1.59975E-14
+#  2.23872E+06  1.05500E-14
+#  2.51189E+06  6.95628E-15
+#  2.81838E+06  4.58598E-15
+#  3.16228E+06  3.02291E-15
+#  3.54813E+06  1.99235E-15
+#  3.98107E+06  1.31297E-15
+#  4.46684E+06  8.65168E-16
+#  5.01187E+06  5.70042E-16
+#  5.62341E+06  3.75560E-16
+#  6.30957E+06  2.47411E-16
+#  7.07946E+06  1.62979E-16
+#  7.94328E+06  1.07354E-16
+#  8.91251E+06  7.07107E-17
+#  1.00000E+07  4.65726E-17
+#  1.12202E+07  3.06732E-17
+#  1.25893E+07  2.02009E-17
+#  1.41254E+07  1.33036E-17
+#  1.58489E+07  8.76100E-18
+#  1.77828E+07  5.76936E-18
+#  1.99526E+07  3.79920E-18
+#  2.23872E+07  2.50177E-18
+#  2.51189E+07  1.64738E-18
+#  2.81838E+07  1.08476E-18
+#  3.16228E+07  7.14277E-19
+#  3.54813E+07  4.70321E-19
+#  3.98107E+07  3.09682E-19
+#  4.46684E+07  2.03908E-19
+#  5.01187E+07  1.34261E-19
+#  5.62341E+07  8.84013E-20
+#  6.30957E+07  5.82057E-20
+#  7.07946E+07  3.83239E-20
+#  7.94328E+07  2.52331E-20
+#  8.91251E+07  1.66138E-20
+    icenv =   5             # 0>: Terrestiral GCR, D=0: Free-space GCR, <0:Free-space SEP
+ solarmod =   100.00        # Solar activity W-index
+    rigid =   10.924        # Cut-off rigidity in GV
+  depatom =   1029.6        # Atmospheric depth in g/cm2
+  environ =  0.15000        # Surrounding environment (icenv=2-4) or SPE index (icenv=-1)
+
+[ Material ]
+MAT[ 1 ] 
+           N         -7.5530000E-01
+           O         -2.3180000E-01
+           Ar        -1.2900000E-02
+MAT[ 2 ] 
+           H         -1.0000000E-02
+           C         -1.0000000E-03
+           O         -5.2900000E-01
+           Na        -1.6000000E-02
+           Mg        -2.0000000E-03
+           Al        -3.4000000E-02
+           Si        -3.3700000E-01
+           K         -1.3000000E-02
+           Ca        -4.4000000E-02
+           Fe        -1.4000000E-02
+
+[ Cell ]
+ 100         1 -1.2050000E-03  -10 20 50 
+ 111         1 -1.2050000E-03  -50 
+ 201         2 -2.3000000E+00  -10 -20 21 
+ 202         2 -2.3000000E+00  -10 -21 22 
+ 203         2 -2.3000000E+00  -10 -22 23 
+ 204         2 -2.3000000E+00  -10 -23 24 60 61 
+ 205         2 -2.3000000E+00  -10 -24 25 60 61 
+ 206         2 -2.3000000E+00  -10 -25 26 60 61 
+ 207         2 -2.3000000E+00  -10 -26 27 60 61 
+ 208         2 -2.3000000E+00  -10 -27 28 60 61 
+ 209         2 -2.3000000E+00  -10 -28 29 60 61 
+ 210         2 -2.3000000E+00  -10 -29 30 60 61 
+ 211         2 -2.3000000E+00  -10 -30 31 60 61 
+ 212         2 -2.3000000E+00  -10 -31 32 60 61 
+ 213         2 -2.3000000E+00  -10 -32 33 60 61 
+ 214         2 -2.3000000E+00  -10 -33 34 60 61 
+ 215         2 -2.3000000E+00  -10 -34 35 60 61 
+ 216         2 -2.3000000E+00  -10 -35 
+ 300         1 -1.2050000E-03  -60 
+ 301         1 -1.2050000E-03  -61 
+ 900         0                 10 -12 20 
+ 901         0                 10 -13 -20 
+ 902         0                 13 -12 -20 
+ 999        -1                 12 
+
+[ Surface ]
+ 10            so    1.5000000E+03
+ 12            so    2.2000000E+03
+ 13            so    1.5500000E+03
+ 50            rpp  -8.0000000E+02  8.0000000E+02 -8.0000000E+02
+                     8.0000000E+02  5.0000000E+01  2.5000000E+02
+ 20            pz    0.0000000E+00
+ 21            pz   -3.5000000E+01
+ 22            pz   -7.0000000E+01
+ 23            pz   -1.0500000E+02
+ 24            pz   -1.5500000E+02
+ 25            pz   -2.0500000E+02
+ 26            pz   -2.5500000E+02
+ 27            pz   -3.0500000E+02
+ 28            pz   -3.5500000E+02
+ 29            pz   -4.0500000E+02
+ 30            pz   -4.5500000E+02
+ 31            pz   -5.0500000E+02
+ 32            pz   -5.5500000E+02
+ 33            pz   -6.0500000E+02
+ 34            pz   -6.5500000E+02
+ 35            pz   -7.0500000E+02
+ 60            rpp  -1.5000000E+02  1.5000000E+02 -1.0000000E+03
+                     1.0000000E+03 -3.0500000E+02 -1.0500000E+02
+ 61            rpp  -1.5000000E+02  1.5000000E+02 -1.0000000E+03
+                     1.0000000E+03 -4.0500000E+02 -3.0500000E+02
+
+[ Volume ]
+    reg        vol
+    111     5.1200000E+08
+    300     1.2000000E+08
+    301     6.0000000E+07
+
+[ Importance ]
+   part = muon+    muon-   
+   reg       imp
+   901     0.0000000E+00 
+
+[ T-Track ]
+    title = Flux spectrum in open air above ground
+     mesh =  reg            # mesh type is region-wise
+      reg = 111
+   e-type =    3            # e-mesh is log given by emin, emax and ne
+     emin =  1.0000000E-10  # minimum value of e-mesh points
+     emax =   100000.0      # maximum value of e-mesh points
+#    edel =  0.5756463      # mesh width of e-mesh points
+       ne =     60          # number of e-mesh points
+#    data = ( e(i), i = 1, ne + 1 )
+#           1.00000E-10  1.77828E-10  3.16228E-10  5.62341E-10  1.00000E-09
+#           1.77828E-09  3.16228E-09  5.62341E-09  1.00000E-08  1.77828E-08
+#           3.16228E-08  5.62341E-08  1.00000E-07  1.77828E-07  3.16228E-07
+#           5.62341E-07  1.00000E-06  1.77828E-06  3.16228E-06  5.62341E-06
+#           1.00000E-05  1.77828E-05  3.16228E-05  5.62341E-05  1.00000E-04
+#           1.77828E-04  3.16228E-04  5.62341E-04  1.00000E-03  1.77828E-03
+#           3.16228E-03  5.62341E-03  1.00000E-02  1.77828E-02  3.16228E-02
+#           5.62341E-02  1.00000E-01  1.77828E-01  3.16228E-01  5.62341E-01
+#           1.00000E+00  1.77828E+00  3.16228E+00  5.62341E+00  1.00000E+01
+#           1.77828E+01  3.16228E+01  5.62341E+01  1.00000E+02  1.77828E+02
+#           3.16228E+02  5.62341E+02  1.00000E+03  1.77828E+03  3.16228E+03
+#           5.62341E+03  1.00000E+04  1.77828E+04  3.16228E+04  5.62341E+04
+#           1.00000E+05
+     unit =    1            # unit is [1/cm^2/source]
+ material =  all            # (D=all) number of specific material
+     axis =     eng            # axis of output
+     file = air_spec.out    # file name of output for the above axis
+     part =  neutron    muon-      muon+      proton   
+# kf/name :  2112       13         -13        2212     
+#    used :        main (  %)        temp (  %)       total (  %)
+#  memory :          67 (  0)           0 (  0)          67 (  0)
+
+[ T-Track ]
+    title = Flux spectrum in room air (upper 2 m, lower 1 m)
+     mesh =  reg            # mesh type is region-wise
+      reg = 300 301
+   e-type =    3            # e-mesh is log given by emin, emax and ne
+     emin =  1.0000000E-10  # minimum value of e-mesh points
+     emax =   100000.0      # maximum value of e-mesh points
+#    edel =  0.5756463      # mesh width of e-mesh points
+       ne =     60          # number of e-mesh points
+#    data = ( e(i), i = 1, ne + 1 )
+#           1.00000E-10  1.77828E-10  3.16228E-10  5.62341E-10  1.00000E-09
+#           1.77828E-09  3.16228E-09  5.62341E-09  1.00000E-08  1.77828E-08
+#           3.16228E-08  5.62341E-08  1.00000E-07  1.77828E-07  3.16228E-07
+#           5.62341E-07  1.00000E-06  1.77828E-06  3.16228E-06  5.62341E-06
+#           1.00000E-05  1.77828E-05  3.16228E-05  5.62341E-05  1.00000E-04
+#           1.77828E-04  3.16228E-04  5.62341E-04  1.00000E-03  1.77828E-03
+#           3.16228E-03  5.62341E-03  1.00000E-02  1.77828E-02  3.16228E-02
+#           5.62341E-02  1.00000E-01  1.77828E-01  3.16228E-01  5.62341E-01
+#           1.00000E+00  1.77828E+00  3.16228E+00  5.62341E+00  1.00000E+01
+#           1.77828E+01  3.16228E+01  5.62341E+01  1.00000E+02  1.77828E+02
+#           3.16228E+02  5.62341E+02  1.00000E+03  1.77828E+03  3.16228E+03
+#           5.62341E+03  1.00000E+04  1.77828E+04  3.16228E+04  5.62341E+04
+#           1.00000E+05
+     unit =    1            # unit is [1/cm^2/source]
+ material =  all            # (D=all) number of specific material
+     axis =     eng            # axis of output
+     file = room_spec.out   # file name of output for the above axis
+     part =  neutron    muon-      muon+      proton   
+# kf/name :  2112       13         -13        2212     
+#    used :        main (  %)        temp (  %)       total (  %)
+#  memory :          67 (  0)           0 (  0)          67 (  0)
+
+[END] of Input Echo <<<========================================================
+
+<<< Report of real Geometry memory >>>
+*           GG/CG memory =        2
+*     total memory: mdas = 80000000
+*                percent =     0.00 %
+
+<<< Report of material memory for high energy>>>
+*   high energy material =        1
+*     total memory: mdas = 80000000
+*                percent =     0.00 %
+
+<<< Report of material memory for low energy>>>
+*    low energy material =   164973
+*     total memory: mdas = 80000000
+*                percent =     0.21 %
+
+<<< Report of real tally memory >>>
+*      real tally memory =      134
+*     total memory: mdas = 80000000
+*                percent =     0.00 %
+
+<<< Report of temporary tally memory >>>
+* temporary tally memory =   164978
+*     total memory: mdas = 80000000
+*                percent =     0.21 %
+
+<<< Report of total memory >>>
+*      used total memory =   164979
+*     total memory: mdas = 80000000
+*                percent =     0.21 %
+*                ---------------------
+
+-------------------------------------------------------------------------------
+bat[       1] ncas =            450.
+ bitrseed = 0100000010001111011000000000000000000000000000000000000000000000
+          cpu time =   1 m. 21.13 s.
+
+===============================================================================
+
+ Summary for the end of job
+
+-------------------------------------------------------------------------------
+ number of analyz call vs ncol
+-------------------------------------------------------------------------------
+     ncol          number
+        1              1.   : start of calculation            
+        2              1.   : end of calculation              
+        3              1.   : end of a batch                  
+        4            450.   : source                          
+        5              0.   : detection of geometry error/warn
+        6              0.   : recovery from geometry warning  
+        7              0.   : termination by geometry error   
+        8            260.   : termination by weight cut-off   
+        9              0.   : termination by time cut-off     
+       10           6123.   : geometry boundary crossing      
+       11            434.   : termination by energy cut-off   
+       12            403.   : termination by escape or leakage
+       13            437.   : reaction : (n,x) type           
+       14          46728.   : reaction : (n,n'x) type         
+       15              6.   : sequential transport for tally  
+
+-------------------------------------------------------------------------------
+ List of transport particles (not including source)
+-------------------------------------------------------------------------------
+     Name      kf-code        mass       charge   baryon
+     proton       2212        938.3         1       1
+     neutron      2112        939.6         0       1
+     pion+         211        139.6         1       0
+     pion-        -211        139.6        -1       0
+     muon+         -13        105.7         1       0
+     muon-          13        105.7        -1       0
+     electron       11          0.5        -1       0
+     positron      -11          0.5         1       0
+     photon         22          0.0         0       0
+     deuteron  1000002       1875.6         1       2
+     triton    1000003       2808.9         1       3
+     3he       2000003       2808.4         2       3
+     alpha     2000004       3727.4         2       4
+
+     nu_e           12          0.0         0       0
+     nu_ebar       -12          0.0         0       0
+     nu_mu          14          0.0         0       0
+     nu_muba       -14          0.0         0       0
+
+-------------------------------------------------------------------------------
+ prod. particles       number        weight        weight per source
+-------------------------------------------------------------------------------
+     photon              857.     6.9997315E+02     9.9350469E+04
+     other               314.     3.1400000E+02     4.4567491E+04
+     electron            147.     1.4700000E+02     2.0864399E+04
+     neutron             135.     1.6122876E+02     2.2883954E+04
+     positron             99.     8.5204941E+01     1.2093536E+04
+     proton               53.     5.3000000E+01     7.5225384E+03
+     muon-                38.     3.8000000E+01     5.3935181E+03
+     alpha                26.     2.6000000E+01     3.6903018E+03
+     deuteron             15.     1.5000000E+01     2.1290203E+03
+     pion+                 5.     5.0000000E+00     7.0967343E+02
+     triton                4.     4.0000000E+00     5.6773874E+02
+     pion-                 2.     2.0000000E+00     2.8386937E+02
+     3he                   2.     2.0000000E+00     2.8386937E+02
+     muon+                 2.     2.0000000E+00     2.8386937E+02
+
+-------------------------------------------------------------------------------
+ the other kind of produced particles
+-------------------------------------------------------------------------------
+     Name      kf-code        number     mass       charge   baryon
+     nu_mu          14           196       0.0         0       0
+     nu_ebar       -12           114       0.0         0       0
+     nu_e           12             2       0.0         0       0
+     nu_muba       -14             2       0.0         0       0
+
+-------------------------------------------------------------------------------
+ particle decays       number        weight        weight per source
+-------------------------------------------------------------------------------
+     muon-               114.     1.1400000E+02     1.6180554E+04
+     positron             64.     5.0204941E+01     7.1258225E+03
+     pion+                 2.     2.0000000E+00     2.8386937E+02
+     muon+                 2.     2.0000000E+00     2.8386937E+02
+
+-------------------------------------------------------------------------------
+ stop. particles.    number        weight        weight per source
+-------------------------------------------------------------------------------
+     photon             1131.     1.0622791E+03     1.5077426E+05
+     electron            410.     3.3015646E+02     4.6860654E+04
+     nucleus             134.     1.3400000E+02     1.9019248E+04
+     positron             77.     6.3204941E+01     8.9709734E+03
+     proton               47.     4.7000000E+01     6.6709302E+03
+     alpha                26.     2.6000000E+01     3.6903018E+03
+     deuteron             14.     1.4000000E+01     1.9870856E+03
+     triton                4.     4.0000000E+00     5.6773874E+02
+     3he                   2.     2.0000000E+00     2.8386937E+02
+
+-------------------------------------------------------------------------------
+ leak. particles       number        weight        weight per source
+-------------------------------------------------------------------------------
+     other               314.     3.1400000E+02     4.4567491E+04
+     muon-                77.     7.7000000E+01     1.0928971E+04
+     neutron               7.     4.1329981E+00     5.8661578E+02
+     electron              3.     3.0000000E+00     4.2580406E+02
+     photon                2.     1.1322647E+00     1.6070763E+02
+
+-------------------------------------------------------------------------------
+ the other kind of leakage particles
+-------------------------------------------------------------------------------
+     Name      kf-code        number     mass       charge   baryon
+     nu_mu          14           196       0.0         0       0
+     nu_ebar       -12           114       0.0         0       0
+     nu_e           12             2       0.0         0       0
+     nu_muba       -14             2       0.0         0       0
+
+-------------------------------------------------------------------------------
+ source: maxcas    maxbch      irskip   average weight          total source
+-------------------------------------------------------------------------------
+         450           1           0    1.5656654E-05    7.0454941572833E-03
+
+-------------------------------------------------------------------------------
+ used ATIMA database
+-------------------------------------------------------------------------------
+     for dedx  =       42 / mdbatima =      500
+
+-------------------------------------------------------------------------------
+ Geometry error summary
+-------------------------------------------------------------------------------
+ Number of lost particles     =     0 / nlost =       10
+ Number of geometry recovering =     0
+ Number of unrecovered errors =     0
+
+-------------------------------------------------------------------------------
+ initial random seed:
+   bitrseed = 0100000010001111011000000000000000000000000000000000000000000000
+ next initial random seed:
+   bitrseed = 0000000101101101101001111001100101000101111001010000010000000110
+
+-------------------------------------------------------------------------------
+ job termination date : 2026/09/30
+                 time :   13:24:38
+
+-------------------------------------------------------------------------------
+    CPU time and number of event called in PHITS
+-------------------------------------------------------------------------------
+
+                             sec
+total cpu time =           84.43
+
+
+                           count
+      analysis =          54582.  : data processing
+         nevap =            142.  : evaporation
+        dexgam =            106.  : de-excitation
+         nreac =          47165.  : atomic and nuclear reactions
+         dklos =            182.  : particle decay
+         hydro =              0.  : nucleon-nucleon scattering
+        n-data =          16486.  : neutron data library
+        h-data =              0.  : p, d, a data library
+        p-data =              0.  : photon data library
+        e-data =              0.  : electron data library
+        p-egs5 =            176.  : photon interaction with EGS5
+        e-egs5 =          30144.  : electron interaction with EGS5
+      e-tsmode =              0.  : electron track structure mode
+    ion-tsmode =              0.  : ion track structure mode
+     photonucl =              0.  : photo-nuclear reaction
+ photonucl lib =              0.  : photo-nuclear reaction with library
+       mu-reac =              2.  : muon-induced nuclear reaction
+       mu-brem =              3.  : muon-induced bremsstrahlung
+       mu-pprd =             33.  : muon-induced pair production
+        mu-cap =             80.  : muon capture in nucleus
+         elast =             31.  : elastic scattering
+         ncasc =            199.  : nuclear reaction model
+
+       bertini =              0.  : Bertini model
+        isobar =              0.  : isobar model
+           JAM =              0.  : JAM model
+           QMD =              0.  : JQMD model
+        JAMQMD =              0.  : JAMQMD model
+          INCL =            199.  : INCL model
+        INCELF =              0.  : INCELF model
+     frag data =              0.  : user defined cross section
+       SCINFUL =              0.  : SCINFUL mode
+
+>>> Citation Request >>>=======================================================
+
+ This execution uses model(s) that must be explicitly cited in addition to
+ the PHITS original document: T.Sato et al., J.Nucl.Sci.Technol.61, 127-135 (2024).
+ Please refer the following document(s) in your publication using this result
+
+ The INCL model:
+    A. Boudard et al., Phys. Rev C87, 014606 (2013).
+
+ The EGS5 code:
+    H. Hirayama et al., SLAC-R-730 (2005) and KEK Report 2005-8 (2005)
+
+ The KUROTAMA model:
+    K. Iida, A. Kohama, and K. Oyamatsu, J. Phys. Soc. Japan 76, 044201 (2007).
+
+ END 

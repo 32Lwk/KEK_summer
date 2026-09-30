@@ -1,0 +1,37 @@
+{
+  "id": "ATF",
+  "name": "Advanced Test Facility (ATF)",
+  "source_pdf": "05_施設図/ATF.pdf",
+  "map_anchor": {
+    "x_pct": 40.0,
+    "y_pct": 38.0,
+    "棟No": "KEKB 区域"
+  },
+  "cross_sections": [
+    {
+      "id": "ATF_linac",
+      "name": "ATF 加速管区間",
+      "source_pdf": "ATF.pdf 図1.8",
+      "type": "tunnel_cross_section",
+      "inner_width_m": 5.5,
+      "inner_height_m": 3.5,
+      "layers": [
+        {
+          "material": "コンクリート",
+          "thickness_cm": 300,
+          "source": "ATF.pdf 図1.8 (3m)"
+        },
+        {
+          "material": "鉛",
+          "thickness_cm": 20,
+          "source": "ATF.pdf 図1.8"
+        },
+        {
+          "material": "鉄",
+          "thickness_cm": 50,
+          "source": "ATF.pdf 図1.8"
+        }
+      ]
+    }
+  ]
+}

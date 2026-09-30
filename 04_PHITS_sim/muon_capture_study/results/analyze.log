@@ -1,0 +1,11 @@
+had: 6 runs, source total = 3.2685e-03 /cm2/s
+mum: 20 runs, source total = 7.9417e-03 /cm2/s
+mup: 12 runs, source total = 9.2557e-03 /cm2/s
+mu-/mu+ = 0.858
+tunnel: hadT 6 runs, mumT 10 runs
+tunnel total 熱: 1.876e-04 ± 5.7e-05
+tunnel total MeV: 6.577e-05 ± 3.0e-05
+/Users/yuto/KEK_summer/03_今年度用/最終レポート_20260925/figures/fig11_phits_components.png
+/Users/yuto/KEK_summer/03_今年度用/最終レポート_20260925/figures/fig12_phits_fraction_muflux.png
+/Users/yuto/KEK_summer/04_PHITS_sim/muon_capture_study/results/phits_components_at_sites.csv
+/Users/yuto/KEK_summer/04_PHITS_sim/muon_capture_study/results/phits_tunnel_vs_slab.csv

@@ -1,0 +1,133 @@
+[ Title ]
+Site model PF: concrete 105 cm, room 3x3 m, case mum (seed 1003)
+
+[ Parameters ]
+ icntl    =        0
+ maxcas   =      450
+ maxbch   =        1
+ rseed    =   1003.0
+ negs     =        1
+ emin(12) =      5.0
+ emin(13) =      5.0
+ emin(14) =      5.0
+ ipnint   =        1
+ imuint   =        1
+ maxbnk   =   200000
+
+set: c1[1600.]
+set: c2[2200.]
+set: c3[1500.]
+set: c4[1550.]
+
+[ Source ]
+  totfact = -pi*c1**2
+ infl:{source.inp}
+     proj = muon-
+
+[ Material ]
+mat[1]
+     N  -0.7553
+     O  -0.2318
+    Ar  -0.0129
+mat[2]
+     H  -0.0100
+     C  -0.0010
+     O  -0.5290
+    Na  -0.0160
+    Mg  -0.0020
+    Al  -0.0340
+    Si  -0.3370
+     K  -0.0130
+    Ca  -0.0440
+    Fe  -0.0140
+
+[ Surface ]
+  10   so   c3
+  12   so   c2
+  13   so   c4
+  50   rpp  -800.0 800.0  -800.0 800.0   50.0  250.0
+   20   pz       0.000
+   21   pz     -35.000
+   22   pz     -70.000
+   23   pz    -105.000
+   24   pz    -155.000
+   25   pz    -205.000
+   26   pz    -255.000
+   27   pz    -305.000
+   28   pz    -355.000
+   29   pz    -405.000
+   30   pz    -455.000
+   31   pz    -505.000
+   32   pz    -555.000
+   33   pz    -605.000
+   34   pz    -655.000
+   35   pz    -705.000
+  60   rpp  -150.0 150.0  -1000.0 1000.0  -305.000 -105.000
+  61   rpp  -150.0 150.0  -1000.0 1000.0  -405.000 -305.000
+
+[ Cell ]
+  100    1 -1.205e-3  -10   20  50
+  111    1 -1.205e-3  -50
+  201    2 -2.300  -10  -20  21
+  202    2 -2.300  -10  -21  22
+  203    2 -2.300  -10  -22  23
+  204    2 -2.300  -10  -23  24  60 61
+  205    2 -2.300  -10  -24  25  60 61
+  206    2 -2.300  -10  -25  26  60 61
+  207    2 -2.300  -10  -26  27  60 61
+  208    2 -2.300  -10  -27  28  60 61
+  209    2 -2.300  -10  -28  29  60 61
+  210    2 -2.300  -10  -29  30  60 61
+  211    2 -2.300  -10  -30  31  60 61
+  212    2 -2.300  -10  -31  32  60 61
+  213    2 -2.300  -10  -32  33  60 61
+  214    2 -2.300  -10  -33  34  60 61
+  215    2 -2.300  -10  -34  35  60 61
+  216    2 -2.300  -10  -35
+  300    1 -1.205e-3  -60
+  301    1 -1.205e-3  -61
+  900    0             10 -12   20
+  901    0             10 -13  -20
+  902    0             13 -12  -20
+  999   -1             12
+
+[ Volume ]
+   reg          vol
+   111    5.120e+08
+   300    1.2000e+08
+   301    6.0000e+07
+
+[ Importance ]
+ part = muon+ muon-
+  reg   imp
+  901   0.0
+
+[ T-Track ]
+    title = Flux spectrum in open air above ground
+     mesh =  reg
+      reg =  111
+   e-type =    3
+       ne =   60
+     emin =  1.0e-10
+     emax =  1.0e+5
+     unit =    1
+     axis =  eng
+     file = air_spec.out
+     part =  neutron  muon-  muon+  proton
+   epsout =    0
+
+[ T-Track ]
+    title = Flux spectrum in room air (upper 2 m, lower 1 m)
+     mesh =  reg
+      reg =  300 301
+   e-type =    3
+       ne =   60
+     emin =  1.0e-10
+     emax =  1.0e+5
+     unit =    1
+     axis =  eng
+     file = room_spec.out
+     part =  neutron  muon-  muon+  proton
+   epsout =    0
+
+[ End ]

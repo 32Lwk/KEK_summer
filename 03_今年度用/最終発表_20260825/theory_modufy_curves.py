@@ -97,7 +97,8 @@ def _components(
     y_const: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     d = (t_eq_cm / 100.0) * RHO_CONCRETE
-    f1 = _integrate_y(d, a_mass_list=a_mass_list, beta=beta) / (2.0 * DELTA_D)
+    width = (d + DELTA_D) - np.maximum(0.0, d - DELTA_D)
+    f1 = _integrate_y(d, a_mass_list=a_mass_list, beta=beta) / width
     f2 = F0_N * np.exp(-(t_eq_cm / 100.0) / 0.6)
     f3 = np.full_like(t_eq_cm, y_const, dtype=float)
     return f1, f2, f3

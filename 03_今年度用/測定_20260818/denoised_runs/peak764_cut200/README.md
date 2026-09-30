@@ -1,75 +1,64 @@
-# peak764_cut200（764 keV peak ROI フラックス・確認用）
+# peak764_cut200（peak ROI 側帯 NET f · 02 地点別ロジック）
 
-本解析の `tables/`・`figures/` は**未変更**（`--merge` するまで）。
-この成果は `denoised_runs/peak764_cut200/` にあり、他 run とは独立。
+親ディレクトリ: `denoised_runs/peak764_cut200/`（他 run とは独立）
+
+入力はいまの `raw/`（方式B済み4件含む）。
+対象 29 件（small_d 12 + large_D 17）。
 
 ## 方針
 
-1. 入力: いまの `raw/`
-2. 対象: d1/d2/D1/D2 計 29 件（small 12 + large 17）
-3. **フラックス**: φ = peak ROI NET / εS_peak（側帯背景）
-4. **スペクトル補正**: peak ROI 部分補正（S2: part/full≥0.84 かつ左漏れ弱 → skip）
-5. **Linac3**: wall F5 を使わず peak 部分補正のみ
-6. 除外: 熱中性子・gain・D1/d2 PF・`_error`
+- **S2**: part/full ≥ 0.84 かつ左漏れ弱い地点は**未補正**
+- **C4**: 左漏れ r2≥0.45 のとき cut=300、それ以外 cut=200
+- **F5**: ch<cut を熱中性子テンプレ、ch≥cut は観測維持で wall 合計 = N_ge/f
+- **T1**: f = D1/d1 熱中性子 **peak ROI 側帯 NET 比**（4ファイル平均）
 
-- f_large（参考・peak ROI 側帯 NET）@ 200 = 0.707959
-- f_small（参考）@ 200 = 0.667979
+- f_large @ 200 = 0.707959
+- f_small @ 200 = 0.667979
+- 適用 0 件 / skip 13 件
+- **hybrid**: PS → D skip + d legacy F2 (cut=300, f=0.769)
+- **testhole**: 大小とも legacy F2
+- **BT**: D1 適応 F5、d2 本番
+- **Linac3**: d2 本番、他適応 F5
+- **preserve**: PF, linac（トンネル linac 系）→ 本番維持
+- 除外: 熱中性子・gain・D1/d2 PF・`_error`
+- 本解析は未変更（`--merge` するまで）
 
-## 評価
+## 中身
 
-- `evaluation_adaptive.csv` … 同地点 D/d |log比|（E1）
+- `raw/` … 補正 MCA
+- `review_raw/` … 再集計用
+- `tables/`
+- `figures/地点別/`
+- `evaluation_adaptive.csv` … 同地点 D/d 評価
 
-## 図の見方
-
-→ `denoised_runs/peak764_cut200/figures/地点別/README.md`
-→ 時系列: `figures/地点別_denoised/stages/03_peak764_cut200/`
-
-## 出力場所
-
-- MCA: `denoised_runs/peak764_cut200/raw/`
-- 地点別: `denoised_runs/peak764_cut200/figures/地点別/<stem>/`
-- fig16–19: `denoised_runs/peak764_cut200/figures/地点別/theory_16_19/`
-- 再集計表: `denoised_runs/peak764_cut200/tables/`
-
-## 対象ファイル
-
-| ファイル | 族 | mode | cut | wall | part/full | r2 | f | cps前 | cps後 |
-|---|---|---|---:|---|---:|---:|---:|---:|---:|
-| `D1_20260818_1552_管理棟2階.mca` | large_D | peak_skip_clean | 200 | 86-366 | 0.850 | - | 0.7080 | 0.769826 | 0.769826 |
-| `D1_20260818_1730_linac.mca` | large_D | skip_preserve | 200 | 85-366 | 0.746 | - | 0.7080 | 0.121647 | 0.121647 |
-| `D1_20260819_0832_管理棟2階.mca` | large_D | peak_skip_clean | 200 | 85-366 | 0.851 | - | 0.7080 | 0.800238 | 0.800238 |
-| `D1_20260819_1344_管理棟1階.mca` | large_D | peak_skip_clean | 200 | 85-366 | 0.843 | - | 0.7080 | 0.585162 | 0.585162 |
-| `D1_20260819_1530_地上.mca` | large_D | peak_skip_clean | 200 | 85-366 | 0.855 | - | 0.7080 | 0.650582 | 0.650582 |
-| `D1_20260819_1854_放射線棟BT.mca` | large_D | peak_skip_clean | 200 | 99-412 | 0.804 | - | 0.7080 | 0.169556 | 0.169556 |
-| `D1_20260820_1939_KEKB.mca` | large_D | peak_partial | 300 | 359-411 | 1.000 | 0.454 | 0.7080 | 0.0530924 | 0.0749087 |
-| `D1_20260823_1510_Linac3.mca` | large_D | peak_partial | 300 | 357-409 | 1.000 | 0.847 | 0.7080 | 0.0889647 | 0.125524 |
-| `D1_20260823_1510_PS.mca` | large_D | peak_partial | 300 | 359-411 | 1.000 | 1.089 | 0.7080 | 0.0423613 | 0.0598124 |
-| `D1_20260823_1510_linac_testhole.mca` | large_D | peak_partial | 200 | 361-413 | 1.000 | 0.424 | 0.7080 | 0.201 | 0.283959 |
-| `D2_20260821_080728_linac.mca` | large_D | skip_preserve | 200 | 97-404 | 0.679 | - | 0.7080 | 0.12563 | 0.12563 |
-| `D2_20260821_170217_linacIRON.mca` | large_D | peak_skip_clean | 200 | 95-398 | 0.804 | - | 0.7080 | 0.304632 | 0.304632 |
-| `D2_20260822_115234_PF.mca` | large_D | skip_preserve | 200 | 96-402 | 0.770 | - | 0.7080 | 0.260231 | 0.260231 |
-| `D2_20260822_155048_地上.mca` | large_D | peak_skip_clean | 200 | 98-408 | 0.845 | - | 0.7080 | 0.433508 | 0.433508 |
-| `D2_20260823_0835_Linac3.mca` | large_D | peak_partial | 300 | 356-408 | 1.000 | 0.918 | 0.7080 | 0.0624772 | 0.0881859 |
-| `D2_20260824_1440_linac_testhole.mca` | large_D | peak_partial | 200 | 361-413 | 1.000 | 0.424 | 0.7080 | 0.201 | 0.283959 |
-| `D2_20260826_0026_ep1.mca` | large_D | peak_partial | 300 | 314-366 | 0.960 | 5.559 | 0.7080 | 0.0331592 | 0.0449616 |
-| `d1_20260819_1520_管理棟2階.mca` | small_d | peak_skip_clean | 200 | 97-408 | 0.866 | - | 0.6680 | 0.202457 | 0.202457 |
-| `d1_20260823_1509_Linac3.mca` | small_d | peak_partial | 300 | 350-408 | 1.000 | 0.853 | 0.6680 | 0.0166622 | 0.0246497 |
-| `d1_20260823_1509_PS.mca` | small_d | peak_partial | 300 | 350-408 | 1.000 | 1.367 | 0.6680 | 0.0112104 | 0.0167246 |
-| `d1_20260823_1509_linac_testhole.mca` | small_d | peak_partial | 300 | 350-408 | 1.000 | 3.036 | 0.6680 | 0.0736853 | 0.110001 |
-| `d1_20260825_1439_linac_testhole.mca` | small_d | peak_partial | 300 | 350-408 | 1.000 | 2.605 | 0.6680 | 0.119225 | 0.17831 |
-| `d2_20260819_1859_放射線棟BT.mca` | small_d | peak_skip_clean | 200 | 97-408 | 0.781 | - | 0.6680 | 0.0205441 | 0.0205441 |
-| `d2_20260820_1939_KEKB.mca` | small_d | peak_partial | 300 | 350-408 | 1.000 | 0.676 | 0.6680 | 0.00655773 | 0.00965728 |
-| `d2_20260821_080725_linac.mca` | small_d | skip_preserve | 200 | 97-408 | 0.441 | - | 0.6680 | 0.114352 | 0.114352 |
-| `d2_20260821_170219_linacIRON.mca` | small_d | peak_skip_clean | 200 | 97-408 | 0.830 | - | 0.6680 | 0.0761463 | 0.0761463 |
-| `d2_20260822_115232_PF.mca` | small_d | skip_preserve | 200 | 99-412 | 0.566 | - | 0.6680 | 0.353928 | 0.353928 |
-| `d2_20260822_155046_地上.mca` | small_d | peak_partial | 300 | 350-408 | 1.000 | 0.832 | 0.6680 | 0.0766636 | 0.114252 |
-| `d2_20260823_0834_Linac3.mca` | small_d | peak_partial | 300 | 350-408 | 1.000 | 1.022 | 0.6680 | 0.0106075 | 0.0157653 |
-
-## 本解析への反映
-
-```bash
-python3 03_今年度用/build_denoised_review.py --run-id peak764_cut200 --merge
-```
-
-- 対象ファイルは `raw_pre_partial_corr/peak764_cut200/` に退避してから `raw/` を置換
-- tables / figures / theory を再計算
+| ファイル | 族 | mode | cut | wall | part/full | r2 | f | N_wall補正後 |
+|---|---|---|---:|---|---:|---:|---:|---:|
+| `D1_20260818_1552_管理棟2階.mca` | large_D | peak_skip_clean | 200 | 86-366 | 0.850 | - | 0.7080 | 1028 |
+| `D1_20260818_1730_linac.mca` | large_D | skip_preserve | 200 | 85-366 | 0.746 | - | 0.7080 | 512 |
+| `D1_20260819_0832_管理棟2階.mca` | large_D | peak_skip_clean | 200 | 85-366 | 0.851 | - | 0.7080 | 41810 |
+| `D1_20260819_1344_管理棟1階.mca` | large_D | peak_skip_clean | 200 | 85-366 | 0.843 | - | 0.7080 | 10230 |
+| `D1_20260819_1530_地上.mca` | large_D | peak_skip_clean | 200 | 85-366 | 0.855 | - | 0.7080 | 3089 |
+| `D1_20260819_1854_放射線棟BT.mca` | large_D | peak_partial | 200 | 370-422 | 0.867 | 0.357 | 0.7080 | 1093 |
+| `D1_20260820_1939_KEKB.mca` | large_D | peak_partial | 300 | 359-411 | 0.958 | 0.612 | 0.7080 | 2071 |
+| `D1_20260823_1510_Linac3.mca` | large_D | peak_partial | 300 | 357-409 | 0.959 | 1.142 | 0.7080 | 2066 |
+| `D1_20260823_1510_PS.mca` | large_D | peak_partial | 300 | 359-411 | 0.947 | 1.440 | 0.7080 | 3328 |
+| `D1_20260823_1510_linac_testhole.mca` | large_D | peak_partial | 300 | 361-413 | 0.913 | 0.540 | 0.7080 | 4068 |
+| `D2_20260821_080728_linac.mca` | large_D | skip_preserve | 200 | 97-404 | 0.679 | - | 0.7080 | 5349 |
+| `D2_20260821_170217_linacIRON.mca` | large_D | peak_skip_clean | 200 | 95-398 | 0.804 | - | 0.7080 | 9402 |
+| `D2_20260822_115234_PF.mca` | large_D | skip_preserve | 200 | 96-402 | 0.770 | - | 0.7080 | 16355 |
+| `D2_20260822_155048_地上.mca` | large_D | peak_skip_clean | 200 | 98-408 | 0.845 | - | 0.7080 | 5333 |
+| `D2_20260823_0835_Linac3.mca` | large_D | peak_partial | 300 | 356-408 | 0.957 | 1.232 | 0.7080 | 3203 |
+| `D2_20260824_1440_linac_testhole.mca` | large_D | peak_partial | 300 | 361-413 | 0.913 | 0.540 | 0.7080 | 4068 |
+| `D2_20260826_0026_ep1.mca` | large_D | peak_partial | 300 | 314-366 | 0.960 | 5.559 | 0.7080 | 1440 |
+| `d1_20260819_1520_管理棟2階.mca` | small_d | peak_skip_clean | 200 | 97-408 | 0.866 | - | 0.6680 | 15554 |
+| `d1_20260823_1509_Linac3.mca` | small_d | peak_partial | 300 | 350-408 | 0.694 | 0.946 | 0.6680 | 388 |
+| `d1_20260823_1509_PS.mca` | small_d | peak_partial | 300 | 350-408 | 0.686 | 1.532 | 0.6680 | 862 |
+| `d1_20260823_1509_linac_testhole.mca` | small_d | peak_partial | 300 | 350-408 | 0.781 | 3.777 | 0.6680 | 1398 |
+| `d1_20260825_1439_linac_testhole.mca` | small_d | peak_partial | 300 | 350-408 | 0.706 | 3.063 | 0.6680 | 2262 |
+| `d2_20260819_1859_放射線棟BT.mca` | small_d | peak_partial | 200 | 350-408 | 0.762 | 0.398 | 0.6680 | 131 |
+| `d2_20260820_1939_KEKB.mca` | small_d | peak_partial | 300 | 350-408 | 0.710 | 0.755 | 0.6680 | 256 |
+| `d2_20260821_080725_linac.mca` | small_d | skip_preserve | 200 | 97-408 | 0.441 | - | 0.6680 | 4791 |
+| `d2_20260821_170219_linacIRON.mca` | small_d | peak_skip_clean | 200 | 97-408 | 0.830 | - | 0.6680 | 2291 |
+| `d2_20260822_115232_PF.mca` | small_d | skip_preserve | 200 | 99-412 | 0.566 | - | 0.6680 | 21720 |
+| `d2_20260822_155046_地上.mca` | small_d | peak_partial | 300 | 350-408 | 0.774 | 0.994 | 0.6680 | 928 |
+| `d2_20260823_0834_Linac3.mca` | small_d | peak_partial | 300 | 350-408 | 0.827 | 1.289 | 0.6680 | 545 |

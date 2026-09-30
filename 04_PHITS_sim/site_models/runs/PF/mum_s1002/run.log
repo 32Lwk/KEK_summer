@@ -1,0 +1,13 @@
+[phits-web] uploaded 1 auxiliary file(s)
+[phits-web] running main.inp on https://phits.kek.jp (session cli_1790742162_1xasfbha) ...
+Executing with standard PHITS installation
+Command: $PHITSPATH/bin/phits.sh 'main.inp'
+bash: /root/.bashrc: Permission denied
+Wed Sep 30 13:22:42 JST 2026
+Program is started                on 2026/09/30 at 13h 22m 42s
+ *** Warning! emin(14) is changed. Transport physics is distorted. Default emin(14) is encouraged
+Initialization is completed          on 2026/09/30 at 13h 22m 46s
+bat[       1] ncas =            450. on 2026/09/30 at 13h 24m 02s
+Program is finished               on 2026/09/30 at 13h 24m 02s
+[phits-web] PHITS finished normally in 82 s — 5 output file(s) on the server
+[phits-web] downloaded 4 result file(s) into /Users/yuto/KEK_summer/04_PHITS_sim/site_models/runs/PF/mum_s1002

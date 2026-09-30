@@ -925,6 +925,12 @@ def write_denoised_mca(src: Path, dst: Path, cleaned: np.ndarray) -> None:
     dst.write_text(text2, encoding="utf-8")
 
 
+def _uncorrected_source(name: str) -> Path:
+    """補正の入力。--merge 後の raw/ は補正済みなので、補正前の退避があればそちらを使う。"""
+    bak = BACKUP_PARTIAL / RUN_ID / name
+    return bak if bak.exists() else RAW / name
+
+
 def make_corrected_mcas() -> list[dict]:
     global F_PARTIAL, F_LARGE, F_SMALL
     targets = _refresh_targets()
@@ -994,7 +1000,7 @@ def make_corrected_mcas() -> list[dict]:
 
     reports: list[dict] = []
     for name in targets:
-        src = RAW / name
+        src = _uncorrected_source(name)
         if not src.exists():
             raise FileNotFoundError(src)
         f_use = f_for_file(name)
@@ -2147,11 +2153,9 @@ def merge_to_main() -> None:
         else:
             F_PARTIAL, _ = thermal_partial_fraction()
 
-    missing = [n for n in targets if not (RAW_DENOISED / n).exists()]
-    if missing:
-        print("raw_denoised が無いので先に補正 MCA を作成します…")
-        make_corrected_mcas()
-        targets = STRONG_NOISE
+    print("補正 MCA を補正前の MCA から作り直します…")
+    make_corrected_mcas()
+    targets = _refresh_targets()
 
     bak_dir = BACKUP_PARTIAL / RUN_ID
     bak_dir.mkdir(parents=True, exist_ok=True)
